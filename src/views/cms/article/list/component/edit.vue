@@ -384,6 +384,23 @@
               />
             </el-form-item>
 
+            <!-- 付费阅读设置 -->
+            <el-divider content-position="left" style="margin: 8px 0">
+              {{ $t("message.cms.articleEdit.paidReading") }}
+            </el-divider>
+            <el-form-item :label="$t('message.cms.articleEdit.colPrice')" prop="price">
+              <el-input-number
+                v-model="formData.price"
+                :min="0"
+                :precision="2"
+                :step="0.01"
+                controls-position="right"
+                class="w-full"
+                :placeholder="$t('message.cms.articleEdit.placeholderPrice')"
+              />
+              <div class="field-hint">{{ $t("message.cms.articleEdit.priceHint") }}</div>
+            </el-form-item>
+
             <el-form-item :label="$t('message.cms.articleEdit.colPublishTime')">
               <el-date-picker
                 v-model="formData.published_at"
@@ -689,6 +706,7 @@ export default defineComponent({
         jump_url: undefined,
         diyname: undefined,
         views: undefined,
+        price: 0,
         created_at: undefined,
         updated_at: undefined,
         published_at: dayjs().format("YYYY-MM-DD HH:mm:ss"),
@@ -1095,6 +1113,7 @@ export default defineComponent({
         status: 1,
         weigh: undefined,
         showtpl: "",
+        price: 0,
         content: "",
         modulesData: {},
         translations: [],
