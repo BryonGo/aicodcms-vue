@@ -33,14 +33,16 @@
             {{ $t("message.cms.articleEdit.defaultLanguage") }} — {{ defaultLangInfo.flag }}
             {{ defaultLangInfo.nativeName }}（{{ defaultLangInfo.code }}）
             <span class="lang-hint">{{ $t("message.cms.articleEdit.defaultLanguageHint") }}</span>
+          </template>
+        </el-alert>
 
-            <!-- Revision history dialog / 历史版本 -->
-            <el-drawer
-              :title="$t('message.cmsArticle.revisionHistory')"
-              v-model="revisionDialogVisible"
-              width="700px"
-              :close-on-click-modal="false"
-            >
+        <!-- Revision history drawer / 历史版本（独立于 alert，避免嵌套） -->
+        <el-drawer
+          :title="$t('message.cmsArticle.revisionHistory')"
+          v-model="revisionDialogVisible"
+          size="50%"
+          :close-on-click-modal="false"
+        >
               <el-table :data="revisionList" stripe max-height="400">
                 <el-table-column label="ID" prop="id" width="60" />
                 <el-table-column
@@ -87,8 +89,6 @@
                 </el-collapse-item>
               </el-collapse>
             </el-drawer>
-          </template>
-        </el-alert>
 
         <!-- 语言选择器（仅 Edit 模式） -->
         <div v-if="!isAddMode" class="lang-bar">
@@ -506,7 +506,7 @@
         <el-button type="warning" @click="onSubmitDraft" size="large" :disabled="loading">
           {{ $t("message.cmsArticle.saveDraft") }}
         </el-button>
-        <el-button size="large" @click="onShowRevisions" v-if="state.formData.id">
+        <el-button size="large" @click="onShowRevisions" v-if="formData.id">
           {{ $t("message.cmsArticle.revisionHistory") }}
         </el-button>
         <el-dropdown trigger="click" @command="handlePublish">

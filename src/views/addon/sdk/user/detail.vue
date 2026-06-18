@@ -294,7 +294,7 @@
             $t("message.common.save")
           }}</el-button>
         </template>
-      </el-dialog>
+      </el-drawer>
     </template>
   </div>
 </template>

@@ -152,7 +152,7 @@
           $t("message.common.save")
         }}</el-button>
       </template>
-    </el-dialog>
+    </el-drawer>
   </ProPage>
 </template>
 
