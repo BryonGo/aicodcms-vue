@@ -1,0 +1,133 @@
+/* ================================================================
+ * AICODCMS Theme — Light
+ *   - 语义变量（--cc-color-*）：业务代码应优先使用
+ *   - Element Plus 变量（--el-*）：桥接到语义变量，保证 EP 控件同步焕新
+ *   - 旧 --next-* 变量：保留并指向新语义，向后兼容
+ * data-theme="light" 或未设置时生效
+ * ================================================================ */
+:root,
+:root[data-theme="light"] {
+  /* ============== 语义色（AICODCMS 新规范） ============== */
+  /* 主色（可被 themeConfig.primary 在 useTheme 中动态覆盖） */
+  --cc-color-primary: var(--cc-brand-500);
+  --cc-color-primary-hover: var(--cc-brand-400);
+  --cc-color-primary-active: var(--cc-brand-600);
+  --cc-color-primary-soft: rgba(22, 186, 170, 0.12);
+  --cc-color-primary-softer: rgba(22, 186, 170, 0.06);
+
+  /* 背景层级 */
+  --cc-color-bg: var(--cc-gray-50); /* 页面外层 */
+  --cc-color-bg-elevated: var(--cc-gray-0); /* 侧栏 / 顶栏 */
+  --cc-color-surface: var(--cc-gray-0); /* 卡片 */
+  --cc-color-surface-hover: var(--cc-gray-50);
+  --cc-color-surface-active: var(--cc-gray-100);
+  --cc-color-overlay: rgba(20, 24, 31, 0.45); /* 遮罩 */
+
+  /* 描边 */
+  --cc-color-border: var(--cc-gray-200);
+  --cc-color-border-light: var(--cc-gray-100);
+  --cc-color-border-strong: var(--cc-gray-300);
+
+  /* 文字 */
+  --cc-color-text-1: var(--cc-gray-900); /* 主标题 */
+  --cc-color-text-2: var(--cc-gray-700); /* 正文 */
+  --cc-color-text-3: var(--cc-gray-500); /* 辅助 */
+  --cc-color-text-4: var(--cc-gray-400); /* 占位 */
+  --cc-color-text-inverse: var(--cc-gray-0);
+  --cc-color-text-link: var(--cc-color-primary);
+
+  /* 语义状态色 */
+  --cc-color-success: var(--cc-success-500);
+  --cc-color-success-soft: var(--cc-success-50);
+  --cc-color-warning: var(--cc-warning-500);
+  --cc-color-warning-soft: var(--cc-warning-50);
+  --cc-color-danger: var(--cc-danger-500);
+  --cc-color-danger-soft: var(--cc-danger-50);
+  --cc-color-info: var(--cc-info-500);
+  --cc-color-info-soft: var(--cc-info-50);
+
+  /* 选区 / 焦点 */
+  --cc-color-focus-ring: rgba(22, 186, 170, 0.35);
+
+  /* ============== 桥接到 Element Plus ============== */
+  --el-color-primary: var(--cc-color-primary);
+  --el-color-primary-light-3: color-mix(in srgb, var(--cc-color-primary) 60%, #fff 40%);
+  --el-color-primary-light-5: color-mix(in srgb, var(--cc-color-primary) 40%, #fff 60%);
+  --el-color-primary-light-7: color-mix(in srgb, var(--cc-color-primary) 22%, #fff 78%);
+  --el-color-primary-light-8: color-mix(in srgb, var(--cc-color-primary) 14%, #fff 86%);
+  --el-color-primary-light-9: color-mix(in srgb, var(--cc-color-primary) 8%, #fff 92%);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--cc-color-primary) 80%, #000 20%);
+
+  --el-color-success: var(--cc-color-success);
+  --el-color-warning: var(--cc-color-warning);
+  --el-color-danger: var(--cc-color-danger);
+  --el-color-error: var(--cc-color-danger);
+  --el-color-info: var(--cc-gray-600);
+
+  --el-bg-color: var(--cc-color-surface);
+  --el-bg-color-page: var(--cc-color-bg);
+  --el-bg-color-overlay: var(--cc-color-surface);
+
+  --el-text-color-primary: var(--cc-color-text-1);
+  --el-text-color-regular: var(--cc-color-text-2);
+  --el-text-color-secondary: var(--cc-color-text-3);
+  --el-text-color-placeholder: var(--cc-color-text-4);
+  --el-text-color-disabled: var(--cc-color-text-4);
+
+  --el-border-color: var(--cc-color-border);
+  --el-border-color-light: var(--cc-color-border-light);
+  --el-border-color-lighter: var(--cc-color-border-light);
+  --el-border-color-extra-light: var(--cc-color-border-light);
+  --el-border-color-dark: var(--cc-color-border-strong);
+  --el-border-color-darker: var(--cc-color-border-strong);
+  --el-border-color-hover: var(--cc-color-border-strong);
+
+  --el-fill-color: var(--cc-gray-100);
+  --el-fill-color-light: var(--cc-gray-50);
+  --el-fill-color-lighter: var(--cc-gray-50);
+  --el-fill-color-extra-light: var(--cc-gray-50);
+  --el-fill-color-dark: var(--cc-gray-200);
+  --el-fill-color-darker: var(--cc-gray-200);
+  --el-fill-color-blank: var(--cc-color-surface);
+
+  --el-box-shadow: var(--cc-shadow-lg);
+  --el-box-shadow-light: var(--cc-shadow-sm);
+  --el-box-shadow-lighter: var(--cc-shadow-xs);
+  --el-box-shadow-dark: var(--cc-shadow-xl);
+
+  --el-border-radius-base: var(--cc-radius-md);
+  --el-border-radius-small: var(--cc-radius-sm);
+  --el-border-radius-round: var(--cc-radius-full);
+  --el-border-radius-circle: 100%;
+
+  --el-font-family: var(--cc-font-sans);
+
+  /* Menu */
+  --el-menu-active-color: var(--cc-color-primary);
+  --el-menu-text-color: var(--cc-color-text-2);
+  --el-menu-hover-text-color: var(--cc-color-primary);
+  --el-menu-bg-color: var(--cc-color-bg-elevated);
+  --el-menu-hover-bg-color: var(--cc-color-primary-softer);
+
+  /* ============== 旧 --next-* 变量向后兼容 ============== */
+  --next-color-white: var(--cc-color-surface);
+  --next-bg-main-color: var(--cc-color-bg);
+  --next-bg-color: var(--cc-color-primary-softer);
+  --next-border-color-light: var(--cc-color-border-light);
+  --next-color-primary-lighter: var(--cc-color-primary-softer);
+  --next-color-success-lighter: var(--cc-color-success-soft);
+  --next-color-warning-lighter: var(--cc-color-warning-soft);
+  --next-color-danger-lighter: var(--cc-color-danger-soft);
+  --next-color-dark-hover: rgba(20, 24, 31, 0.06);
+  --next-color-menu-hover: var(--cc-color-primary-softer);
+  --next-color-user-hover: var(--cc-color-surface-hover);
+  --next-color-seting-main: var(--cc-gray-100);
+  --next-color-seting-aside: var(--cc-gray-200);
+  --next-color-seting-header: var(--cc-gray-300);
+  --next-bg-menuBar: var(--cc-color-bg-elevated);
+  --next-bg-menuBarColor: var(--cc-color-text-2);
+  --next-bg-topBar: var(--cc-color-bg-elevated);
+  --next-bg-topBarColor: var(--cc-color-text-2);
+  --next-bg-columnsMenuBar: var(--cc-gray-700);
+  --next-bg-columnsMenuBarColor: var(--cc-color-text-inverse);
+}
