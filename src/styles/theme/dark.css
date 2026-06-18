@@ -1,0 +1,292 @@
+/* ================================================================
+ * AICODCMS Theme — Dark
+ * data-theme="dark" 下生效；同时兼容 html.dark
+ * ================================================================ */
+:root[data-theme="dark"],
+html.dark {
+  /* ============== 语义色 ============== */
+  --cc-color-primary: var(--cc-brand-400);
+  --cc-color-primary-hover: var(--cc-brand-300);
+  --cc-color-primary-active: var(--cc-brand-500);
+  --cc-color-primary-soft: rgba(52, 203, 176, 0.18);
+  --cc-color-primary-softer: rgba(52, 203, 176, 0.08);
+
+  --cc-color-bg: #0e1117; /* 页面外层（略深于 gray-950，更接近 Linear 暗色） */
+  --cc-color-bg-elevated: #161b22; /* 侧栏 / 顶栏 */
+  --cc-color-surface: #1c222b; /* 卡片 */
+  --cc-color-surface-hover: #232a35;
+  --cc-color-surface-active: #2a3240;
+  --cc-color-overlay: rgba(0, 0, 0, 0.7);
+
+  --cc-color-border: #2a3240;
+  --cc-color-border-light: #232a35;
+  --cc-color-border-strong: #374151;
+
+  --cc-color-text-1: #e6e8ec; /* 主标题 */
+  --cc-color-text-2: #b3b8c2; /* 正文 */
+  --cc-color-text-3: #8a93a3; /* 辅助 */
+  --cc-color-text-4: #6b7280;
+  --cc-color-text-inverse: var(--cc-gray-900);
+  --cc-color-text-link: var(--cc-color-primary);
+
+  --cc-color-success: #34d399;
+  --cc-color-success-soft: rgba(52, 211, 153, 0.12);
+  --cc-color-warning: #fbbf24;
+  --cc-color-warning-soft: rgba(251, 191, 36, 0.12);
+  --cc-color-danger: #f87171;
+  --cc-color-danger-soft: rgba(248, 113, 113, 0.12);
+  --cc-color-info: #60a5fa;
+  --cc-color-info-soft: rgba(96, 165, 250, 0.12);
+
+  --cc-color-focus-ring: rgba(52, 203, 176, 0.45);
+
+  /* ============== Element Plus 桥接（暗色） ============== */
+  --el-color-primary: var(--cc-color-primary);
+  --el-color-primary-light-3: color-mix(in srgb, var(--cc-color-primary) 60%, #000 40%);
+  --el-color-primary-light-5: color-mix(in srgb, var(--cc-color-primary) 40%, #000 60%);
+  --el-color-primary-light-7: color-mix(in srgb, var(--cc-color-primary) 22%, #000 78%);
+  --el-color-primary-light-8: color-mix(in srgb, var(--cc-color-primary) 14%, #000 86%);
+  --el-color-primary-light-9: color-mix(in srgb, var(--cc-color-primary) 10%, #000 90%);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--cc-color-primary) 80%, #fff 20%);
+
+  --el-color-success: var(--cc-color-success);
+  --el-color-warning: var(--cc-color-warning);
+  --el-color-danger: var(--cc-color-danger);
+  --el-color-error: var(--cc-color-danger);
+  --el-color-info: var(--cc-color-text-3);
+
+  --el-color-success-light-9: color-mix(in srgb, var(--cc-color-success) 10%, #000 90%);
+  --el-color-success-light-8: color-mix(in srgb, var(--cc-color-success) 14%, #000 86%);
+  --el-color-warning-light-9: color-mix(in srgb, var(--cc-color-warning) 10%, #000 90%);
+  --el-color-warning-light-8: color-mix(in srgb, var(--cc-color-warning) 14%, #000 86%);
+  --el-color-danger-light-9: color-mix(in srgb, var(--cc-color-danger) 10%, #000 90%);
+  --el-color-danger-light-8: color-mix(in srgb, var(--cc-color-danger) 14%, #000 86%);
+  --el-color-info-light-9: color-mix(in srgb, var(--cc-color-info) 10%, #000 90%);
+  --el-color-info-light-8: color-mix(in srgb, var(--cc-color-info) 14%, #000 86%);
+
+  --el-bg-color: var(--cc-color-surface);
+  --el-bg-color-page: var(--cc-color-bg);
+  --el-bg-color-overlay: var(--cc-color-surface);
+
+  --el-text-color-primary: var(--cc-color-text-1);
+  --el-text-color-regular: var(--cc-color-text-2);
+  --el-text-color-secondary: var(--cc-color-text-3);
+  --el-text-color-placeholder: var(--cc-color-text-4);
+  --el-text-color-disabled: var(--cc-color-text-4);
+
+  --el-border-color: var(--cc-color-border);
+  --el-border-color-light: var(--cc-color-border-light);
+  --el-border-color-lighter: var(--cc-color-border-light);
+  --el-border-color-extra-light: var(--cc-color-border-light);
+  --el-border-color-dark: var(--cc-color-border-strong);
+  --el-border-color-darker: var(--cc-color-border-strong);
+  --el-border-color-hover: var(--cc-color-border-strong);
+
+  --el-fill-color: var(--cc-color-surface-hover);
+  --el-fill-color-light: var(--cc-color-surface-hover);
+  --el-fill-color-lighter: var(--cc-color-surface);
+  --el-fill-color-extra-light: var(--cc-color-bg);
+  --el-fill-color-dark: var(--cc-color-surface-active);
+  --el-fill-color-darker: var(--cc-color-surface-active);
+  --el-fill-color-blank: var(--cc-color-surface);
+
+  --el-box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --el-box-shadow-light: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --el-box-shadow-lighter: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --el-box-shadow-dark: 0 20px 48px rgba(0, 0, 0, 0.55);
+
+  --el-mask-color: var(--cc-color-overlay);
+  --el-mask-color-extra-light: rgba(0, 0, 0, 0.3);
+
+  /* Menu */
+  --el-menu-active-color: var(--cc-color-primary);
+  --el-menu-text-color: var(--cc-color-text-2);
+  --el-menu-hover-text-color: var(--cc-color-primary);
+  --el-menu-bg-color: var(--cc-color-bg-elevated);
+  --el-menu-hover-bg-color: var(--cc-color-primary-softer);
+
+  /* ============== 旧 --next-* 兼容（暗色映射） ============== */
+  --next-color-white: var(--cc-color-surface);
+  --next-bg-main-color: var(--cc-color-bg);
+  --next-bg-color: var(--cc-color-surface-hover);
+  --next-border-color-light: var(--cc-color-border);
+  --next-color-primary-lighter: var(--cc-color-primary-softer);
+  --next-color-success-lighter: var(--cc-color-success-soft);
+  --next-color-warning-lighter: var(--cc-color-warning-soft);
+  --next-color-danger-lighter: var(--cc-color-danger-soft);
+  --next-color-dark-hover: rgba(255, 255, 255, 0.06);
+  --next-color-menu-hover: var(--cc-color-primary-softer);
+  --next-color-user-hover: var(--cc-color-surface-hover);
+  --next-color-seting-main: var(--cc-color-surface);
+  --next-color-seting-aside: var(--cc-color-surface-hover);
+  --next-color-seting-header: var(--cc-color-surface-active);
+  --next-bg-menuBar: var(--cc-color-bg-elevated);
+  --next-bg-menuBarColor: var(--cc-color-text-2);
+  --next-bg-topBar: var(--cc-color-bg-elevated);
+  --next-bg-topBarColor: var(--cc-color-text-2);
+  --next-bg-columnsMenuBar: var(--cc-color-bg-elevated);
+  --next-bg-columnsMenuBarColor: var(--cc-color-text-2);
+}
+
+/* ================================================================
+ * 暗色模式下针对常见组件的细节修正（最小化集合，避免与现有 main.css 冲突）
+ * ================================================================ */
+:root[data-theme="dark"] body,
+html.dark body {
+  background-color: var(--cc-color-bg);
+  color: var(--cc-color-text-1);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ================================================================
+ * 暗色细节修正（从 _archive_main.css.bak 1010-1129 行合并整理）
+ *   原则：旧规则的 var(--next-*) 已在上方桥接到 --cc-*，因此可直接复用
+ *   也用 --cc-color-* 重写，避免再依赖 --next-* 间接层。
+ * ================================================================ */
+
+[data-theme="dark"] .el-divider__text {
+  background-color: var(--cc-color-surface) !important;
+}
+
+[data-theme="dark"] .el-drawer {
+  border-left: 1px solid var(--cc-color-border-light) !important;
+}
+
+[data-theme="dark"] .el-tabs--border-card {
+  background-color: var(--cc-color-surface) !important;
+}
+[data-theme="dark"] .el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
+  background: var(--cc-color-primary-softer);
+}
+
+[data-theme="dark"] .home-card-item {
+  border: 1px solid var(--cc-color-border-light) !important;
+}
+
+[data-theme="dark"] .el-alert,
+[data-theme="dark"] .notice-bar {
+  border: 1px solid var(--cc-color-border) !important;
+  background-color: var(--cc-color-bg-elevated) !important;
+}
+
+[data-theme="dark"] .layout-aside {
+  border-right: 1px solid var(--cc-color-border-light) !important;
+}
+
+[data-theme="dark"] .el-color-picker__mask {
+  background: unset !important;
+}
+[data-theme="dark"] .el-color-picker__trigger {
+  border: 1px solid var(--cc-color-border-light) !important;
+}
+
+[data-theme="dark"] .el-popper {
+  border: 1px solid var(--cc-color-border) !important;
+  color: var(--cc-color-text-1) !important;
+}
+[data-theme="dark"] .el-popper .el-popper__arrow:before {
+  background: var(--cc-color-surface) !important;
+  border: 1px solid var(--cc-color-border);
+}
+[data-theme="dark"] .el-popper a {
+  color: var(--cc-color-text-1) !important;
+}
+
+[data-theme="dark"] .el-popper,
+[data-theme="dark"] .el-dropdown-menu {
+  background: var(--cc-color-surface) !important;
+}
+[data-theme="dark"] .el-dropdown-menu__item:hover:not(.is-disabled) {
+  background: var(--cc-color-surface-hover) !important;
+}
+[data-theme="dark"] .el-dropdown-menu__item.is-disabled {
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .el-input-group__append,
+[data-theme="dark"] .el-input-group__prepend {
+  border: var(--el-input-border) !important;
+  border-right: none !important;
+  background: var(--cc-color-bg-elevated) !important;
+  border-left: 0 !important;
+}
+[data-theme="dark"] .el-input-number__decrease,
+[data-theme="dark"] .el-input-number__increase {
+  background: var(--cc-color-bg-elevated) !important;
+}
+
+[data-theme="dark"] .el-select .el-select__tags .el-tag {
+  background-color: var(--cc-color-surface-hover) !important;
+}
+
+[data-theme="dark"] .el-pagination.is-background .el-pager li:not(.disabled).active {
+  color: var(--cc-color-text-inverse) !important;
+}
+[data-theme="dark"] .el-pagination.is-background .btn-next,
+[data-theme="dark"] .el-pagination.is-background .btn-prev,
+[data-theme="dark"] .el-pagination.is-background .el-pager li {
+  background-color: var(--cc-color-surface-hover);
+}
+
+[data-theme="dark"] .el-radio-button:not(.is-active) .el-radio-button__inner {
+  border: 1px solid var(--cc-color-border-light) !important;
+  border-left: 0 !important;
+}
+[data-theme="dark"] .el-radio-button.is-active .el-radio-button__inner {
+  color: var(--cc-color-text-inverse) !important;
+}
+
+[data-theme="dark"] .countup-card-item-flex {
+  color: var(--cc-color-text-1) !important;
+}
+
+[data-theme="dark"] .editor-container .w-e-toolbar {
+  background: var(--cc-color-surface) !important;
+  border: 1px solid var(--cc-color-border-light) !important;
+}
+[data-theme="dark"] .editor-container .w-e-toolbar .w-e-menu:hover {
+  background: var(--cc-color-surface-hover) !important;
+}
+[data-theme="dark"] .editor-container .w-e-toolbar .w-e-menu:hover i {
+  color: var(--cc-color-text-1) !important;
+}
+[data-theme="dark"] .editor-container .w-e-text-container {
+  border: 1px solid var(--cc-color-border-light) !important;
+  border-top: none !important;
+}
+[data-theme="dark"] .editor-container .w-e-text-container .w-e-text {
+  background: var(--cc-color-surface) !important;
+}
+
+[data-theme="dark"] .el-picker-panel {
+  background: var(--cc-color-surface) !important;
+}
+
+[data-theme="dark"] .el-dialog {
+  border: 1px solid var(--cc-color-border-light);
+}
+[data-theme="dark"] .el-dialog .el-dialog__header {
+  color: var(--cc-color-text-1) !important;
+}
+
+[data-theme="dark"] .layout-columns-aside ul .layout-columns-active {
+  color: var(--cc-color-text-inverse) !important;
+}
+[data-theme="dark"] .layout-columns-aside {
+  border-right: 1px solid var(--cc-color-border);
+}
+
+[data-theme="dark"] .tags-style-one .is-active {
+  color: var(--cc-color-text-1) !important;
+}
+[data-theme="dark"] .tags-style-one .layout-navbars-tagsview-ul-li:hover {
+  border-color: var(--cc-color-border-light) !important;
+}

@@ -1,0 +1,25 @@
+/*
+ * AICODCMS 样式入口（M4a-1 重梳后唯一入口）
+ *
+ * 分层结构（顺序即优先级，后引入的可以覆盖前面的）：
+ *   1. Tailwind utilities（仅 utilities 层，不引 preflight）
+ *   2. tokens/        原始色 / 圆角 / 阴影 / 间距 / 字号
+ *   3. theme/         语义令牌 + Element Plus 变量桥接（亮 / 暗）
+ *   4. element-plus/  EP 控件细节覆盖（唯一来源）
+ *   5. layout.css     框架布局（reset / keyframes / 路由过渡）
+ *   6. legacy-utils.css  业务页工具类
+ *
+ * 注意：本文件顶部注释里不要写形如 dash-dash-name-星 的 token 模板，
+ * 否则会被 Tailwind v4 / lightningcss 误判为 "Invalid custom property"。
+ *
+ * 旧的 main.css 已重命名为 _archive_main.css.bak，仅供 diff，不参与构建。
+ */
+
+@import "tailwindcss" layer(utilities);
+@import "./tokens/palette.css";
+@import "./tokens/scale.css";
+@import "./theme/light.css";
+@import "./theme/dark.css";
+@import "./element-plus/components.css";
+@import "./layout.css";
+@import "./legacy-utils.css";

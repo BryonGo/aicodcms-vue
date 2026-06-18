@@ -1,0 +1,72 @@
+/* ================================================================
+ * AICODCMS Design Tokens — Radius / Shadow / Spacing / Typography
+ * ================================================================ */
+:root {
+  /* === 圆角 === */
+  --cc-radius-xs: 4px;
+  --cc-radius-sm: 6px;
+  --cc-radius-md: 10px;
+  --cc-radius-lg: 14px;
+  --cc-radius-xl: 20px;
+  --cc-radius-2xl: 28px;
+  --cc-radius-full: 9999px;
+
+  /* === 阴影 === */
+  --cc-shadow-xs: 0 1px 2px rgba(20, 24, 31, 0.04);
+  --cc-shadow-sm: 0 1px 2px rgba(20, 24, 31, 0.04), 0 1px 3px rgba(20, 24, 31, 0.06);
+  --cc-shadow-md: 0 4px 8px -2px rgba(20, 24, 31, 0.06), 0 2px 4px -2px rgba(20, 24, 31, 0.04);
+  --cc-shadow-lg: 0 10px 24px -6px rgba(20, 24, 31, 0.1), 0 4px 8px -4px rgba(20, 24, 31, 0.06);
+  --cc-shadow-xl: 0 20px 48px -12px rgba(20, 24, 31, 0.18), 0 8px 16px -8px rgba(20, 24, 31, 0.08);
+  --cc-shadow-pop: 0 8px 24px rgba(20, 24, 31, 0.12);
+
+  --cc-shadow-card: var(--cc-shadow-sm);
+  --cc-shadow-card-hover: var(--cc-shadow-md);
+
+  /* === 间距（与 Tailwind 4px 体系对齐） === */
+  --cc-space-1: 4px;
+  --cc-space-2: 8px;
+  --cc-space-3: 12px;
+  --cc-space-4: 16px;
+  --cc-space-5: 20px;
+  --cc-space-6: 24px;
+  --cc-space-7: 32px;
+  --cc-space-8: 40px;
+  --cc-space-9: 48px;
+  --cc-space-10: 64px;
+
+  --cc-space-page: var(--cc-space-6);
+  --cc-space-card: var(--cc-space-5);
+
+  /* === 字体栈 === */
+  --cc-font-sans:
+    "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", -apple-system,
+    BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cc-font-mono:
+    "JetBrains Mono", "SF Mono", "Menlo", "Monaco", "Consolas", "Courier New", monospace;
+
+  /* === 字号（与 Element Plus 兼容） === */
+  --cc-font-12: 12px;
+  --cc-font-13: 13px;
+  --cc-font-14: 14px;
+  --cc-font-15: 15px;
+  --cc-font-16: 16px;
+  --cc-font-18: 18px;
+  --cc-font-20: 20px;
+  --cc-font-24: 24px;
+  --cc-font-28: 28px;
+  --cc-font-32: 32px;
+
+  /* === 行高 === */
+  --cc-leading-tight: 1.2;
+  --cc-leading-snug: 1.4;
+  --cc-leading-normal: 1.5;
+  --cc-leading-loose: 1.75;
+
+  /* === Z-index === */
+  --cc-z-sidebar: 100;
+  --cc-z-topbar: 200;
+  --cc-z-drawer: 1000;
+  --cc-z-dialog: 2000;
+  --cc-z-tooltip: 3000;
+  --cc-z-message: 9000;
+}

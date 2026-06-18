@@ -1,0 +1,179 @@
+/* ================================================================
+ * AICODCMS Legacy Utilities
+ *
+ * 业务页大量使用的工具类（211+ 处），从 _archive_main.css.bak 提取整理。
+ * 这些类是历史约定，名称沿用，色值改走 --cc-* 语义变量。
+ * 新写代码请优先使用 Tailwind 原子类，本文件仅维持向后兼容。
+ * ================================================================ */
+
+/* ========== Flex ========== */
+.flex {
+  display: flex;
+}
+.flex-auto {
+  flex: 1;
+  overflow: hidden;
+}
+.flex-center {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+.flex-margin {
+  margin: auto;
+}
+.flex-warp {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  margin: 0 -5px;
+}
+.flex-warp .flex-warp-item {
+  padding: 5px;
+}
+.flex-warp .flex-warp-item .flex-warp-item-box {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== 业务约定容器（fa-* 来自旧 utilities） ========== */
+.fa-page {
+  padding: 12px;
+  font-size: var(--cc-font-13);
+}
+.fa-toolbar {
+  background: var(--cc-color-surface);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--cc-color-border-light);
+}
+.fa-toolbar .el-button {
+  margin-left: 0 !important;
+}
+.fa-search-bar {
+  padding: 8px 10px;
+  background: var(--cc-color-bg);
+  border-bottom: 1px solid var(--cc-color-border-light);
+}
+.fa-search-bar .fa-search-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fa-search-bar .fa-search-form .el-form-item {
+  margin-bottom: 0;
+}
+.fa-pagination {
+  padding: 8px 10px;
+  background: var(--cc-color-surface);
+  border: 1px solid var(--cc-color-border-light);
+  border-top: none;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ========== 鼠标光标 ========== */
+.cursor-default {
+  cursor: default !important;
+}
+.cursor-help {
+  cursor: help !important;
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.cursor-move {
+  cursor: move !important;
+}
+
+/* ========== 宽高 ========== */
+.w100 {
+  width: 100% !important;
+}
+.h100 {
+  height: 100% !important;
+}
+.vh100 {
+  height: 100vh !important;
+}
+.max100vh {
+  max-height: 100vh !important;
+}
+.min100vh {
+  min-height: 100vh !important;
+}
+
+/* ========== 颜色文字 ========== */
+.color-primary {
+  color: var(--cc-color-primary);
+}
+.color-success {
+  color: var(--cc-color-success);
+}
+.color-warning {
+  color: var(--cc-color-warning);
+}
+.color-danger {
+  color: var(--cc-color-danger);
+}
+.color-info {
+  color: var(--cc-color-info);
+}
+
+/* ========== 间距 ========== */
+.mr5 {
+  margin-right: 5px !important;
+}
+.mr10 {
+  margin-right: 10px !important;
+}
+.mt5 {
+  margin-top: 5px !important;
+}
+.mt15 {
+  margin-top: 15px !important;
+}
+.mt30 {
+  margin-top: 30px !important;
+}
+.mb15 {
+  margin-bottom: 15px !important;
+}
+.ml10 {
+  margin-left: 10px !important;
+}
+.pr15 {
+  padding-right: 15px !important;
+}
+
+/* ========== 字号 ========== */
+.font12 {
+  font-size: var(--cc-font-12);
+}
+.font25 {
+  font-size: 25px;
+}
+
+/* ========== 链接文字 ========== */
+.link-type,
+.link-type:focus {
+  color: var(--cc-color-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* ========== el-button--small 历史尺寸特化 ==========
+ * 旧规则强制小按钮 30px 高度 + 12px 字号。沿用以免业务页表格里行内按钮变大。
+ */
+.el-button--small {
+  --el-button-size: 30px;
+  height: var(--el-button-size);
+  padding: 5px 4px;
+  font-size: var(--cc-font-12);
+  border-radius: var(--cc-radius-sm);
+}
