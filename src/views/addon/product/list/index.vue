@@ -189,7 +189,7 @@
           $t("message.sdk.product.purge")
         }}</el-button>
       </template>
-    </el-dialog>
+    </el-drawer>
   </ProPage>
 </template>
 

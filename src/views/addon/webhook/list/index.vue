@@ -118,7 +118,7 @@
         <el-button @click="dialogVisible = false">{{ $t("message.webhook.cancel") }}</el-button>
         <el-button type="primary" @click="onSave">{{ editId ? "保存" : "创建" }}</el-button>
       </template>
-    </el-dialog>
+    </el-drawer>
   </ProPage>
 </template>
 

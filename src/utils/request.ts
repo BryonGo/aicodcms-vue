@@ -42,6 +42,8 @@ function normalizeApiPath(raw: unknown) {
 
 // 401 弹窗防抖锁：防止多个并发 401 叠弹窗
 let is401Alerting = false;
+// 网络错误弹窗防抖锁：防止网络不通时多个请求叠弹窗
+let isNetworkErrorAlerting = false;
 
 // 配置新建一个 axios 实例
 const service = axios.create({
@@ -175,11 +177,23 @@ service.interceptors.response.use(
         else ElMessage.error("接口路径找不到");
       }
     } else if (error.message.indexOf("timeout") != -1) {
-      ElMessage.error("网络超时");
+      if (!isNetworkErrorAlerting) {
+        isNetworkErrorAlerting = true;
+        ElMessage.error("网络超时");
+        setTimeout(() => { isNetworkErrorAlerting = false; }, 3000);
+      }
     } else if (error.message == "Network Error") {
-      ElMessage.error("网络连接错误");
+      if (!isNetworkErrorAlerting) {
+        isNetworkErrorAlerting = true;
+        ElMessage.error("网络连接错误，请检查网络");
+        setTimeout(() => { isNetworkErrorAlerting = false; }, 3000);
+      }
     } else {
-      ElMessage.error("网络连接错误");
+      if (!isNetworkErrorAlerting) {
+        isNetworkErrorAlerting = true;
+        ElMessage.error("网络连接错误");
+        setTimeout(() => { isNetworkErrorAlerting = false; }, 3000);
+      }
     }
     return Promise.reject(error);
   },
