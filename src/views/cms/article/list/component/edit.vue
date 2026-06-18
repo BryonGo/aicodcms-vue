@@ -956,7 +956,11 @@ export default defineComponent({
     };
 
     const onSubmit = () => {
-      formRef.value?.validate((valid: boolean) => {
+      if (!formRef.value) {
+        ElMessage.error(t("message.cms.articleEdit.msgCheckForm"));
+        return;
+      }
+      formRef.value.validate((valid: boolean) => {
         if (!valid) {
           ElMessage.warning(t("message.cms.articleEdit.msgCheckForm"));
           return;
