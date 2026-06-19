@@ -130,6 +130,9 @@
               <el-button :disabled="!state.ids.length" @click="batchDialog = 'status'">{{
                 $t("message.cmsArticle.setStatus")
               }}</el-button>
+              <el-button :disabled="!state.ids.length" @click="onRegenerateBatch">
+                重生成静态
+              </el-button>
             </template>
           </ProToolbar>
 
@@ -619,6 +622,7 @@ import {
   batchTags as apiBatchTags,
   batchStatus as apiBatchStatus,
 } from "/@/api/cms/article";
+import { regenerateArticle } from "/@/api/cms/sta";
 import {
   Plus,
   Delete,
@@ -1014,6 +1018,28 @@ export default defineComponent({
       }
     };
 
+    const onRegenerateBatch = async () => {
+      const ids = state.ids;
+      try {
+        await ElMessageBox.confirm(
+          `确定要重新生成 ${ids.length} 篇文章的静态 HTML 吗？`,
+          "批量重生成",
+          { type: "info" }
+        );
+      } catch {
+        return;
+      }
+      ElMessage.info(`正在重生成 ${ids.length} 篇...`);
+      for (const id of ids) {
+        try {
+          await regenerateArticle(id);
+        } catch {
+          /* skip individual failures */
+        }
+      }
+      ElMessage.success("重生成完成");
+    };
+
     // ====== 初始化 ======
     onMounted(() => {
       getChannelTree().then((res: any) => {
@@ -1078,6 +1104,7 @@ export default defineComponent({
       batchStatus,
       channelTree,
       onBatchConfirm,
+      onRegenerateBatch,
     };
   },
 });
