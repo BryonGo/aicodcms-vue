@@ -56,3 +56,35 @@ export function getStaHistory() {
     method: "get",
   });
 }
+
+// 健康检查
+export function getStaHealth() {
+  return request({
+    url: "/api/v1/admin/sta/health",
+    method: "get",
+  });
+}
+
+// 脏数据统计
+export function getDirtyCount() {
+  return request({
+    url: "/api/v1/admin/sta/dirty-count",
+    method: "get",
+  });
+}
+
+// 磁盘信息 + 孤文件统计
+export function getDiskInfo() {
+  return request({
+    url: "/api/v1/admin/sta/disk-info",
+    method: "get",
+  });
+}
+
+// 清理孤儿文件
+export function cleanOrphans() {
+  return request({
+    url: "/api/v1/admin/sta/clean-orphans",
+    method: "post",
+  });
+}
