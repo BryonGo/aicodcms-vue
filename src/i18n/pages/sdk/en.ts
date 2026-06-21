@@ -685,6 +685,8 @@ export default {
     scopeGame: "Game",
     scopeGlobal: "Global",
     subtitle: "Manage account/device/IP ban records",
+    forever: "Permanent",
+    colScope: "Scope",
   },
   // ========== Public Order ==========
   order: {
@@ -799,6 +801,7 @@ export default {
     refundAppstore: "App Store Refund",
     refundPurchaseToken: "Purchase Token",
     refundDate: "Refund Date",
+    publicOrder: "Public Orders",
   },
   // ========== Currency Management ==========
   currency: {

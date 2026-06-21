@@ -237,6 +237,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { ElMessage, ElMessageBox } from "element-plus";
 import ProPage from "/@/components/pro/ProPage.vue";
 import {
@@ -258,6 +259,7 @@ export default defineComponent({
   name: "addonSdkProductEdit",
   components: { ProPage },
   setup() {
+    const { t } = useI18n();
     const router = useRouter();
     const route = useRoute();
     const id = Number(route.query.id) || 0;
@@ -281,7 +283,7 @@ export default defineComponent({
     const transEditId = ref(0);
     const transForm = reactive({ lang: "en-US", name: "", description: "" });
 
-    const typeLabel = (t: number) => {
+    const typeLabel = (type: number) => {
       const map: Record<number, string> = {
         0: t("message.sdk.product.optGame"),
         1: t("message.sdk.product.optSubscribe"),
@@ -289,7 +291,7 @@ export default defineComponent({
         3: t("message.sdk.product.optSoftware"),
         4: "CMS",
       };
-      return map[t] || t("message.sdk.product.unknownType");
+      return map[type] || t("message.sdk.product.unknownType");
     };
 
     const loadProduct = async () => {

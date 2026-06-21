@@ -1069,6 +1069,10 @@ export default {
     movedToRecycle: "Moved to recycle bin",
     batchedRejected: "Batched rejected",
     unknown: "Unknown",
+    approve: "Approve",
+    restored: "Restored",
+    destroyed: "Destroyed",
+    batchedApproved: "Batch approval completed",
   },
   // ==================== Form / 表单 ====================
   form: {
@@ -1131,6 +1135,7 @@ export default {
     retryCount: "Retry Count",
     pleaseFillNameUrl: "Please fill in name and URL",
     confirmDelete: "Confirm delete?",
+    editWebhook: "Edit Webhook",
   },
   // ==================== CMS Article / 文章 ====================
   cmsArticle: {

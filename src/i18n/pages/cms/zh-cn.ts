@@ -47,6 +47,7 @@ export default {
     generateTitle: "Sitemap 生成与推送",
     btnGenerate: "重新生成",
     btnPushAll: "推送全部",
+    backendSubmit: "后端提交",
   },
   // ========== 文章编辑 ==========
   articleEdit: {
