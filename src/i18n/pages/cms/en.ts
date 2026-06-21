@@ -47,6 +47,7 @@ export default {
     generateTitle: "Sitemap Generation",
     btnGenerate: "Generate",
     btnPushAll: "Push All",
+    backendSubmit: "Backend Submit",
   },
   articleEdit: {
     addTitle: "Add Article",

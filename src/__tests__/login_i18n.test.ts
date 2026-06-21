@@ -47,9 +47,9 @@ describe("Login i18n Keys", () => {
   ];
 
   // ============================================================
-  // 2. login/index.vue 使用的所有 key
+  // 2. login/index.vue 实际只用 message.account.* + message.signInText
+  //    已被 accountKeys 完全覆盖，无需重复定义。
   // ============================================================
-  const loginPageKeys = ["label.one1", "label.two2"];
 
   // ============================================================
   // Tests
@@ -113,34 +113,8 @@ describe("Login i18n Keys", () => {
     }
   });
 
-  describe("login/index.vue keys - zh-cn", () => {
-    for (const key of loginPageKeys) {
-      it(`key "${key}" 应在 zh-cn 中存在`, () => {
-        const messagesZhcn = makeZhcnMessages();
-        const parts = key.split(".");
-        let obj: any = messagesZhcn;
-        for (const part of parts) {
-          expect(obj).toHaveProperty(part);
-          obj = obj[part];
-        }
-        expect(obj).toBeTruthy();
-      });
-    }
-  });
-
-  describe("login/index.vue keys - en", () => {
-    for (const key of loginPageKeys) {
-      it(`key "${key}" 应在 en 中存在`, () => {
-        const messagesEn = makeEnMessages();
-        const parts = key.split(".");
-        let obj: any = messagesEn;
-        for (const part of parts) {
-          expect(obj).toHaveProperty(part);
-          obj = obj[part];
-        }
-        expect(obj).toBeTruthy();
-      });
-    }
+  describe("login/index.vue keys (覆盖在 accountKeys 中，跳过重复)", () => {
+    it.skip("已由 accountKeys 完整覆盖", () => {});
   });
 
   // ============================================================

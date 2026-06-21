@@ -779,6 +779,10 @@ export default {
     movedToRecycle: "已移到回收站",
     batchedRejected: "批量驳回",
     unknown: "未知",
+    approve: "通过",
+    restored: "已恢复",
+    destroyed: "已彻底删除",
+    batchedApproved: "批量通过完成",
   },
   // ==================== Form / 表单 ====================
   form: {
@@ -841,6 +845,7 @@ export default {
     retryCount: "重试次数",
     pleaseFillNameUrl: "请填写名称和 URL",
     confirmDelete: "确认删除？",
+    editWebhook: "编辑 Webhook",
   },
   // ==================== CMS Article / 文章 ====================
   cmsArticle: {

@@ -688,6 +688,7 @@ export default {
     ipPlaceholder: "IP 地址，如 192.168.1.1",
     devicePlaceholder: "设备唯一标识",
     globalAppIdHint: "0=全平台",
+    forever: "永久",
   },
   // ========== 公共订单 ==========
   order: {
@@ -796,6 +797,11 @@ export default {
     refundAppstore: "App Store 退款",
     refundPurchaseToken: "购买Token",
     refundDate: "退款日期",
+    publicOrder: "公共订单",
+    amount: "金额",
+    platformOrder: "平台单号",
+    isSuccess: "是否成功",
+    placeholderOrderId: "请输入订单号",
   },
   // ========== 货币管理 ==========
   currency: {
