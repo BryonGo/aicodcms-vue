@@ -71,4 +71,4 @@ export default {
     monitor: "Monitor",
     monitorDesc: "CPU / Memory / Disk",
   },
-}
+};

@@ -7,6 +7,7 @@ aicodcms 后台管理系统前端，基于 **Vue 3** + **TypeScript** + **Elemen
 ## 功能模块
 
 ### 权限管理系统 (PMS)
+
 - 用户管理 / 角色管理 / 菜单管理（支持拖拽排序）
 - 部门管理 / 岗位管理 / 字典管理
 - 系统参数 / 操作日志 / 登录日志
@@ -14,6 +15,7 @@ aicodcms 后台管理系统前端，基于 **Vue 3** + **TypeScript** + **Elemen
 - Casbin RBAC 权限控制
 
 ### 内容管理系统 (CMS)
+
 - 文章管理（含回收站、多语言翻译支持）
 - 栏目树形管理 / 区块管理 / 标签管理
 - 单页管理 / 模型管理（自定义字段）
@@ -21,6 +23,7 @@ aicodcms 后台管理系统前端，基于 **Vue 3** + **TypeScript** + **Elemen
 - TipTap 富文本编辑器（支持图片/附件拖拽上传）
 
 ### 插件模块 (Addon)
+
 - MinIO 对象存储管理 / 定时任务
 - 备份恢复 / 邮件管理 / MQ 消息队列
 - 表单构建器 / SDK 订单 / Webhook
@@ -28,6 +31,7 @@ aicodcms 后台管理系统前端，基于 **Vue 3** + **TypeScript** + **Elemen
 - 文档管理 / Sitemap 站点地图
 
 ### 系统特性
+
 - 暗色/亮色主题切换 / 水印 / 锁屏
 - 多布局切换（默认/经典/横向/分栏）
 - 中英文国际化 (zh-CN / en)
@@ -50,20 +54,20 @@ aicodcms 后台管理系统前端，基于 **Vue 3** + **TypeScript** + **Elemen
 
 ## 技术栈
 
-| 类别 | 技术 |
-|------|------|
-| 框架 | Vue 3 (Composition API) |
-| 语言 | TypeScript |
-| 构建 | Vite |
-| UI 组件 | Element Plus |
-| 状态管理 | Pinia |
-| 路由 | Vue Router 4 |
-| HTTP | Axios |
-| 编辑器 | TipTap / CodeMirror |
-| 图表 | ECharts |
-| 样式 | TailwindCSS + SCSS |
-| 国际化 | vue-i18n v10 |
-| 测试 | Vitest + Playwright |
+| 类别     | 技术                    |
+| -------- | ----------------------- |
+| 框架     | Vue 3 (Composition API) |
+| 语言     | TypeScript              |
+| 构建     | Vite                    |
+| UI 组件  | Element Plus            |
+| 状态管理 | Pinia                   |
+| 路由     | Vue Router 4            |
+| HTTP     | Axios                   |
+| 编辑器   | TipTap / CodeMirror     |
+| 图表     | ECharts                 |
+| 样式     | TailwindCSS + SCSS      |
+| 国际化   | vue-i18n v10            |
+| 测试     | Vitest + Playwright     |
 
 ## 项目结构
 

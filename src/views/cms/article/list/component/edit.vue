@@ -43,52 +43,52 @@
           size="50%"
           :close-on-click-modal="false"
         >
-              <el-table :data="revisionList" stripe max-height="400">
-                <el-table-column label="ID" prop="id" width="60" />
-                <el-table-column
-                  :label="$t('message.cmsArticle.remark')"
-                  prop="remark"
-                  min-width="150"
-                />
-                <el-table-column
-                  :label="$t('message.cmsArticle.operateTime')"
-                  prop="created_at"
-                  width="180"
-                />
-                <el-table-column :label="$t('message.cmsArticle.action')" width="160">
-                  <template #default="{ row }">
-                    <el-button size="small" @click="onPreviewRevision(row.id)">{{
-                      $t("message.cmsArticle.view")
-                    }}</el-button>
-                    <el-button size="small" type="primary" @click="onRestoreRevision(row.id)">{{
-                      $t("message.cmsArticle.restore")
-                    }}</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-              <el-collapse v-if="revisionPreview" style="margin-top: 16px">
-                <el-collapse-item
-                  :title="
-                    $t('message.cmsArticle.fieldSnapshot') +
-                    ' (' +
-                    Object.keys(revisionPreview.fields || {}).length +
-                    ' ' +
-                    $t('message.cmsArticle.fieldsCount') +
-                    ')'
-                  "
-                >
-                  <pre style="max-height: 300px; overflow: auto">{{
-                    JSON.stringify(revisionPreview.fields, null, 2)
-                  }}</pre>
-                </el-collapse-item>
-                <el-collapse-item
-                  :title="$t('message.cmsArticle.contentSnapshot')"
-                  v-if="revisionPreview.content"
-                >
-                  <pre style="max-height: 300px; overflow: auto">{{ revisionPreview.content }}</pre>
-                </el-collapse-item>
-              </el-collapse>
-            </el-drawer>
+          <el-table :data="revisionList" stripe max-height="400">
+            <el-table-column label="ID" prop="id" width="60" />
+            <el-table-column
+              :label="$t('message.cmsArticle.remark')"
+              prop="remark"
+              min-width="150"
+            />
+            <el-table-column
+              :label="$t('message.cmsArticle.operateTime')"
+              prop="created_at"
+              width="180"
+            />
+            <el-table-column :label="$t('message.cmsArticle.action')" width="160">
+              <template #default="{ row }">
+                <el-button size="small" @click="onPreviewRevision(row.id)">{{
+                  $t("message.cmsArticle.view")
+                }}</el-button>
+                <el-button size="small" type="primary" @click="onRestoreRevision(row.id)">{{
+                  $t("message.cmsArticle.restore")
+                }}</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-collapse v-if="revisionPreview" style="margin-top: 16px">
+            <el-collapse-item
+              :title="
+                $t('message.cmsArticle.fieldSnapshot') +
+                ' (' +
+                Object.keys(revisionPreview.fields || {}).length +
+                ' ' +
+                $t('message.cmsArticle.fieldsCount') +
+                ')'
+              "
+            >
+              <pre style="max-height: 300px; overflow: auto">{{
+                JSON.stringify(revisionPreview.fields, null, 2)
+              }}</pre>
+            </el-collapse-item>
+            <el-collapse-item
+              :title="$t('message.cmsArticle.contentSnapshot')"
+              v-if="revisionPreview.content"
+            >
+              <pre style="max-height: 300px; overflow: auto">{{ revisionPreview.content }}</pre>
+            </el-collapse-item>
+          </el-collapse>
+        </el-drawer>
 
         <!-- 语言选择器（仅 Edit 模式） -->
         <div v-if="!isAddMode" class="lang-bar">

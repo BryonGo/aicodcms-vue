@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "aicodcms 后台管理系统前端 - 基于 Vue 3 + TypeScript + Element Plus + Vite",
   "keywords": [
-    "aicodcms",
     "admin",
+    "aicodcms",
     "cms",
     "element-plus",
     "typescript",

@@ -71,4 +71,4 @@ export default {
     monitor: "系统监控",
     monitorDesc: "CPU / 内存 / 磁盘",
   },
-}
+};

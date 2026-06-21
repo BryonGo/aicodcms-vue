@@ -180,19 +180,25 @@ service.interceptors.response.use(
       if (!isNetworkErrorAlerting) {
         isNetworkErrorAlerting = true;
         ElMessage.error("网络超时");
-        setTimeout(() => { isNetworkErrorAlerting = false; }, 3000);
+        setTimeout(() => {
+          isNetworkErrorAlerting = false;
+        }, 3000);
       }
     } else if (error.message == "Network Error") {
       if (!isNetworkErrorAlerting) {
         isNetworkErrorAlerting = true;
         ElMessage.error("网络连接错误，请检查网络");
-        setTimeout(() => { isNetworkErrorAlerting = false; }, 3000);
+        setTimeout(() => {
+          isNetworkErrorAlerting = false;
+        }, 3000);
       }
     } else {
       if (!isNetworkErrorAlerting) {
         isNetworkErrorAlerting = true;
         ElMessage.error("网络连接错误");
-        setTimeout(() => { isNetworkErrorAlerting = false; }, 3000);
+        setTimeout(() => {
+          isNetworkErrorAlerting = false;
+        }, 3000);
       }
     }
     return Promise.reject(error);

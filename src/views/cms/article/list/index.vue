@@ -105,212 +105,215 @@
           <div class="toolbar-card">
             <ProToolbar @refresh="cmsArticleList">
               <template #left>
-              <el-button
-                :icon="Hide"
-                @click="sidebarShow = !sidebarShow"
-                :title="$t('message.cms.articleList.toggleSidebar')"
-              />
-              <span v-if="state.ids.length" class="sel-count">
-                {{ state.ids.length }}{{ $t("message.cms.articleList.selectedCount") }}
-              </span>
-              <el-button
-                type="danger"
-                :icon="Delete"
-                v-auth="'api/v1/admin/article/del'"
-                :disabled="!state.ids.length"
-                @click="handleDelete(null)"
-                >{{ $t("message.common.btnDelete") }}</el-button
-              >
-              <el-button :disabled="!state.ids.length" @click="batchDialog = 'channel'">{{
-                $t("message.cmsArticle.moveChannel")
-              }}</el-button>
-              <el-button :disabled="!state.ids.length" @click="batchDialog = 'tags'">{{
-                $t("message.cmsArticle.setTags")
-              }}</el-button>
-              <el-button :disabled="!state.ids.length" @click="batchDialog = 'status'">{{
-                $t("message.cmsArticle.setStatus")
-              }}</el-button>
-              <el-button :disabled="!state.ids.length" @click="onRegenerateBatch">
-                重生成静态
-              </el-button>
-            </template>
-          </ProToolbar>
-
-          <ProTable
-            :data="filteredTableData"
-            :loading="loading"
-            :total="state.tableData.total"
-            :page="state.tableData.param.page"
-            :page-size="state.tableData.param.row"
-            :max-height="tableMaxHeight"
-            selection
-            @selection-change="handleSelectionChange"
-            @pagination="onPageChange"
-          >
-            <el-table-column
-              :label="$t('message.cms.articleList.colCover')"
-              width="72"
-              align="center"
-            >
-              <template #default="{ row }">
-                <el-popover placement="right" trigger="hover" :width="320" v-if="row.image">
-                  <img :src="proxy.getUpFileUrl(row.image)" class="cover-preview-img" />
-                  <template #reference>
-                    <img :src="proxy.getUpFileUrl(row.image)" class="cover-thumb" />
-                  </template>
-                </el-popover>
-                <span v-else class="cover-none">—</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-              :label="$t('message.common.colId')"
-              width="60"
-              prop="id"
-              align="center"
-              class-name="col-id"
-            />
-            <el-table-column
-              :label="$t('message.cms.blockEdit.colTitle')"
-              min-width="200"
-              show-overflow-tooltip
-            >
-              <template #default="{ row }">
-                <span class="article-title">{{ row.title }}</span>
-                <span
-                  class="flag-tags"
-                  v-if="row.is_top || row.is_slide || row.is_hot || row.is_new || row.is_recommend"
-                >
-                  <span v-if="row.is_top" class="flag-tag flag-top">{{
-                    $t("message.cms.articleList.tagTop")
-                  }}</span>
-                  <span v-if="row.is_recommend" class="flag-tag flag-rec">{{
-                    $t("message.cms.articleList.tagRecommend")
-                  }}</span>
-                  <span v-if="row.is_hot" class="flag-tag flag-hot">{{
-                    $t("message.cms.articleList.flagHot")
-                  }}</span>
-                  <span v-if="row.is_new" class="flag-tag flag-new">{{
-                    $t("message.cms.articleList.flagNew")
-                  }}</span>
-                  <span v-if="row.is_slide" class="flag-tag flag-slide">{{
-                    $t("message.cms.articleList.tagSlide")
-                  }}</span>
+                <el-button
+                  :icon="Hide"
+                  @click="sidebarShow = !sidebarShow"
+                  :title="$t('message.cms.articleList.toggleSidebar')"
+                />
+                <span v-if="state.ids.length" class="sel-count">
+                  {{ state.ids.length }}{{ $t("message.cms.articleList.selectedCount") }}
                 </span>
+                <el-button
+                  type="danger"
+                  :icon="Delete"
+                  v-auth="'api/v1/admin/article/del'"
+                  :disabled="!state.ids.length"
+                  @click="handleDelete(null)"
+                  >{{ $t("message.common.btnDelete") }}</el-button
+                >
+                <el-button :disabled="!state.ids.length" @click="batchDialog = 'channel'">{{
+                  $t("message.cmsArticle.moveChannel")
+                }}</el-button>
+                <el-button :disabled="!state.ids.length" @click="batchDialog = 'tags'">{{
+                  $t("message.cmsArticle.setTags")
+                }}</el-button>
+                <el-button :disabled="!state.ids.length" @click="batchDialog = 'status'">{{
+                  $t("message.cmsArticle.setStatus")
+                }}</el-button>
+                <el-button :disabled="!state.ids.length" @click="onRegenerateBatch">
+                  重生成静态
+                </el-button>
               </template>
-            </el-table-column>
-            <el-table-column
-              :label="$t('message.cms.articleList.colLangs')"
-              width="120"
-              align="center"
+            </ProToolbar>
+
+            <ProTable
+              :data="filteredTableData"
+              :loading="loading"
+              :total="state.tableData.total"
+              :page="state.tableData.param.page"
+              :page-size="state.tableData.param.row"
+              :max-height="tableMaxHeight"
+              selection
+              @selection-change="handleSelectionChange"
+              @pagination="onPageChange"
             >
-              <template #default="{ row }">
-                <div class="lang-flags">
+              <el-table-column
+                :label="$t('message.cms.articleList.colCover')"
+                width="72"
+                align="center"
+              >
+                <template #default="{ row }">
+                  <el-popover placement="right" trigger="hover" :width="320" v-if="row.image">
+                    <img :src="proxy.getUpFileUrl(row.image)" class="cover-preview-img" />
+                    <template #reference>
+                      <img :src="proxy.getUpFileUrl(row.image)" class="cover-thumb" />
+                    </template>
+                  </el-popover>
+                  <span v-else class="cover-none">—</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('message.common.colId')"
+                width="60"
+                prop="id"
+                align="center"
+                class-name="col-id"
+              />
+              <el-table-column
+                :label="$t('message.cms.blockEdit.colTitle')"
+                min-width="200"
+                show-overflow-tooltip
+              >
+                <template #default="{ row }">
+                  <span class="article-title">{{ row.title }}</span>
                   <span
-                    v-for="l in allLangFlags"
-                    :key="l.code"
-                    class="lang-flag"
-                    :class="{ active: row.trans_langs?.includes(l.code) }"
-                    :title="`${l.code}`"
-                    >{{ l.flag }}</span
+                    class="flag-tags"
+                    v-if="
+                      row.is_top || row.is_slide || row.is_hot || row.is_new || row.is_recommend
+                    "
                   >
-                  <span v-if="!allLangFlags.length" class="lang-none">—</span>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column
-              :label="$t('message.cms.articleList.colChannel')"
-              width="110"
-              align="center"
-            >
-              <template #default="{ row }">
-                <span class="chan-tag">{{ row.channel_info?.name }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-              :label="$t('message.cms.articleList.colViews')"
-              width="65"
-              prop="views"
-              align="center"
-              class-name="col-views"
-            />
-            <el-table-column
-              :label="$t('message.cms.articleList.colCrawler')"
-              width="150"
-              align="center"
-            >
-              <template #default="{ row }">
-                <div class="spider-tags">
-                  <span
-                    v-for="(label, key) in crawlerBotTags"
-                    :key="key"
-                    class="spider-tag"
-                    :class="{ active: row.crawler_status?.[key] }"
-                    >{{ label }}</span
-                  >
-                  <span
-                    v-if="!row.crawler_status || !Object.keys(row.crawler_status).length"
-                    class="spider-none"
-                    >—</span
-                  >
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column :label="$t('message.common.colStatus')" width="80" align="center">
-              <template #default="{ row }">
-                <span class="status-dot" :class="row.status ? 'dot-pub' : 'dot-draft'"></span>
-                {{
-                  row.status
-                    ? $t("message.cms.articleList.statusPublished")
-                    : $t("message.cms.articleList.statusDraft")
-                }}
-              </template>
-            </el-table-column>
-            <el-table-column
-              :label="$t('message.common.colCreateTime')"
-              width="90"
-              align="center"
-              class-name="col-time"
-            >
-              <template #default="{ row }">
-                {{ proxy.parseTime(row.created_at, "{d}/{m}") }}
-              </template>
-            </el-table-column>
-            <el-table-column
-              :label="$t('message.common.colOperation')"
-              width="120"
-              align="center"
-              fixed="right"
-            >
-              <template #default="{ row }">
-                <div class="row-actions">
-                  <button
-                    class="act-btn act-edit"
-                    v-auth="'api/v1/admin/article/edit'"
-                    @click="handleUpdate(row)"
-                    :title="$t('message.common.btnEdit')"
-                  >
-                    <el-icon><EditPen /></el-icon>
-                  </button>
-                  <button
-                    class="act-btn act-trans"
-                    @click="handleTranslation(row)"
-                    :title="$t('message.cms.articleList.translationManage')"
-                  >
-                    <el-icon><Notebook /></el-icon>
-                  </button>
-                  <button
-                    class="act-btn act-del"
-                    v-auth="'api/v1/admin/article/del'"
-                    @click="handleDelete(row)"
-                    :title="$t('message.common.btnDelete')"
-                  >
-                    <el-icon><Delete /></el-icon>
-                  </button>
-                </div>
-              </template>
-            </el-table-column>
-          </ProTable>
-          </div><!-- /.toolbar-card -->
+                    <span v-if="row.is_top" class="flag-tag flag-top">{{
+                      $t("message.cms.articleList.tagTop")
+                    }}</span>
+                    <span v-if="row.is_recommend" class="flag-tag flag-rec">{{
+                      $t("message.cms.articleList.tagRecommend")
+                    }}</span>
+                    <span v-if="row.is_hot" class="flag-tag flag-hot">{{
+                      $t("message.cms.articleList.flagHot")
+                    }}</span>
+                    <span v-if="row.is_new" class="flag-tag flag-new">{{
+                      $t("message.cms.articleList.flagNew")
+                    }}</span>
+                    <span v-if="row.is_slide" class="flag-tag flag-slide">{{
+                      $t("message.cms.articleList.tagSlide")
+                    }}</span>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('message.cms.articleList.colLangs')"
+                width="120"
+                align="center"
+              >
+                <template #default="{ row }">
+                  <div class="lang-flags">
+                    <span
+                      v-for="l in allLangFlags"
+                      :key="l.code"
+                      class="lang-flag"
+                      :class="{ active: row.trans_langs?.includes(l.code) }"
+                      :title="`${l.code}`"
+                      >{{ l.flag }}</span
+                    >
+                    <span v-if="!allLangFlags.length" class="lang-none">—</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('message.cms.articleList.colChannel')"
+                width="110"
+                align="center"
+              >
+                <template #default="{ row }">
+                  <span class="chan-tag">{{ row.channel_info?.name }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('message.cms.articleList.colViews')"
+                width="65"
+                prop="views"
+                align="center"
+                class-name="col-views"
+              />
+              <el-table-column
+                :label="$t('message.cms.articleList.colCrawler')"
+                width="150"
+                align="center"
+              >
+                <template #default="{ row }">
+                  <div class="spider-tags">
+                    <span
+                      v-for="(label, key) in crawlerBotTags"
+                      :key="key"
+                      class="spider-tag"
+                      :class="{ active: row.crawler_status?.[key] }"
+                      >{{ label }}</span
+                    >
+                    <span
+                      v-if="!row.crawler_status || !Object.keys(row.crawler_status).length"
+                      class="spider-none"
+                      >—</span
+                    >
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column :label="$t('message.common.colStatus')" width="80" align="center">
+                <template #default="{ row }">
+                  <span class="status-dot" :class="row.status ? 'dot-pub' : 'dot-draft'"></span>
+                  {{
+                    row.status
+                      ? $t("message.cms.articleList.statusPublished")
+                      : $t("message.cms.articleList.statusDraft")
+                  }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('message.common.colCreateTime')"
+                width="90"
+                align="center"
+                class-name="col-time"
+              >
+                <template #default="{ row }">
+                  {{ proxy.parseTime(row.created_at, "{d}/{m}") }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                :label="$t('message.common.colOperation')"
+                width="120"
+                align="center"
+                fixed="right"
+              >
+                <template #default="{ row }">
+                  <div class="row-actions">
+                    <button
+                      class="act-btn act-edit"
+                      v-auth="'api/v1/admin/article/edit'"
+                      @click="handleUpdate(row)"
+                      :title="$t('message.common.btnEdit')"
+                    >
+                      <el-icon><EditPen /></el-icon>
+                    </button>
+                    <button
+                      class="act-btn act-trans"
+                      @click="handleTranslation(row)"
+                      :title="$t('message.cms.articleList.translationManage')"
+                    >
+                      <el-icon><Notebook /></el-icon>
+                    </button>
+                    <button
+                      class="act-btn act-del"
+                      v-auth="'api/v1/admin/article/del'"
+                      @click="handleDelete(row)"
+                      :title="$t('message.common.btnDelete')"
+                    >
+                      <el-icon><Delete /></el-icon>
+                    </button>
+                  </div>
+                </template>
+              </el-table-column>
+            </ProTable>
+          </div>
+          <!-- /.toolbar-card -->
         </el-col>
       </el-row>
     </div>
@@ -1024,7 +1027,7 @@ export default defineComponent({
         await ElMessageBox.confirm(
           `确定要重新生成 ${ids.length} 篇文章的静态 HTML 吗？`,
           "批量重生成",
-          { type: "info" }
+          { type: "info" },
         );
       } catch {
         return;

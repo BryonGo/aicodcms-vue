@@ -38,7 +38,14 @@ const messages = {
     },
   },
   en: {
-    message: { ...nextEn, ...pagesLoginEn, cms: pagesCmsEn, pms: pagesPmsEn, sdk: pagesSdkEn, dashboard: pagesDashboardEn },
+    message: {
+      ...nextEn,
+      ...pagesLoginEn,
+      cms: pagesCmsEn,
+      pms: pagesPmsEn,
+      sdk: pagesSdkEn,
+      dashboard: pagesDashboardEn,
+    },
   },
 };
 

@@ -60,10 +60,18 @@
 
     <!-- 主图 -->
     <div class="chart-grid chart-grid--2">
-      <ChartCard :title="t('message.dashboard.chart.memoryDistribution')" :subtitle="t('message.dashboard.chart.realtime')" :height="320">
+      <ChartCard
+        :title="t('message.dashboard.chart.memoryDistribution')"
+        :subtitle="t('message.dashboard.chart.realtime')"
+        :height="320"
+      >
         <div ref="pieRef" style="width: 100%; height: 100%" />
       </ChartCard>
-      <ChartCard :title="t('message.dashboard.chart.resourceUsage')" :subtitle="t('message.dashboard.chart.cpuMemGo')" :height="320">
+      <ChartCard
+        :title="t('message.dashboard.chart.resourceUsage')"
+        :subtitle="t('message.dashboard.chart.cpuMemGo')"
+        :height="320"
+      >
         <div ref="barRef" style="width: 100%; height: 100%" />
       </ChartCard>
     </div>
@@ -73,7 +81,11 @@
       <ChartCard :title="t('message.dashboard.chart.diskUsage')" :height="320">
         <div ref="diskRef" style="width: 100%; height: 100%" />
       </ChartCard>
-      <ChartCard :title="t('message.dashboard.chart.hotTags')" :subtitle="t('message.dashboard.chart.sortedByCount')" :height="320">
+      <ChartCard
+        :title="t('message.dashboard.chart.hotTags')"
+        :subtitle="t('message.dashboard.chart.sortedByCount')"
+        :height="320"
+      >
         <div ref="wordcloudRef" style="width: 100%; height: 100%" />
       </ChartCard>
     </div>
@@ -105,7 +117,9 @@
               <span class="cache-status__row-value">{{ cacheStats?.size ?? "-" }}</span>
             </div>
             <div class="cache-status__row">
-              <span class="cache-status__row-label">{{ t("message.dashboard.cache.redisPing") }}</span>
+              <span class="cache-status__row-label">{{
+                t("message.dashboard.cache.redisPing")
+              }}</span>
               <span
                 class="cache-status__pill"
                 :class="redisAlive === true ? 'is-ok' : redisAlive === false ? 'is-err' : 'is-na'"
@@ -114,7 +128,9 @@
               </span>
             </div>
             <div class="cache-status__row">
-              <span class="cache-status__row-label">{{ t("message.dashboard.cache.hitRate") }}</span>
+              <span class="cache-status__row-label">{{
+                t("message.dashboard.cache.hitRate")
+              }}</span>
               <el-progress :percentage="cacheHitRate" :stroke-width="6" :show-text="true" />
             </div>
           </div>
@@ -233,7 +249,16 @@ const todayText = computed(() => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 });
 const weekdayText = computed(
-  () => [t("message.dashboard.welcome.sun"), t("message.dashboard.welcome.mon"), t("message.dashboard.welcome.tue"), t("message.dashboard.welcome.wed"), t("message.dashboard.welcome.thu"), t("message.dashboard.welcome.fri"), t("message.dashboard.welcome.sat")][now.value.getDay()],
+  () =>
+    [
+      t("message.dashboard.welcome.sun"),
+      t("message.dashboard.welcome.mon"),
+      t("message.dashboard.welcome.tue"),
+      t("message.dashboard.welcome.wed"),
+      t("message.dashboard.welcome.thu"),
+      t("message.dashboard.welcome.fri"),
+      t("message.dashboard.welcome.sat"),
+    ][now.value.getDay()],
 );
 const quotes = [
   t("message.dashboard.quote.stable"),

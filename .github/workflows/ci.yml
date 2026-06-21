@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: npm ci
+        run: npm ci
+
+      - name: typecheck
+        run: npm run check
+
+      - name: unit tests (vitest)
+        run: npm run test -- --run
+
+      - name: i18n self-check
+        run: |
+          npm run test:i18n
+          npm run test:usei18n
+
+      - name: build
+        run: npm run build

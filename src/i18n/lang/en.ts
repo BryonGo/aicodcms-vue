@@ -39,7 +39,6 @@ export default {
     pmsMenuEdit: "Edit Menu",
     addonJobAdd: "Add Job",
     addonJobEdit: "Edit Job",
-    login: "Login",
   },
   statusDraft: "Draft",
   statusDraftHint: "Please enter a title before saving as draft",
@@ -94,7 +93,8 @@ export default {
   },
   noAccess: {
     accessTitle: "You are not authorized to operate~",
-    accessMsg: "This module may not be installed or you don't have permission. Contact the administrator.",
+    accessMsg:
+      "This module may not be installed or you don't have permission. Contact the administrator.",
     accessBtn: "Reauthorization",
   },
   layout: {
@@ -1198,7 +1198,8 @@ export default {
     parentCategory: "Parent Category",
     categoryName: "Category Name",
     sourceCategoryId: "Linked Category",
-    sourceCategoryHint: "Link to the corresponding category in another language (for language switching)",
+    sourceCategoryHint:
+      "Link to the corresponding category in another language (for language switching)",
     langZhCn: "Chinese (Simplified)",
     langEnUs: "English",
     langUniversal: "Universal (All Languages)",
