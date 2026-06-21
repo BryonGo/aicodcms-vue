@@ -40,7 +40,6 @@ export default {
     pmsMenuEdit: "编辑菜单",
     addonJobAdd: "添加任务",
     addonJobEdit: "编辑任务",
-    login: "登录",
   },
 
   statusDraft: "草稿",
@@ -918,7 +917,8 @@ export default {
     description: "描述",
     summary: "摘要",
     markdown: "Markdown",
-    markdownHint: "支持富文本编辑,自动转换为 Markdown 存储,可使用 [[slug]] / [[slug|显示文本]] 交叉引用",
+    markdownHint:
+      "支持富文本编辑,自动转换为 Markdown 存储,可使用 [[slug]] / [[slug|显示文本]] 交叉引用",
     lang: "语言",
     views: "浏览",
     published: "已发布",

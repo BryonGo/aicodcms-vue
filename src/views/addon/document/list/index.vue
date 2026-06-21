@@ -162,7 +162,12 @@
           <el-input v-model="categoryForm.slug" />
         </el-form-item>
         <el-form-item :label="$t('message.document.lang')">
-          <el-select v-model="categoryForm.lang" clearable :placeholder="$t('message.document.allLang')" style="width: 100%">
+          <el-select
+            v-model="categoryForm.lang"
+            clearable
+            :placeholder="$t('message.document.allLang')"
+            style="width: 100%"
+          >
             <el-option :label="$t('message.document.langZhCn')" value="zh-CN" />
             <el-option :label="$t('message.document.langEnUs')" value="en-US" />
             <el-option :label="$t('message.document.langUniversal')" value="" />
@@ -185,7 +190,7 @@
         </el-form-item>
         <el-form-item :label="$t('message.common.colSort')">
           <el-input-number v-model="categoryForm.weigh" :min="0" />
-          <span class="ml-2 text-sm text-gray-400">{{ $t('message.document.weighHint') }}</span>
+          <span class="ml-2 text-sm text-gray-400">{{ $t("message.document.weighHint") }}</span>
         </el-form-item>
         <el-form-item :label="$t('message.common.status')">
           <el-switch v-model="categoryForm.status" :active-value="1" :inactive-value="0" />
@@ -466,7 +471,10 @@ export default defineComponent({
     };
 
     // 拍平树，收集 id/parent_id/weigh 以便批量提交
-    const flattenTree = (nodes: any[], parentId = 0): Array<{ id: number; parent_id: number; weigh: number }> => {
+    const flattenTree = (
+      nodes: any[],
+      parentId = 0,
+    ): Array<{ id: number; parent_id: number; weigh: number }> => {
       const result: Array<{ id: number; parent_id: number; weigh: number }> = [];
       nodes.forEach((node, index) => {
         result.push({ id: node.id, parent_id: parentId, weigh: nodes.length - index });

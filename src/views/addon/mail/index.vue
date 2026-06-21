@@ -185,7 +185,11 @@ const resetFilters = () => {
 
 const handleResend = async (row: MailLogItem) => {
   try {
-    await ElMessageBox.confirm(t("message.addon_mail.confirmResend", { to: row.to }), t("message.common.confirmTitle"), { type: "info" });
+    await ElMessageBox.confirm(
+      t("message.addon_mail.confirmResend", { to: row.to }),
+      t("message.common.confirmTitle"),
+      { type: "info" },
+    );
     await resendMail(row.id);
     ElMessage.success(t("message.addon_mail.resendSuccess"));
     loadList();

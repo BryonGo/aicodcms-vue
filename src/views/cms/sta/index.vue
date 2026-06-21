@@ -14,7 +14,7 @@
         <el-col :span="5">
           <span style="color: var(--cc-color-text-2)">磁盘：</span>
           <span :style="{ color: health.disk_ok ? '#67c23a' : '#f56c6c' }">
-            {{ health.disk_free_mb > 0 ? (health.disk_free_mb / 1024).toFixed(1) + ' GB' : '--' }}
+            {{ health.disk_free_mb > 0 ? (health.disk_free_mb / 1024).toFixed(1) + " GB" : "--" }}
           </span>
           <span style="color: var(--cc-color-text-3); font-size: 11px">
             / {{ (health.disk_total_mb / 1024).toFixed(0) }} GB
@@ -22,7 +22,11 @@
         </el-col>
         <el-col :span="4">
           <span style="color: var(--cc-color-text-2)">脏数据：</span>
-          <el-tag v-if="health.dirty_articles > 0 || health.dirty_lists > 0 || health.dirty_tags > 0" type="warning" size="small">
+          <el-tag
+            v-if="health.dirty_articles > 0 || health.dirty_lists > 0 || health.dirty_tags > 0"
+            type="warning"
+            size="small"
+          >
             文章{{ health.dirty_articles }} 列表{{ health.dirty_lists }} 标签{{ health.dirty_tags }}
           </el-tag>
           <span v-else style="color: var(--cc-color-text-3)">无</span>
@@ -31,15 +35,17 @@
           <template v-if="health.article_running || health.list_running || health.tag_running">
             <span style="color: #67c23a">
               <el-icon class="is-loading"><Loading /></el-icon>
-              {{ health.article_running ? '文章' : '' }}
-              {{ health.list_running ? '列表' : '' }}
-              {{ health.tag_running ? '标签' : '' }}
+              {{ health.article_running ? "文章" : "" }}
+              {{ health.list_running ? "列表" : "" }}
+              {{ health.tag_running ? "标签" : "" }}
             </span>
           </template>
           <span v-else style="color: var(--cc-color-text-3)">空闲</span>
         </el-col>
         <el-col :span="3">
-          <span v-if="!health.can_start" style="color: #f56c6c; font-weight: 500">🚫 {{ health.block_reason }}</span>
+          <span v-if="!health.can_start" style="color: #f56c6c; font-weight: 500"
+            >🚫 {{ health.block_reason }}</span
+          >
         </el-col>
         <el-col :span="8" style="text-align: right">
           <el-button size="small" @click="refreshHealth" :loading="healthLoading">
@@ -61,7 +67,10 @@
               <el-icon class="is-loading"><Loading /></el-icon>
               {{ $t("message.cms.sta.statusGenerating") }}
             </span>
-            <span v-if="article.status === 'running' && article.error_rate > 0.3" style="margin-left: 12px; color: #e6a23c">
+            <span
+              v-if="article.status === 'running' && article.error_rate > 0.3"
+              style="margin-left: 12px; color: #e6a23c"
+            >
               ⚠️ 错误率 {{ (article.error_rate * 100).toFixed(0) }}%
             </span>
           </div>
@@ -88,15 +97,23 @@
               />
             </el-col>
             <el-col :span="6">
-              <el-statistic :title="$t('message.cms.sta.statSpeed')" :value="formatSpeed(article.speed_per_sec)" />
+              <el-statistic
+                :title="$t('message.cms.sta.statSpeed')"
+                :value="formatSpeed(article.speed_per_sec)"
+              />
             </el-col>
             <el-col :span="6">
-              <el-statistic :title="$t('message.cms.sta.statRemaining')" :value="formatTime(article.remaining_sec)" />
+              <el-statistic
+                :title="$t('message.cms.sta.statRemaining')"
+                :value="formatTime(article.remaining_sec)"
+              />
             </el-col>
             <el-col :span="6">
               <el-statistic :title="$t('message.cms.sta.statErrors')" :value="article.errors">
                 <template #suffix>
-                  <el-tag v-if="article.errors > 0" type="danger" size="small">{{ article.errors }}</el-tag>
+                  <el-tag v-if="article.errors > 0" type="danger" size="small">{{
+                    article.errors
+                  }}</el-tag>
                 </template>
               </el-statistic>
             </el-col>
@@ -104,18 +121,32 @@
 
           <el-row :gutter="16" style="margin-top: 12px">
             <el-col :span="8">
-              <el-statistic :title="$t('message.cms.sta.statElapsed')" :value="formatTime(article.elapsed_sec)" />
+              <el-statistic
+                :title="$t('message.cms.sta.statElapsed')"
+                :value="formatTime(article.elapsed_sec)"
+              />
             </el-col>
             <el-col :span="8">
-              <el-statistic :title="$t('message.cms.sta.statCurrentLang')" :value="article.current_lang || '--'" />
+              <el-statistic
+                :title="$t('message.cms.sta.statCurrentLang')"
+                :value="article.current_lang || '--'"
+              />
             </el-col>
             <el-col :span="8">
-              <el-statistic :title="$t('message.cms.sta.statCurrentId')" :value="article.current_id || '--'" />
+              <el-statistic
+                :title="$t('message.cms.sta.statCurrentId')"
+                :value="article.current_id || '--'"
+              />
             </el-col>
           </el-row>
 
           <div style="margin-top: 20px">
-            <el-button type="primary" @click="handleGenerate('article')" :loading="article.status === 'running'" :disabled="!health.can_start">
+            <el-button
+              type="primary"
+              @click="handleGenerate('article')"
+              :loading="article.status === 'running'"
+              :disabled="!health.can_start"
+            >
               {{ $t("message.cms.sta.btnGenerateArticle") }}
             </el-button>
             <el-button @click="handleStop" :disabled="article.status !== 'running'">
@@ -124,7 +155,10 @@
           </div>
 
           <!-- 错误清单 -->
-          <div v-if="article.error_samples && article.error_samples.length" style="margin-top: 16px">
+          <div
+            v-if="article.error_samples && article.error_samples.length"
+            style="margin-top: 16px"
+          >
             <el-collapse>
               <el-collapse-item :title="`错误清单 (${article.error_samples.length})`">
                 <el-table :data="article.error_samples" size="small" max-height="360" stripe>
@@ -143,12 +177,20 @@
 
           <!-- 历史记录 -->
           <div v-if="articleHistory.length" style="margin-top: 20px">
-            <el-divider content-position="left">{{ $t("message.cms.sta.generateHistory") }}</el-divider>
-            <div class="sta-history" v-for="h in [...articleHistory].reverse().slice(0, 5)" :key="h.started_at">
+            <el-divider content-position="left">{{
+              $t("message.cms.sta.generateHistory")
+            }}</el-divider>
+            <div
+              class="sta-history"
+              v-for="h in [...articleHistory].reverse().slice(0, 5)"
+              :key="h.started_at"
+            >
               <span>{{ formatDate(h.started_at) }}</span>
               <span>{{ h.done }}/{{ h.total }}</span>
               <span>{{ formatTime(h.elapsed_sec) }}</span>
-              <el-tag :type="h.errors > 0 ? 'danger' : 'success'" size="small">{{ h.errors }} err</el-tag>
+              <el-tag :type="h.errors > 0 ? 'danger' : 'success'" size="small"
+                >{{ h.errors }} err</el-tag
+              >
             </div>
           </div>
         </el-card>
@@ -158,13 +200,41 @@
       <el-tab-pane :label="$t('message.cms.sta.tabList')" name="list">
         <el-card shadow="never">
           <div class="sta-status-bar">
-            <el-tag :type="statusTag(list.status)" size="large">{{ statusText(list.status) }}</el-tag>
+            <el-tag :type="statusTag(list.status)" size="large">{{
+              statusText(list.status)
+            }}</el-tag>
           </div>
-          <el-progress :percentage="list.percentage" :text-inside="true" :stroke-width="24" style="margin: 20px 0" />
-          <el-row :gutter="16"><el-col :span="8"><el-statistic :title="$t('message.cms.sta.statGenerated')" :value="list.done + ' / ' + list.total" /></el-col><el-col :span="8"><el-statistic :title="$t('message.cms.sta.statSpeed')" :value="formatSpeed(list.speed_per_sec)" /></el-col><el-col :span="8"><el-statistic :title="$t('message.cms.sta.statErrors')" :value="list.errors" /></el-col></el-row>
+          <el-progress
+            :percentage="list.percentage"
+            :text-inside="true"
+            :stroke-width="24"
+            style="margin: 20px 0"
+          />
+          <el-row :gutter="16"
+            ><el-col :span="8"
+              ><el-statistic
+                :title="$t('message.cms.sta.statGenerated')"
+                :value="list.done + ' / ' + list.total" /></el-col
+            ><el-col :span="8"
+              ><el-statistic
+                :title="$t('message.cms.sta.statSpeed')"
+                :value="formatSpeed(list.speed_per_sec)" /></el-col
+            ><el-col :span="8"
+              ><el-statistic
+                :title="$t('message.cms.sta.statErrors')"
+                :value="list.errors" /></el-col
+          ></el-row>
           <div style="margin-top: 20px">
-            <el-button type="primary" @click="handleGenerate('list')" :loading="list.status === 'running'" :disabled="!health.can_start">{{ $t("message.cms.sta.btnGenerateList") }}</el-button>
-            <el-button @click="handleStop" :disabled="list.status !== 'running'">{{ $t("message.cms.sta.btnStop") }}</el-button>
+            <el-button
+              type="primary"
+              @click="handleGenerate('list')"
+              :loading="list.status === 'running'"
+              :disabled="!health.can_start"
+              >{{ $t("message.cms.sta.btnGenerateList") }}</el-button
+            >
+            <el-button @click="handleStop" :disabled="list.status !== 'running'">{{
+              $t("message.cms.sta.btnStop")
+            }}</el-button>
           </div>
         </el-card>
       </el-tab-pane>
@@ -172,12 +242,40 @@
       <!-- ======== Tag列表 ======== -->
       <el-tab-pane :label="$t('message.cms.sta.tabTag')" name="tag">
         <el-card shadow="never">
-          <div class="sta-status-bar"><el-tag :type="statusTag(tag.status)" size="large">{{ statusText(tag.status) }}</el-tag></div>
-          <el-progress :percentage="tag.percentage" :text-inside="true" :stroke-width="24" style="margin: 20px 0" />
-          <el-row :gutter="16"><el-col :span="8"><el-statistic :title="$t('message.cms.sta.statGenerated')" :value="tag.done + ' / ' + tag.total" /></el-col><el-col :span="8"><el-statistic :title="$t('message.cms.sta.statSpeed')" :value="formatSpeed(tag.speed_per_sec)" /></el-col><el-col :span="8"><el-statistic :title="$t('message.cms.sta.statErrors')" :value="tag.errors" /></el-col></el-row>
+          <div class="sta-status-bar">
+            <el-tag :type="statusTag(tag.status)" size="large">{{ statusText(tag.status) }}</el-tag>
+          </div>
+          <el-progress
+            :percentage="tag.percentage"
+            :text-inside="true"
+            :stroke-width="24"
+            style="margin: 20px 0"
+          />
+          <el-row :gutter="16"
+            ><el-col :span="8"
+              ><el-statistic
+                :title="$t('message.cms.sta.statGenerated')"
+                :value="tag.done + ' / ' + tag.total" /></el-col
+            ><el-col :span="8"
+              ><el-statistic
+                :title="$t('message.cms.sta.statSpeed')"
+                :value="formatSpeed(tag.speed_per_sec)" /></el-col
+            ><el-col :span="8"
+              ><el-statistic
+                :title="$t('message.cms.sta.statErrors')"
+                :value="tag.errors" /></el-col
+          ></el-row>
           <div style="margin-top: 20px">
-            <el-button type="primary" @click="handleGenerate('tag')" :loading="tag.status === 'running'" :disabled="!health.can_start">{{ $t("message.cms.sta.btnGenerateTag") }}</el-button>
-            <el-button @click="handleStop" :disabled="tag.status !== 'running'">{{ $t("message.cms.sta.btnStop") }}</el-button>
+            <el-button
+              type="primary"
+              @click="handleGenerate('tag')"
+              :loading="tag.status === 'running'"
+              :disabled="!health.can_start"
+              >{{ $t("message.cms.sta.btnGenerateTag") }}</el-button
+            >
+            <el-button @click="handleStop" :disabled="tag.status !== 'running'">{{
+              $t("message.cms.sta.btnStop")
+            }}</el-button>
           </div>
         </el-card>
       </el-tab-pane>
@@ -188,16 +286,34 @@
           <template v-if="diskInfo">
             <el-descriptions :column="2" border size="small">
               <el-descriptions-item label="输出目录">{{ diskInfo.root_dir }}</el-descriptions-item>
-              <el-descriptions-item label="文件数">{{ diskInfo.total_files?.toLocaleString() }}</el-descriptions-item>
-              <el-descriptions-item label="占用空间">{{ diskInfo.total_size_mb?.toFixed(1) }} MB</el-descriptions-item>
-              <el-descriptions-item label="磁盘剩余">{{ (diskInfo.free_mb / 1024).toFixed(1) }} GB</el-descriptions-item>
-              <el-descriptions-item label="孤文件">{{ diskInfo.orphan_files }} 个 ({{ diskInfo.orphan_size_mb?.toFixed(1) }} MB)</el-descriptions-item>
-              <el-descriptions-item label="磁盘使用率">{{ diskInfo.usage_percent?.toFixed(1) }}%</el-descriptions-item>
+              <el-descriptions-item label="文件数">{{
+                diskInfo.total_files?.toLocaleString()
+              }}</el-descriptions-item>
+              <el-descriptions-item label="占用空间"
+                >{{ diskInfo.total_size_mb?.toFixed(1) }} MB</el-descriptions-item
+              >
+              <el-descriptions-item label="磁盘剩余"
+                >{{ (diskInfo.free_mb / 1024).toFixed(1) }} GB</el-descriptions-item
+              >
+              <el-descriptions-item label="孤文件"
+                >{{ diskInfo.orphan_files }} 个 ({{
+                  diskInfo.orphan_size_mb?.toFixed(1)
+                }}
+                MB)</el-descriptions-item
+              >
+              <el-descriptions-item label="磁盘使用率"
+                >{{ diskInfo.usage_percent?.toFixed(1) }}%</el-descriptions-item
+              >
             </el-descriptions>
 
             <div style="margin-top: 16px">
               <el-button @click="fetchDiskInfo" :loading="diskLoading">重新扫描</el-button>
-              <el-button v-if="diskInfo.orphan_files > 0" type="danger" @click="handleCleanOrphans" :loading="cleaning">
+              <el-button
+                v-if="diskInfo.orphan_files > 0"
+                type="danger"
+                @click="handleCleanOrphans"
+                :loading="cleaning"
+              >
                 清理 {{ diskInfo.orphan_files }} 个孤文件
               </el-button>
             </div>
@@ -286,18 +402,39 @@ interface DiskInfoData {
 }
 
 const emptySnap = (): Snapshot => ({
-  status: "idle", total: 0, done: 0, percentage: 0,
-  current_lang: "", current_id: 0, errors: 0, last_error: "",
-  error_samples: [], error_rate: 0,
-  started_at: 0, updated_at: 0, elapsed_sec: 0, remaining_sec: 0, speed_per_sec: 0,
+  status: "idle",
+  total: 0,
+  done: 0,
+  percentage: 0,
+  current_lang: "",
+  current_id: 0,
+  errors: 0,
+  last_error: "",
+  error_samples: [],
+  error_rate: 0,
+  started_at: 0,
+  updated_at: 0,
+  elapsed_sec: 0,
+  remaining_sec: 0,
+  speed_per_sec: 0,
 });
 
 const emptyHealth = (): HealthData => ({
-  disk_free_mb: 0, disk_total_mb: 0, disk_usage_percent: 0, disk_ok: true,
-  article_running: false, list_running: false, tag_running: false,
-  dirty_articles: 0, dirty_lists: 0, dirty_tags: 0,
-  article_error_rate: 0, list_error_rate: 0, tag_error_rate: 0,
-  can_start: true, block_reason: "",
+  disk_free_mb: 0,
+  disk_total_mb: 0,
+  disk_usage_percent: 0,
+  disk_ok: true,
+  article_running: false,
+  list_running: false,
+  tag_running: false,
+  dirty_articles: 0,
+  dirty_lists: 0,
+  dirty_tags: 0,
+  article_error_rate: 0,
+  list_error_rate: 0,
+  tag_error_rate: 0,
+  can_start: true,
+  block_reason: "",
 });
 
 const activeTab = ref("article");
@@ -318,7 +455,13 @@ const cleaning = ref(false);
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 const statusTag = (status: string) => {
-  const map: Record<string, string> = { idle: "info", running: "success", stopping: "warning", completed: "", failed: "danger" };
+  const map: Record<string, string> = {
+    idle: "info",
+    running: "success",
+    stopping: "warning",
+    completed: "",
+    failed: "danger",
+  };
   return map[status] || "info";
 };
 
@@ -357,7 +500,9 @@ const fetchProgress = async () => {
     if (res?.data?.article) article.value = res.data.article;
     if (res?.data?.list) list.value = res.data.list;
     if (res?.data?.tag) tag.value = res.data.tag;
-  } catch { /* ignore poll errors */ }
+  } catch {
+    /* ignore poll errors */
+  }
 };
 
 const fetchHistory = async () => {
@@ -366,14 +511,18 @@ const fetchHistory = async () => {
     if (res?.data?.article) articleHistory.value = res.data.article;
     if (res?.data?.list) listHistory.value = res.data.list;
     if (res?.data?.tag) tagHistory.value = res.data.tag;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 };
 
 const fetchHealth = async () => {
   try {
     const res = await getStaHealth();
     if (res?.data) health.value = res.data;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 };
 
 const fetchDiskInfo = async () => {
@@ -403,12 +552,18 @@ const fetchDirtyCount = async () => {
       health.value.dirty_lists = res.data.lists;
       health.value.dirty_tags = res.data.tags;
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 };
 
 const handleCleanOrphans = async () => {
   try {
-    await ElMessageBox.confirm(`确定要删除 ${diskInfo.value?.orphan_files} 个孤文件吗？`, "确认清理", { type: "warning" });
+    await ElMessageBox.confirm(
+      `确定要删除 ${diskInfo.value?.orphan_files} 个孤文件吗？`,
+      "确认清理",
+      { type: "warning" },
+    );
   } catch {
     return;
   }
@@ -446,7 +601,10 @@ const startPolling = () => {
 };
 
 const stopPolling = () => {
-  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
 };
 
 const handleGenerate = async (type: string) => {
@@ -479,9 +637,31 @@ onUnmounted(() => stopPolling());
 </script>
 
 <style scoped>
-.sta-status-bar { display: flex; align-items: center; margin-bottom: 8px; }
-.pms-card-container { max-width: 1400px; margin: 0 auto; }
-@media (min-width: 1441px) { .pms-card-container { max-width: none !important; padding: 0 40px; } }
-.sta-history { display: flex; align-items: center; gap: 16px; padding: 6px 0; font-size: var(--cc-font-13); color: var(--cc-color-text-2); border-bottom: 1px solid var(--cc-color-border-light); }
-.sta-history:last-child { border-bottom: none; }
+.sta-status-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.pms-card-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+@media (min-width: 1441px) {
+  .pms-card-container {
+    max-width: none !important;
+    padding: 0 40px;
+  }
+}
+.sta-history {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0;
+  font-size: var(--cc-font-13);
+  color: var(--cc-color-text-2);
+  border-bottom: 1px solid var(--cc-color-border-light);
+}
+.sta-history:last-child {
+  border-bottom: none;
+}
 </style>
