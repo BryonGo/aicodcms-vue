@@ -131,7 +131,7 @@
                   $t("message.cmsArticle.setStatus")
                 }}</el-button>
                 <el-button :disabled="!state.ids.length" @click="onRegenerateBatch">
-                  重生成静态
+                  {{ $t("message.cmsArticle.btnRegenerateStatic") }}
                 </el-button>
               </template>
             </ProToolbar>
@@ -1025,14 +1025,14 @@ export default defineComponent({
       const ids = state.ids;
       try {
         await ElMessageBox.confirm(
-          `确定要重新生成 ${ids.length} 篇文章的静态 HTML 吗？`,
-          "批量重生成",
+          t("message.cmsArticle.confirmBatchRegen", { count: ids.length }),
+          t("message.cmsArticle.titleBatchRegen"),
           { type: "info" },
         );
       } catch {
         return;
       }
-      ElMessage.info(`正在重生成 ${ids.length} 篇...`);
+      ElMessage.info(t("message.cmsArticle.msgRegenerating", { count: ids.length }));
       for (const id of ids) {
         try {
           await regenerateArticle(id);
@@ -1040,7 +1040,7 @@ export default defineComponent({
           /* skip individual failures */
         }
       }
-      ElMessage.success("重生成完成");
+      ElMessage.success(t("message.cmsArticle.msgRegenerateDone"));
     };
 
     // ====== 初始化 ======

@@ -193,6 +193,8 @@ export default {
     detail: "Detail",
     confirm: "Confirm",
     refresh: "Refresh",
+    create: "Create",
+    settings: "Settings",
     expand: "Expand",
     collapse: "Collapse",
     loading: "Loading...",
@@ -1115,6 +1117,7 @@ export default {
     saved: "Saved",
     created: "Created",
     confirmDeleteForm: "Deleting will also remove fields and data. Confirm?",
+    actionSettings: "Settings",
   },
   // ==================== Webhook ====================
   webhook: {

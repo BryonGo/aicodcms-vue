@@ -105,7 +105,7 @@ const vueFiles = [
   ...walkFiles(path.join(BASE, "utils"), [".ts"]),
   ...walkFiles(path.join(BASE, "router"), [".ts"]),
   ...walkFiles(path.join(BASE, "views"), [".ts"], ["node_modules", "dist"]),
-].filter((f) => !f.includes("/views/fun/"));
+].filter((f) => !f.includes("/views/fun/") && !f.endsWith("_debug.vue"));
 
 // 收集所有引用
 const allRefs = new Map();
@@ -137,6 +137,31 @@ const enKeys = parseI18nKeys([
 ]);
 
 const CHINESE = /[\u4e00-\u9fff]/;
+// 专有名词/技术术语白名单：这些 label 不需要 i18n 化（翻译反而错）
+const LABEL_WHITELIST = new Set([
+  "ID",
+  "UID",
+  "IP",
+  "App ID",
+  "App Id",
+  "AppID",
+  "Slug",
+  "MIME",
+  "MinIO",
+  "ETag",
+  "API Key",
+  "Key",
+  "Value",
+  "Token",
+  "URL",
+  "HTML",
+  "CMS",
+  "CNY",
+  "USD",
+  "EUR",
+  "JPY",
+  "DiyUrl",
+]);
 const EXCLUDE = [
   /^\s*\/\//,
   /^\s*<!--/,
@@ -221,11 +246,8 @@ test("按钮/标签/表头无中文硬编码", () => {
       if (!lines[i].includes("$t(")) issues.push(`${rel}:${i + 1}: ${tl}`);
     }
   }
-  if (issues.length > 0)
-    console.log(
-      `    ⚠️${issues.length} 处 (warning, not blocking): ${issues.slice(0, 5).join(" | ")}`,
-    );
-  // tolerant — 历史债务，warning-only
+  if (issues.length > 0) console.log(`    ✗ ${issues.length} 处:\n    ${issues.join("\n    ")}`);
+  assert(issues.length === 0, `${issues.length} 处中文硬编码`);
 });
 
 test("placeholder 无中文硬编码", () => {
@@ -276,16 +298,13 @@ test("el-table-column label 无硬编码英文（应使用 $t()）", () => {
       if (EXCLUDE.some((p) => p.test(l))) continue;
       // label="XXX" without $t()
       const m = l.match(/label="([A-Z][A-Za-z0-9 /]+)"/);
-      if (m && !l.includes("$t(")) {
+      if (m && !l.includes("$t(") && !LABEL_WHITELIST.has(m[1])) {
         issues.push(`${rel}:${i + 1}: label="${m[1]}"`);
       }
     }
   }
-  if (issues.length > 0)
-    console.log(
-      `    ⚠️${issues.length} 处 (warning, not blocking): ${issues.slice(0, 5).join(" | ")}`,
-    );
-  // tolerant — 历史债务，warning-only
+  if (issues.length > 0) console.log(`    ✗ ${issues.length} 处:\n    ${issues.join("\n    ")}`);
+  assert(issues.length === 0, `${issues.length} 处硬编码英文 label`);
 });
 
 test("el-button / desc 无硬编码英文（应使用 $t()）", () => {
@@ -298,21 +317,18 @@ test("el-button / desc 无硬编码英文（应使用 $t()）", () => {
       if (EXCLUDE.some((p) => p.test(l))) continue;
       // desc="XXX" or >English text</el-button
       const descM = l.match(/desc="([A-Z][A-Za-z0-9 /,]+)"/);
-      if (descM && !l.includes("$t(")) {
+      if (descM && !l.includes("$t(") && !LABEL_WHITELIST.has(descM[1])) {
         issues.push(`${rel}:${i + 1}: desc="${descM[1]}"`);
       }
       // >English< without $t
       const btnM = l.match(/>([A-Z][a-z]+(?: [A-Z][a-z]+)*)<\/el-button/);
-      if (btnM && !l.includes("$t(") && !l.includes("{{")) {
+      if (btnM && !l.includes("$t(") && !l.includes("{{") && !LABEL_WHITELIST.has(btnM[1])) {
         issues.push(`${rel}:${i + 1}: >${btnM[1]}<`);
       }
     }
   }
-  if (issues.length > 0)
-    console.log(
-      `    ⚠️${issues.length} 处 (warning, not blocking): ${issues.slice(0, 5).join(" | ")}`,
-    );
-  // tolerant — 历史债务，warning-only
+  if (issues.length > 0) console.log(`    ✗ ${issues.length} 处:\n    ${issues.join("\n    ")}`);
+  assert(issues.length === 0, `${issues.length} 处硬编码英文按钮/desc`);
 });
 
 // ============================================================

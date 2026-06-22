@@ -12,7 +12,7 @@
     <el-card shadow="never" style="margin-bottom: 12px">
       <el-row :gutter="16" align="middle">
         <el-col :span="5">
-          <span style="color: var(--cc-color-text-2)">磁盘：</span>
+          <span style="color: var(--cc-color-text-2)">{{ $t("message.cms.sta.labelDisk") }}：</span>
           <span :style="{ color: health.disk_ok ? '#67c23a' : '#f56c6c' }">
             {{ health.disk_free_mb > 0 ? (health.disk_free_mb / 1024).toFixed(1) + " GB" : "--" }}
           </span>
@@ -21,26 +21,30 @@
           </span>
         </el-col>
         <el-col :span="4">
-          <span style="color: var(--cc-color-text-2)">脏数据：</span>
+          <span style="color: var(--cc-color-text-2)"
+            >{{ $t("message.cms.sta.labelDirty") }}：</span
+          >
           <el-tag
             v-if="health.dirty_articles > 0 || health.dirty_lists > 0 || health.dirty_tags > 0"
             type="warning"
             size="small"
           >
-            文章{{ health.dirty_articles }} 列表{{ health.dirty_lists }} 标签{{ health.dirty_tags }}
+            {{ $t("message.cms.sta.dirtyArticles") }}{{ health.dirty_articles }}
+            {{ $t("message.cms.sta.dirtyLists") }}{{ health.dirty_lists }}
+            {{ $t("message.cms.sta.dirtyTags") }}{{ health.dirty_tags }}
           </el-tag>
-          <span v-else style="color: var(--cc-color-text-3)">无</span>
+          <span v-else style="color: var(--cc-color-text-3)">{{ $t("message.cms.sta.none") }}</span>
         </el-col>
         <el-col :span="4">
           <template v-if="health.article_running || health.list_running || health.tag_running">
             <span style="color: #67c23a">
               <el-icon class="is-loading"><Loading /></el-icon>
-              {{ health.article_running ? "文章" : "" }}
-              {{ health.list_running ? "列表" : "" }}
-              {{ health.tag_running ? "标签" : "" }}
+              {{ health.article_running ? $t("message.cms.sta.runningArticles") : "" }}
+              {{ health.list_running ? $t("message.cms.sta.runningLists") : "" }}
+              {{ health.tag_running ? $t("message.cms.sta.runningTags") : "" }}
             </span>
           </template>
-          <span v-else style="color: var(--cc-color-text-3)">空闲</span>
+          <span v-else style="color: var(--cc-color-text-3)">{{ $t("message.cms.sta.idle") }}</span>
         </el-col>
         <el-col :span="3">
           <span v-if="!health.can_start" style="color: #f56c6c; font-weight: 500"
@@ -49,7 +53,7 @@
         </el-col>
         <el-col :span="8" style="text-align: right">
           <el-button size="small" @click="refreshHealth" :loading="healthLoading">
-            <el-icon><Refresh /></el-icon> 刷新
+            <el-icon><Refresh /></el-icon> {{ $t("message.cms.sta.btnRefresh") }}
           </el-button>
         </el-col>
       </el-row>
@@ -71,7 +75,7 @@
               v-if="article.status === 'running' && article.error_rate > 0.3"
               style="margin-left: 12px; color: #e6a23c"
             >
-              ⚠️ 错误率 {{ (article.error_rate * 100).toFixed(0) }}%
+              ⚠️ {{ $t("message.cms.sta.errorRate") }} {{ (article.error_rate * 100).toFixed(0) }}%
             </span>
           </div>
 
@@ -160,14 +164,26 @@
             style="margin-top: 16px"
           >
             <el-collapse>
-              <el-collapse-item :title="`错误清单 (${article.error_samples.length})`">
+              <el-collapse-item
+                :title="`${$t('message.cms.sta.errorListTitle')} (${article.error_samples.length})`"
+              >
                 <el-table :data="article.error_samples" size="small" max-height="360" stripe>
-                  <el-table-column prop="article_id" label="ID" width="90" />
-                  <el-table-column prop="lang" label="语言" width="60" />
-                  <el-table-column prop="error" label="错误信息" show-overflow-tooltip />
-                  <el-table-column label="操作" width="100">
+                  <el-table-column
+                    prop="article_id"
+                    :label="$t('message.cms.sta.colArticleId')"
+                    width="90"
+                  />
+                  <el-table-column prop="lang" :label="$t('message.cms.sta.colLang')" width="60" />
+                  <el-table-column
+                    prop="error"
+                    :label="$t('message.cms.sta.colErrorMsg')"
+                    show-overflow-tooltip
+                  />
+                  <el-table-column :label="$t('message.cms.sta.colAction')" width="100">
                     <template #default="{ row }">
-                      <el-button size="small" @click="retryArticle(row)">重试</el-button>
+                      <el-button size="small" @click="retryArticle(row)">{{
+                        $t("message.cms.sta.btnRetry")
+                      }}</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -281,45 +297,49 @@
       </el-tab-pane>
 
       <!-- ======== 维护 ======== -->
-      <el-tab-pane label="维护" name="maintenance">
+      <el-tab-pane :label="$t('message.cms.sta.tabMaintenance')" name="maintenance">
         <el-card shadow="never">
           <template v-if="diskInfo">
             <el-descriptions :column="2" border size="small">
-              <el-descriptions-item label="输出目录">{{ diskInfo.root_dir }}</el-descriptions-item>
-              <el-descriptions-item label="文件数">{{
+              <el-descriptions-item :label="$t('message.cms.sta.descRootDir')">{{
+                diskInfo.root_dir
+              }}</el-descriptions-item>
+              <el-descriptions-item :label="$t('message.cms.sta.descTotalFiles')">{{
                 diskInfo.total_files?.toLocaleString()
               }}</el-descriptions-item>
-              <el-descriptions-item label="占用空间"
+              <el-descriptions-item :label="$t('message.cms.sta.descUsedSpace')"
                 >{{ diskInfo.total_size_mb?.toFixed(1) }} MB</el-descriptions-item
               >
-              <el-descriptions-item label="磁盘剩余"
+              <el-descriptions-item :label="$t('message.cms.sta.descDiskFree')"
                 >{{ (diskInfo.free_mb / 1024).toFixed(1) }} GB</el-descriptions-item
               >
-              <el-descriptions-item label="孤文件"
-                >{{ diskInfo.orphan_files }} 个 ({{
+              <el-descriptions-item :label="$t('message.cms.sta.descOrphanFiles')"
+                >{{ diskInfo.orphan_files }} {{ $t("message.cms.sta.unitFile") }} ({{
                   diskInfo.orphan_size_mb?.toFixed(1)
                 }}
                 MB)</el-descriptions-item
               >
-              <el-descriptions-item label="磁盘使用率"
+              <el-descriptions-item :label="$t('message.cms.sta.descDiskUsage')"
                 >{{ diskInfo.usage_percent?.toFixed(1) }}%</el-descriptions-item
               >
             </el-descriptions>
 
             <div style="margin-top: 16px">
-              <el-button @click="fetchDiskInfo" :loading="diskLoading">重新扫描</el-button>
+              <el-button @click="fetchDiskInfo" :loading="diskLoading">{{
+                $t("message.cms.sta.btnRescan")
+              }}</el-button>
               <el-button
                 v-if="diskInfo.orphan_files > 0"
                 type="danger"
                 @click="handleCleanOrphans"
                 :loading="cleaning"
               >
-                清理 {{ diskInfo.orphan_files }} 个孤文件
+                {{ $t("message.cms.sta.btnCleanOrphans", { count: diskInfo.orphan_files }) }}
               </el-button>
             </div>
           </template>
           <div v-else style="text-align: center; padding: 40px; color: var(--cc-color-text-3)">
-            点击"重新扫描"查看磁盘统计
+            {{ $t("message.cms.sta.hintRescan") }}
           </div>
         </el-card>
       </el-tab-pane>
@@ -531,7 +551,7 @@ const fetchDiskInfo = async () => {
     const res = await getDiskInfo();
     if (res?.data) diskInfo.value = res.data;
   } catch {
-    ElMessage.error("获取磁盘信息失败");
+    ElMessage.error(t("message.cms.sta.msgFetchDiskFailed"));
   } finally {
     diskLoading.value = false;
   }
@@ -560,8 +580,8 @@ const fetchDirtyCount = async () => {
 const handleCleanOrphans = async () => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除 ${diskInfo.value?.orphan_files} 个孤文件吗？`,
-      "确认清理",
+      t("message.cms.sta.confirmCleanOrphans", { count: diskInfo.value?.orphan_files }),
+      t("message.cms.sta.titleCleanConfirm"),
       { type: "warning" },
     );
   } catch {
@@ -570,10 +590,12 @@ const handleCleanOrphans = async () => {
   cleaning.value = true;
   try {
     const res = await cleanOrphans();
-    ElMessage.success(`清理完成：${res.data.removed} 个文件已删除，${res.data.errors} 个失败`);
+    ElMessage.success(
+      t("message.cms.sta.msgCleanResult", { removed: res.data.removed, errors: res.data.errors }),
+    );
     fetchDiskInfo();
   } catch {
-    ElMessage.error("清理失败");
+    ElMessage.error(t("message.cms.sta.msgCleanFailed"));
   } finally {
     cleaning.value = false;
   }
@@ -582,9 +604,11 @@ const handleCleanOrphans = async () => {
 const retryArticle = async (row: ErrorSample) => {
   try {
     await regenerateArticle(row.article_id, row.lang);
-    ElMessage.success(`文章 ${row.article_id} (${row.lang}) 重生成已触发`);
+    ElMessage.success(
+      t("message.cms.sta.msgRetryTriggered", { id: row.article_id, lang: row.lang }),
+    );
   } catch (err: any) {
-    ElMessage.error(err?.msg || "重生成失败");
+    ElMessage.error(err?.msg || t("message.cms.sta.msgRetryFailed"));
   }
 };
 
