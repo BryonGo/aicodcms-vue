@@ -170,7 +170,9 @@ describe("审计4: Vue 文件硬编码中文检测", () => {
       return result;
     }
 
-    const allFiles = findVueFiles("src/views").concat(findVueFiles("src/components"));
+    const allFiles = findVueFiles("src/views")
+      .concat(findVueFiles("src/components"))
+      .filter((f) => !f.includes("/views/fun/") && !f.endsWith("_debug.vue"));
     const issues: { file: string; lines: string[] }[] = [];
 
     for (const file of allFiles) {
@@ -240,7 +242,7 @@ describe("审计4: Vue 文件硬编码中文检测", () => {
         for (const l of issue.lines) console.log(l);
       }
     }
-    // tolerant — 历史债务，warning-only
+    expect(issues.length).toBe(0);
   });
 });
 

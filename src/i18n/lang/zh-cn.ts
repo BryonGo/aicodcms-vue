@@ -189,6 +189,8 @@ export default {
     detail: "详情",
     confirm: "确定",
     refresh: "刷新",
+    create: "创建",
+    settings: "设置",
     expand: "展开",
     collapse: "收起",
     loading: "加载中...",
@@ -825,6 +827,7 @@ export default {
     saved: "已保存",
     created: "已创建",
     confirmDeleteForm: "删除后字段和数据将一并删除，确认？",
+    actionSettings: "设置",
   },
   // ==================== Webhook ====================
   webhook: {

@@ -44,7 +44,9 @@
       />
       <el-table-column :label="$t('message.form.action')" width="280" fixed="right" align="center">
         <template #default="{ row }">
-          <el-button link size="small" type="primary" @click="onEdit(row)">设置</el-button>
+          <el-button link size="small" type="primary" @click="onEdit(row)">{{
+            $t("message.form.actionSettings")
+          }}</el-button>
           <el-button link size="small" type="primary" @click="onField(row)">{{
             $t("message.form.fieldBuilder")
           }}</el-button>
@@ -82,7 +84,9 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">{{ $t("message.form.cancel") }}</el-button>
-        <el-button type="primary" @click="onSave">{{ editId ? "保存" : "创建" }}</el-button>
+        <el-button type="primary" @click="onSave">{{
+          editId ? $t("message.common.save") : $t("message.common.create")
+        }}</el-button>
       </template>
     </el-drawer>
   </ProPage>
