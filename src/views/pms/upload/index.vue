@@ -78,7 +78,7 @@
             @change="dataList"
           >
             <el-option :label="$t('message.pms_upload.storageLocal')" value="local" />
-            <el-option label="MinIO" value="minio" />
+            <el-option :label="$t('message.pms_upload.storageMinIO')" value="minio" />
             <el-option :label="$t('message.pms_upload.storageTencent')" value="tencent" />
           </el-select>
         </el-form-item>
@@ -170,7 +170,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="MIME" align="center" width="130" show-overflow-tooltip>
+        <el-table-column :label="$t('message.pms_upload.colMimeType')" align="center" width="130" show-overflow-tooltip>
           <template #default="{ row }">
             <span class="ul-mime">{{ row.mimetype }}</span>
           </template>
@@ -199,7 +199,7 @@
 
       <div class="ul-table-footer">
         <div class="ul-footer-left">
-          <span class="ul-stats">共 {{ state.tableData.total }} 个文件</span>
+          <span class="ul-stats">{{ $t("message.pms_upload.statsTotal", { count: state.tableData.total }) }}</span>
         </div>
         <pagination
           v-show="state.tableData.total > 0"
@@ -336,7 +336,7 @@
           :span="2"
           >{{ state.currentRow.filename }}</el-descriptions-item
         >
-        <el-descriptions-item :label="$t('message.pms.minio.fileSize')" align="center">{{
+        <el-descriptions-item :label="$t('message.pms_upload.colFileSize')" align="center">{{
           sizeFormat(state.currentRow)
         }}</el-descriptions-item>
         <el-descriptions-item :label="$t('message.pms.upload.colMimeType')" align="center">{{
@@ -526,11 +526,11 @@ export default defineComponent({
       }
       uploadState.uploading = false;
       if (success > 0 && fail === 0) {
-        ElMessage.success(t(`${success} 个文件上传成功`));
+        ElMessage.success(t("message.pms_upload.uploadSuccess", { count: success }));
         closeUpload();
         dataList();
       } else if (success > 0 && fail > 0) {
-        ElMessage.warning(t(`${success} 成功, ${fail} 失败`));
+        ElMessage.warning(t("message.pms_upload.uploadPartial", { success, fail }));
         uploadState.files = uploadState.files.filter((f) => f.status === "error");
         dataList();
       } else {
@@ -595,7 +595,7 @@ export default defineComponent({
         return;
       }
       ElMessageBox.confirm(
-        row ? t(`确认删除「${row.src_filename}」？`) : t(`确认删除 ${ids.length} 个文件？`),
+        row ? t("message.pms_upload.confirmSingleDelete", { name: row.src_filename }) : t("message.pms_upload.confirmBatchDelete", { count: ids.length }),
         t("message.common.confirmDeleteTitle"),
         { type: "warning" },
       )
@@ -676,7 +676,7 @@ export default defineComponent({
       (
         ({
           local: t("message.pms_upload.local"),
-          minio: "MinIO",
+          minio: t("message.pms_upload.storageMinIO"),
           tencent: t("message.pms_upload.tencentCos"),
         }) as Record<string, string>
       )[s] || s;

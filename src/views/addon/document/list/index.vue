@@ -788,6 +788,12 @@ export default defineComponent({
 .document-editor-dialog :deep(.el-textarea__inner) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
+:deep(.el-drawer__body) {
+  padding: var(--cc-space-6);
+}
+:deep(.el-drawer__header) {
+  padding: var(--cc-space-5) var(--cc-space-6) 0;
+}
 :global(.document-sync-result .el-message-box__message) {
   white-space: pre-wrap;
 }
