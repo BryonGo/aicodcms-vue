@@ -68,6 +68,7 @@ export default {
     colCrawler: "蜘蛛来访",
     colWeigh: "权重",
     colImage: "图片",
+    thumbnail: "缩略图",
     colTags: "标签",
     colContent: "正文",
     colSeotitle: "SEO标题",
@@ -187,6 +188,7 @@ export default {
     basicInfo: "基本信息",
     colDiyname: "自定义别名",
     colParentId: "上级栏目",
+    colFlag: "标志",
     colType: "类型",
     colWeigh: "排序权重",
     colKeywords: "关键词",
@@ -566,6 +568,14 @@ export default {
   },
 
   // ========== 文章列表 ==========
+  cmsArticle: {
+    btnRegenerateStatic: "重生成静态",
+    // 批量重生成静态
+    confirmBatchRegen: "确定要重新生成 {count} 篇文章的静态 HTML 吗？",
+    titleBatchRegen: "批量重生成",
+    msgRegenerating: "正在重生成 {count} 篇...",
+    msgRegenerateDone: "重生成完成",
+  },
   articleList: {
     breadcrumbs: {
       home: "首页",
@@ -573,6 +583,7 @@ export default {
       article: "文章管理",
       recycle: "回收站",
     },
+    btnClear: "清空",
     sidebarTitle: "栏目分类",
     toggleSidebar: "切换侧边栏",
     countArticles: "篇文章",
@@ -621,12 +632,6 @@ export default {
     trashEmpty: "回收站为空",
     placeholderSelectLang: "请选择要编辑的语言",
     msgSelectHardDelete: "请选择要彻底删除的文章",
-    // 批量重生成静态
-    btnRegenerateStatic: "重生成静态",
-    confirmBatchRegen: "确定要重新生成 {count} 篇文章的静态 HTML 吗？",
-    titleBatchRegen: "批量重生成",
-    msgRegenerating: "正在重生成 {count} 篇...",
-    msgRegenerateDone: "重生成完成",
   },
   // ========== 区块列表 ==========
   blockList: {

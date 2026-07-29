@@ -1108,6 +1108,10 @@ export default defineComponent({
       channelTree,
       onBatchConfirm,
       onRegenerateBatch,
+      Delete,
+      DeleteFilled,
+      Hide,
+      Plus,
     };
   },
 });

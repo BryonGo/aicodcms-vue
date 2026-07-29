@@ -334,9 +334,9 @@ export default defineComponent({
         if (!v) return;
         submitting.value = true;
         const payload = { ...state.ruleForm, menu_type: typeToNum[state.ruleForm.menu_type] ?? 0 };
-        (id ? updateMenu(payload) : addMenu(payload))
+        (state.ruleForm.id ? updateMenu(payload) : addMenu(payload))
           .then(() => {
-            ElMessage.success(id ? t("message.common.msgEditOk") : t("message.common.msgAddOk"));
+            ElMessage.success(state.ruleForm.id ? t("message.common.msgEditOk") : t("message.common.msgAddOk"));
             router.back();
           })
           .finally(() => (submitting.value = false));

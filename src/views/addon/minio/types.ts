@@ -6,6 +6,7 @@ export interface MinioFileInfo {
   last_modified: string;
   content_type: string;
   is_dir: boolean;
+  e_tag?: string;
 }
 
 /** 存储桶信息 */

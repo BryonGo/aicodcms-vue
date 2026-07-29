@@ -133,7 +133,7 @@ export default defineComponent({
     const loadData = async () => {
       try {
         // 概况
-        const ov = await getOverview();
+        const ov = (await getOverview()) as any;
         if (ov?.code === 0 && ov.data) {
           const d = ov.data;
           statCards[0].label = t("message.cms.crawlerZeroSpider");
@@ -178,7 +178,7 @@ export default defineComponent({
 
       try {
         // 趋势
-        const tr = await getTrend({ days: 30 });
+        const tr = (await getTrend({ days: 30 })) as any;
         if (tr?.code === 0 && tr.data?.daily?.length && trendRef.value) {
           const daily = tr.data.daily;
           const xData = daily.map((d: any) => String(d.crawl_day).slice(4));
@@ -219,7 +219,7 @@ export default defineComponent({
 
       try {
         // Top 文章
-        const tp = await getTopArticles({ limit: 20 });
+        const tp = (await getTopArticles({ limit: 20 })) as any;
         if (tp?.code === 0 && tp.data?.articles?.length && topRef.value) {
           const articles = tp.data.articles.slice(0, 10);
           nextTick(() => {
@@ -248,7 +248,7 @@ export default defineComponent({
 
       try {
         // 热力表
-        const hm = await getHeatmap({ days: 7 });
+        const hm = (await getHeatmap({ days: 7 })) as any;
         if (hm?.code === 0 && hm.data?.rows?.length) {
           heatmapRows.value = hm.data.rows;
           heatmapDays.value =
@@ -266,7 +266,7 @@ export default defineComponent({
       topChart?.dispose();
     });
 
-    return { pieRef, trendRef, topRef, statCards, heatmapRows, heatmapDays, heatmapColor };
+    return { pieRef, trendRef, topRef, statCards, heatmapRows, heatmapDays, heatmapColor, t };
   },
 });
 </script>

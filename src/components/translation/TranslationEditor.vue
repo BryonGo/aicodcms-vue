@@ -24,7 +24,7 @@
       <el-form-item v-for="field in fields" :key="field.key" :label="field.label">
         <!-- 文本输入 -->
         <el-input
-          v-if="field.type === 'text' || field.type === 'string'"
+          v-if="field.type === 'text'"
           v-model="currentTrans[field.key]"
           :placeholder="
             field.placeholder || $t('message.cms.common.placeholderInput') + ' ' + field.label

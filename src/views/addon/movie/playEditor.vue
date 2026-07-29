@@ -137,7 +137,7 @@
       </div>
     </div>
 
-    <el-button size="small" plain class="mt8" @click="addActor">
+    <el-button size="small" plain class="mt8" @click="addActorRow">
       <el-icon><ele-Plus /></el-icon> {{ $t("message.cms.movie.addActor") }}
     </el-button>
   </div>
@@ -307,7 +307,7 @@ export default defineComponent({
       }
       sync();
     }
-    function addActor() {
+    function addActorRow() {
       actors.value.push({ actor_id: "", actor_name: "", role_name: "", sort: 0 });
       sync();
     }
@@ -330,7 +330,7 @@ export default defineComponent({
       clearBatch,
       searchActors,
       onActorSelected,
-      addActor,
+      addActorRow,
       removeActor,
     };
   },

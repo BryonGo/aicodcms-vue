@@ -25,7 +25,7 @@
       <el-form-item
         v-for="field in fields"
         :key="field.id"
-        :label="$t('moduleField_' + field.name, field.label)"
+        :label="$t('moduleField_' + field.name, field.label || '')"
         :prop="field.name"
         :rules="getFieldRules(field)"
       >

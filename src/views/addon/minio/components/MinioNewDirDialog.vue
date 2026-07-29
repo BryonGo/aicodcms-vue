@@ -15,7 +15,7 @@
         />
       </el-form-item>
       <el-form-item :label="$t('message.pms.minio.labelParentPath')">
-        <el-input :value="store.currentPrefix || '/'" disabled />
+        <el-input :model-value="store.currentPrefix || '/'" disabled />
       </el-form-item>
     </el-form>
     <template #footer>

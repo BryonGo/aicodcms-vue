@@ -43,6 +43,7 @@ const trendClass = computed(() => {
   return "is-flat";
 });
 const trendIcon = computed(() => {
+  if (props.trend === null || props.trend === undefined) return "fa fa-minus";
   if (props.trend > 0) return "fa fa-arrow-up";
   if (props.trend < 0) return "fa fa-arrow-down";
   return "fa fa-minus";

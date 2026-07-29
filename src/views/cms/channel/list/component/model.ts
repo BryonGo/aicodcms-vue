@@ -30,20 +30,21 @@ export interface ChannelInfoData {
   deleted_at: string | undefined; // 删除日期
   content: string | undefined; // 内容
   parent_id: number | undefined; // 父ID
-  weigh: number | undefined; // 权重
+  weigh?: number | undefined; // 权重
   layouttpl: string | undefined; // layouttpl模板
   channeltpl: string | undefined; // 栏目页模板
   listtpl: string | undefined; // 列表页模板
   showtpl: string | undefined; // 详情页模板
-  pagesize: string | undefined; // 分页大小
+  pagesize?: string | undefined; // 分页大小
   isInherit: boolean | undefined; // 继承模板
   image: string | undefined; // 缩略图
   status: string; // 状态
-  outlink: string | undefined; // 外部链接
-  diyname: string | undefined; // 自定义名称
+  outlink?: string | undefined; // 外部链接
+  diyname?: string | undefined; // 自定义名称
   isnav: number; //是否显示导航
   flag: string | undefined; // 外部链接
   linkedCmsChannelCmsChannel: LinkedCmsChannelCmsChannel;
+  translations?: any[]; // 翻译数据
 }
 
 export interface LinkedCmsChannelCmsChannel {

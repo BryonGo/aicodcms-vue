@@ -437,7 +437,7 @@
             <div class="module-fields-list">
               <div class="module-field-item" v-for="item in moduleFields" :key="item.id">
                 <div class="mf-label">
-                  <span class="mf-name">{{ $t("moduleField_" + item.name, item.label) }}</span>
+                  <span class="mf-name">{{ $t("moduleField_" + item.name, item.label ?? "") }}</span>
                   <el-tag
                     v-if="item.is_translatable === 1"
                     size="small"
@@ -526,11 +526,9 @@
         <el-button size="large" @click="onShowRevisions" v-if="formData.id">
           {{ $t("message.cmsArticle.revisionHistory") }}
         </el-button>
-        <el-dropdown trigger="click" @command="handlePublish">
-          <el-button type="primary" @click="onSubmitPublish" size="large" :loading="loading">
-            {{ $t("message.cms.articleEdit.confirmButton") }}
-          </el-button>
-        </el-dropdown>
+        <el-button type="primary" @click="onSubmitPublish" size="large" :loading="loading">
+          {{ $t("message.cms.articleEdit.confirmButton") }}
+        </el-button>
       </div>
     </footer>
   </div>
@@ -590,6 +588,8 @@ import {
   savePlayUrls,
   getActorRoles,
   saveActorRoles,
+  type PlayerGroup,
+  type ActorRole,
 } from "/@/api/addon/movie";
 import { seoCheck } from "/@/api/cms/article";
 import { listCmsRevision, getCmsRevision, restoreCmsRevision } from "/@/api/cms/revision";
@@ -615,12 +615,12 @@ export default defineComponent({
         2: t("message.cmsArticle.draft"),
         3: t("message.cmsArticle.scheduled"),
       };
-      return map[formData.status] || t("message.cmsArticle.unknown");
+      return map[state.formData.status ?? 0] || t("message.cmsArticle.unknown");
     });
 
     const statusTagType = computed(() => {
       const map: Record<number, string> = { 0: "info", 1: "success", 2: "warning", 3: "danger" };
-      return map[formData.status] || "info";
+      return map[state.formData.status ?? 0] || "info";
     });
     const defaultLangInfo = ref({
       flag: "🇨🇳",
@@ -672,7 +672,7 @@ export default defineComponent({
     const upLoadingThumb = ref(false);
     const cmsChannelOptions = ref([]);
     const cascaderKey = ref(0);
-    const modulesOptions = ref([]);
+    const modulesOptions = ref<{ id: number; name: string }[]>([]);
     const jumpOptions = [
       { label: t("message.common.yes"), value: "1" },
       { label: t("message.common.no"), value: "0" },
@@ -930,7 +930,7 @@ export default defineComponent({
       if (mid > 0) {
         listModulesField({ row: 20, page: 1, moduleId: mid }).then((res: any) => {
           (res.data.list ?? []).forEach((item: ModulesFieldInfoData) => {
-            if (["checkbox", "image", "images", "file", "files"].includes(item.type)) {
+            if (["checkbox", "image", "images", "file", "files"].includes(item.type ?? "")) {
               item.content = [];
             } else {
               item.content = "";
@@ -1023,7 +1023,7 @@ export default defineComponent({
             urls: g.urls || [],
           }));
           if (groups.length > 0) {
-            await savePlayerGroups(articleId, groups);
+            await savePlayerGroups(articleId, groups as unknown as PlayerGroup[]);
             const gRes: any = await getPlayerGroups(articleId);
             const savedGroups = gRes.data?.list || [];
             for (let i = 0; i < savedGroups.length && i < groups.length; i++) {
@@ -1044,7 +1044,7 @@ export default defineComponent({
               role_name: r.role_name || "",
               sort: r.sort || 0,
             }));
-            await saveActorRoles(articleId, items);
+            await saveActorRoles(articleId, items as ActorRole[]);
           }
         };
         if (!submitData.id || submitData.id === 0) {
@@ -1247,9 +1247,13 @@ export default defineComponent({
       onCancel,
       onDeleteTranslation,
       onSubmit,
+      onSubmitDraft,
+      onSubmitPublish,
       moduleFields,
       cascaderKey,
       isAddMode,
+      statusLabel,
+      statusTagType,
       defaultLangInfo,
       shouldDisableModuleField,
       onEditLangChange,

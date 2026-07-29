@@ -195,7 +195,7 @@ export default defineComponent({
               0,
               state.tableData.data.splice(evt.oldIndex, 1)[0],
             );
-            state.tableData.data.forEach((item: ModulesFieldInfoData, index: number) => {
+            state.tableData.data.forEach((item: ModulesFieldTableColumns, index: number) => {
               item.sort = index;
               sortData.push({ id: item.id, sort: item.sort });
             });
@@ -273,7 +273,7 @@ export default defineComponent({
       }
       proxy.$router.push(`/pms/modules/field/list/edit?moduleId=${moduleId.value}&id=${row.id}`);
     };
-    const handleDelete = (row: ModulesFieldTableColumns) => {
+    const handleDelete = (row: ModulesFieldTableColumns | null) => {
       let msg = t("message.common.confirmDeleteBatch");
       let id: number[] = [];
       if (row) {

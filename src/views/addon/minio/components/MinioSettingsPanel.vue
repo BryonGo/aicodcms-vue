@@ -435,8 +435,8 @@
                   {{ $t("message.pms.minio.addDomain") }}
                 </button>
                 <div class="hotlink-actions">
-                  <button class="hotlink-save-btn" :disabled="savingHotlink" @click="saveHotlink">
-                    <span v-if="savingHotlink" class="btn-spinner" />{{ $t("message.common.save") }}
+                  <button class="hotlink-save-btn" :disabled="hotlinkSaving" @click="saveHotlink">
+                    <span v-if="hotlinkSaving" class="btn-spinner" />{{ $t("message.common.save") }}
                   </button>
                   <button class="hotlink-cancel-btn" @click="showHotlinkEditor = false">
                     {{ $t("message.common.cancel") }}

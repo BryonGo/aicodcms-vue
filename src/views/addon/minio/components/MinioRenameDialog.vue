@@ -7,7 +7,7 @@
   >
     <el-form label-width="80px">
       <el-form-item :label="$t('message.pms.minio.labelCurrentName')">
-        <el-input :value="oldName" disabled />
+        <el-input :model-value="oldName" disabled />
       </el-form-item>
       <el-form-item :label="$t('message.pms.minio.labelNewName')">
         <el-input

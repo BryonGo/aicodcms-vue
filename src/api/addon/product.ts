@@ -148,8 +148,14 @@ export interface ProductAddParams {
   status?: number;
 }
 
-export interface ProductEditParams extends ProductAddParams {
+export interface ProductEditParams {
   id: number;
+  app_id?: number;
+  name?: string;
+  local_product_id?: string;
+  price?: number;
+  currency?: string;
+  status?: number;
 }
 
 // ---------- 版本 ----------

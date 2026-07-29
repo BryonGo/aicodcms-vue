@@ -28,6 +28,33 @@ import uploader from "vue-simple-uploader";
 import "vue-simple-uploader/dist/style.css";
 
 const app = createApp(App);
+
+// Silence known-benign warnings. These are not caused by our code and do not
+// affect behavior; only the exact messages below are suppressed. All other
+// warnings pass through unchanged.
+app.config.warnHandler = (msg, instance, type) => {
+  if (typeof msg === "string") {
+    // 1) Element Plus's ElPopper `role` prop receives "button" (not in its enum)
+    //    on a sub-component we don't control — no `:role` binding exists in the
+    //    project (grep-confirmed). Fires when a dropdown/tooltip/select re-renders.
+    if (msg.includes('prop "role"')) return;
+    // 2) `v-auth` on Element Plus `el-dropdown-item` (its root is a Fragment, so
+    //    the directive can't attach to a single element). The directive itself
+    //    was hardened in src/utils/authDirective.ts to still hide the item; this
+    //    is just Vue's unavoidable notice about the fragment root.
+    if (msg.includes("Runtime directive used on component with non-element root node"))
+      return;
+  }
+  // Forward every other warning to the console (default Vue behavior).
+  // Append the source component file so warnings are self-diagnosing.
+  const inst = instance as any;
+  const opts = inst?.$options;
+  const comp =
+    opts?.__file || opts?.__name || inst?.type?.__file || "anonymous";
+  // eslint-disable-next-line no-console
+  console.warn(`[Vue warn] (${comp}): ${msg}`, instance ?? "");
+};
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
@@ -38,7 +65,7 @@ app
   .use(pinia)
   .use(VueGridLayout)
   .use(router)
-  .use(ElementPlus, { i18n: i18n.global.t })
+  .use(ElementPlus)
   .use(i18n)
   .use(uploader)
   .mount("#app");

@@ -357,6 +357,8 @@ export default defineComponent({
         linkedCmsChannelCmsChannel: { id: undefined, name: undefined },
         translations: [],
         status: "1",
+        isnav: 0,
+        flag: undefined,
       },
       rules: {
         name: [
@@ -387,8 +389,8 @@ export default defineComponent({
       return colors[flag || ""] || "#909399";
     };
 
-    const fmtTs = (ts: number) => {
-      if (!ts || ts <= 0) return "—";
+    const fmtTs = (ts?: number | string) => {
+      if (ts === undefined || ts === null || ts === "" || Number(ts) <= 0) return "—";
       return new Date(Number(ts) * 1000).toLocaleString("zh-CN", {
         year: "numeric",
         month: "2-digit",
@@ -526,6 +528,7 @@ export default defineComponent({
       CmsChannelChange,
       proxy,
       onSubmit,
+      onDelete,
       formRef,
       imageUrlThumb,
       upLoadingThumb,
@@ -542,7 +545,6 @@ export default defineComponent({
       pageTitle,
       fmtTs,
       translationFields,
-      loading,
       submitting,
       loadError,
       ...toRefs(state),

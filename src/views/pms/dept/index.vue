@@ -150,6 +150,9 @@ interface TableDataRow {
   status: number;
   order_num: number;
   created_at: string;
+  leader?: string;
+  phone?: string;
+  email?: string;
   children?: TableDataRow[];
 }
 interface TableDataState {

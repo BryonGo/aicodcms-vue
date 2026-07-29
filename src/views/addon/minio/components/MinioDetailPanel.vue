@@ -23,7 +23,7 @@
           file.last_modified
         }}</el-descriptions-item>
         <el-descriptions-item label="ETag" v-if="file.e_tag"
-          >{{ file.e_tag.slice(0, 12) }}...</el-descriptions-item
+          >{{ file.e_tag?.slice(0, 12) }}...</el-descriptions-item
         >
       </el-descriptions>
     </div>

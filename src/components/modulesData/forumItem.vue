@@ -219,7 +219,10 @@ export default defineComponent({
       type: String,
       default: "",
     },
-    moduleField: Object as PropType<ModulesFieldInfoData>,
+    moduleField: {
+      type: Object as PropType<ModulesFieldInfoData>,
+      required: true,
+    },
     modelValue: null,
   },
   setup(props, { emit }) {

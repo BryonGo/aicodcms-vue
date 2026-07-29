@@ -67,6 +67,7 @@ export default {
     colCrawler: "Crawler Visit",
     colWeigh: "Weight",
     colImage: "Image",
+    thumbnail: "Thumbnail",
     colTags: "Tags",
     colContent: "Content",
     colSeotitle: "SEO Title",
@@ -183,6 +184,7 @@ export default {
     basicInfo: "Basic Info",
     colDiyname: "Alias",
     colParentId: "Parent Channel",
+    colFlag: "Flag",
     colType: "Type",
     colWeigh: "Weight",
     colKeywords: "Keywords",
@@ -553,6 +555,14 @@ export default {
     editAvatar: "Change Avatar",
   },
 
+  cmsArticle: {
+    btnRegenerateStatic: "Regenerate Static",
+    // Batch regenerate static HTML
+    confirmBatchRegen: "Regenerate static HTML for {count} articles?",
+    titleBatchRegen: "Batch Regenerate",
+    msgRegenerating: "Regenerating {count} articles...",
+    msgRegenerateDone: "Regeneration complete",
+  },
   articleList: {
     breadcrumbs: {
       home: "Home",
@@ -560,6 +570,7 @@ export default {
       article: "Articles",
       recycle: "Recycle Bin",
     },
+    btnClear: "Clear",
     sidebarTitle: "Categories",
     toggleSidebar: "Toggle Sidebar",
     countArticles: " articles",
@@ -608,12 +619,6 @@ export default {
     trashEmpty: "Recycle bin is empty",
     placeholderSelectLang: "Select language to edit",
     msgSelectHardDelete: "Select articles to permanently delete",
-    // Batch regenerate static HTML
-    btnRegenerateStatic: "Regenerate Static",
-    confirmBatchRegen: "Regenerate static HTML for {count} articles?",
-    titleBatchRegen: "Batch Regenerate",
-    msgRegenerating: "Regenerating {count} articles...",
-    msgRegenerateDone: "Regeneration complete",
   },
   blockList: {
     breadcrumbs: { home: "Home", cms: "Content", block: "Blocks" },

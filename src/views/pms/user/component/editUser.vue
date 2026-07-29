@@ -11,7 +11,7 @@
       </div>
       <div class="pms-card-form">
         <el-alert
-          v-if="ruleForm.user_id === 1"
+          v-if="ruleForm.user_id === ADMIN_USER_ID"
           :title="$t('message.pms.user.superAdminNotEditable')"
           type="warning"
           show-icon
@@ -24,7 +24,7 @@
               v-if="ruleForm.user_id === 0"
               :label="$t('message.pms.user.labelUsername')"
               prop="user_name"
-              ><el-input v-model="ruleForm.user_name" :disabled="ruleForm.user_id === 1"
+              ><el-input v-model="ruleForm.user_name" :disabled="ruleForm.user_id === ADMIN_USER_ID"
             /></el-form-item>
             <el-form-item
               v-if="ruleForm.user_id === 0"
@@ -33,17 +33,17 @@
               ><el-input
                 v-model="ruleForm.password"
                 type="password"
-                :disabled="ruleForm.user_id === 1"
+                :disabled="ruleForm.user_id === ADMIN_USER_ID"
             /></el-form-item>
             <el-form-item :label="$t('message.pms.user.colNickname')" prop="nick_name"
-              ><el-input v-model="ruleForm.nick_name" :disabled="ruleForm.user_id === 1"
+              ><el-input v-model="ruleForm.nick_name" :disabled="ruleForm.user_id === ADMIN_USER_ID"
             /></el-form-item>
             <el-form-item :label="$t('message.pms.user.labelRole')"
               ><el-select
                 v-model="ruleForm.role_ids"
                 multiple
                 style="width: 100%"
-                :disabled="ruleForm.user_id === 1"
+                :disabled="ruleForm.user_id === ADMIN_USER_ID"
                 ><el-option
                   v-for="r in roleList"
                   :key="'r-' + r.id"
@@ -62,7 +62,7 @@
                 clearable
                 v-model="ruleForm.dept_id"
                 style="width: 100%"
-                :disabled="ruleForm.user_id === 1"
+                :disabled="ruleForm.user_id === ADMIN_USER_ID"
                 ><template #default="{ node, data }"
                   ><span>{{ data.dept_name }}</span
                   ><span v-if="!node.isLeaf"> ({{ data.children.length }})</span></template
@@ -70,16 +70,16 @@
               ></el-form-item
             >
             <el-form-item :label="$t('message.pms.user.colPhone')" prop="mobile"
-              ><el-input v-model="ruleForm.mobile" :disabled="ruleForm.user_id === 1"
+              ><el-input v-model="ruleForm.mobile" :disabled="ruleForm.user_id === ADMIN_USER_ID"
             /></el-form-item>
             <el-form-item :label="$t('message.pms.user.colEmail')" prop="email"
-              ><el-input v-model="ruleForm.email" :disabled="ruleForm.user_id === 1"
+              ><el-input v-model="ruleForm.email" :disabled="ruleForm.user_id === ADMIN_USER_ID"
             /></el-form-item>
             <el-form-item :label="$t('message.pms.user.colSex')"
               ><el-select
                 v-model="ruleForm.sex"
                 style="width: 100%"
-                :disabled="ruleForm.user_id === 1"
+                :disabled="ruleForm.user_id === ADMIN_USER_ID"
                 ><el-option
                   v-for="g in genderData"
                   :key="'g-' + g.value"
@@ -91,7 +91,7 @@
                 v-model="ruleForm.section_ids"
                 multiple
                 style="width: 100%"
-                :disabled="ruleForm.user_id === 1"
+                :disabled="ruleForm.user_id === ADMIN_USER_ID"
                 ><el-option
                   v-for="p in postList"
                   :key="'p-' + p.section_id"
@@ -106,10 +106,10 @@
                 inline-prompt
                 :active-text="$t('message.common.enabled')"
                 :inactive-text="$t('message.common.disabled')"
-                :disabled="ruleForm.user_id === 1"
+                :disabled="ruleForm.user_id === ADMIN_USER_ID"
             /></el-form-item>
             <el-form-item :label="$t('message.pms.user.labelUserType')" class="pms-card-full"
-              ><el-radio-group v-model="ruleForm.isSuperAdmin" :disabled="ruleForm.user_id === 1"
+              ><el-radio-group v-model="ruleForm.isSuperAdmin" :disabled="ruleForm.user_id === ADMIN_USER_ID"
                 ><el-radio :label="1">{{ $t("message.pms.user.superAdmin") }}</el-radio
                 ><el-radio :label="0">{{
                   $t("message.pms.user.normalUser")
@@ -167,6 +167,7 @@ export default defineComponent({
       { label: t("message.male"), value: "0" },
       { label: t("message.female"), value: "1" },
     ];
+    const ADMIN_USER_ID: number = 1;
     const state = reactive({
       ruleForm: {
         user_id: 0,
@@ -190,10 +191,10 @@ export default defineComponent({
         nick_name: [{ required: true, message: "Nickname is required", trigger: "blur" }],
       },
     });
-    getRoleList().then((r: any) => {
+    getRoleList({}).then((r: any) => {
       roleList.value = r.data.list || [];
     });
-    getPostList().then((r: any) => {
+    getPostList({}).then((r: any) => {
       postList.value = r.data.list || [];
     });
     getDeptList().then((r: any) => {
@@ -227,6 +228,7 @@ export default defineComponent({
       postList,
       deptData,
       genderData,
+      ADMIN_USER_ID,
       submitting,
       onSubmit,
     };

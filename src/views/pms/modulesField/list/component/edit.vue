@@ -67,7 +67,7 @@
         <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" size="large">
           <div class="mfld-form-grid">
             <el-form-item :label="$t('message.pms.modulesFieldEdit.labelModel')">
-              <el-input :value="modulesInfo?.name" disabled />
+              <el-input :model-value="modulesInfo?.name" disabled />
             </el-form-item>
             <el-form-item prop="label">
               <template #label

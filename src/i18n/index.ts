@@ -31,6 +31,7 @@ const messages = {
     message: {
       ...nextZhcn,
       ...pagesLoginZhcn,
+      cmsArticle: { ...nextZhcn.cmsArticle, ...pagesCmsZhcn.cmsArticle },
       cms: pagesCmsZhcn,
       pms: pagesPmsZhcn,
       sdk: { ...nextZhcn.sdk, ...pagesSdkZhcn },
@@ -41,6 +42,7 @@ const messages = {
     message: {
       ...nextEn,
       ...pagesLoginEn,
+      cmsArticle: { ...nextEn.cmsArticle, ...pagesCmsEn.cmsArticle },
       cms: pagesCmsEn,
       pms: pagesPmsEn,
       sdk: pagesSdkEn,

@@ -22,12 +22,15 @@
     "preview": "vp preview",
     "check": "vp check",
     "fmt": "vp fmt",
-    "prepare": "vp config",
+    "prepare": "vp config && husky",
     "test:i18n": "node src/__tests__/i18n_complete.test.cjs",
     "test:usei18n": "node src/__tests__/usei18n_check.test.cjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "type-check": "vue-tsc --noEmit -p tsconfig.typecheck.json",
+    "type-check:staged": "node scripts/type-check-staged.mjs",
+    "type-check:baseline": "node scripts/type-check-baseline.mjs"
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.8",
@@ -88,11 +91,13 @@
     "@types/sortablejs": "^1.13.0",
     "@vitejs/plugin-vue": "^6.0.6",
     "dotenv": "^16.0.1",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "typescript": "^5.8.3",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.1.21",
     "vite-plus": "0.1.21",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.21"
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.21",
+    "vue-tsc": "^2.2.12"
   },
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@0.1.21",

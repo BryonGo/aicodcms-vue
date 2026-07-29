@@ -406,8 +406,14 @@ const splitColor = computed(() => (isDark.value ? "rgba(255,255,255,.06)" : "rgb
 
 const renderPie = () => {
   if (!pieRef.value || !server.value) return;
+  const el = pieRef.value;
+  // ECharts cannot init on a 0-sized element (e.g. before layout settles).
+  if (el.clientWidth === 0 || el.clientHeight === 0) {
+    requestAnimationFrame(() => renderPie());
+    return;
+  }
   pieChart?.dispose();
-  pieChart = echarts.init(pieRef.value, chartTheme.value);
+  pieChart = echarts.init(el, chartTheme.value);
   const d = server.value;
   const memUsedMB = Math.round(d.memUsed / 1024 / 1024);
   const memFreeMB = Math.round(d.memFree / 1024 / 1024);
@@ -435,8 +441,13 @@ const renderPie = () => {
 };
 const renderBar = () => {
   if (!barRef.value || !server.value) return;
+  const el = barRef.value;
+  if (el.clientWidth === 0 || el.clientHeight === 0) {
+    requestAnimationFrame(() => renderBar());
+    return;
+  }
   barChart?.dispose();
-  barChart = echarts.init(barRef.value, chartTheme.value);
+  barChart = echarts.init(el, chartTheme.value);
   const d = server.value;
   barChart.setOption({
     backgroundColor: "transparent",
@@ -475,8 +486,13 @@ const renderBar = () => {
 };
 const renderDisk = () => {
   if (!diskRef.value || !server.value) return;
+  const el = diskRef.value;
+  if (el.clientWidth === 0 || el.clientHeight === 0) {
+    requestAnimationFrame(() => renderDisk());
+    return;
+  }
   diskChart?.dispose();
-  diskChart = echarts.init(diskRef.value, chartTheme.value);
+  diskChart = echarts.init(el, chartTheme.value);
   const list = (server.value.diskList || []) as any[];
   diskChart.setOption({
     backgroundColor: "transparent",
@@ -514,8 +530,13 @@ const renderDisk = () => {
 };
 const renderWordCloud = (words: { name: string; value: number }[]) => {
   if (!wordcloudRef.value) return;
+  const el = wordcloudRef.value;
+  if (el.clientWidth === 0 || el.clientHeight === 0) {
+    requestAnimationFrame(() => renderWordCloud(words));
+    return;
+  }
   wcChart?.dispose();
-  wcChart = echarts.init(wordcloudRef.value, chartTheme.value);
+  wcChart = echarts.init(el, chartTheme.value);
   const palette = [
     "#16BAAA",
     "#3B82F6",

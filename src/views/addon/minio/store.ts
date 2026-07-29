@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import type { AxiosProgressEvent } from "axios";
 import { ElMessage } from "element-plus";
 import request from "/@/utils/request";
 import type { MinioFileInfo, MinioBucketInfo, BreadcrumbItem, UploadItem, FileTag } from "./types";
@@ -165,7 +166,7 @@ export const useMinioStore = defineStore("minio", () => {
           url: "/api/v1/addon/minio/put",
           method: "put",
           data: form,
-          onUploadProgress: (e: ProgressEvent) => {
+          onUploadProgress: (e: AxiosProgressEvent) => {
             if (e.total) item.progress = Math.round((e.loaded / e.total) * 100);
           },
         });

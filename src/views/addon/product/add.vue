@@ -96,7 +96,7 @@ import { defineComponent, ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import ProPage from "/@/components/pro/ProPage.vue";
-import { addProduct } from "/@/api/addon/product";
+import { addProduct, type ProductAddParams } from "/@/api/addon/product";
 import { useI18n } from "vue-i18n";
 
 export default defineComponent({
@@ -150,7 +150,7 @@ export default defineComponent({
           delete payload.app_id;
           delete payload.local_product_id;
         }
-        await addProduct(payload);
+        await addProduct(payload as ProductAddParams);
         ElMessage.success(t("message.sdk.product.msgAddSuccess"));
         router.push("/addon/product/list");
       } finally {

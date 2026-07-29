@@ -2,7 +2,7 @@
   <div class="gf-tiptap" :class="{ 'is-focused': isFocused, 'is-dragover': isDragOver }">
     <editor-toolbar
       v-if="toolbar"
-      :editor="editor"
+      :editor="editor!"
       :mode="toolbar"
       @upload-image="handleInsertImage"
       @upload-attachment="handleInsertAttachment"
@@ -11,7 +11,7 @@
       <el-progress :percentage="uploadProgress" :stroke-width="4" striped />
       <span>{{ uploadingText }}</span>
     </div>
-    <editor-content :editor="editor" class="gf-tiptap-content" />
+    <editor-content :editor="editor!" class="gf-tiptap-content" />
     <div v-if="showCount" class="gf-tiptap-counter">
       {{ editor?.storage.characterCount?.characters?.() || 0 }} 字符
     </div>
@@ -158,7 +158,7 @@ export default defineComponent({
         if (!editor.value) return;
         const current = getContent(editor.value);
         if (val === current) return;
-        editor.value.commands.setContent(val || "", false);
+        editor.value.commands.setContent(val || "", { emitUpdate: false });
       },
     );
 

@@ -23,7 +23,7 @@ export interface ModulesFieldInfoData {
   moduleId: number | undefined; // 模型ID
   field_length: number | undefined; // 字段长度
   is_translatable: number | undefined; // 是否可翻译 0否 1是
-  content: string | undefined; // 内容
+  content: any; // 内容
 }
 
 export interface ModulesFieldTableDataState {

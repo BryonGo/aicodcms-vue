@@ -42,7 +42,7 @@
             size="small"
             effect="plain"
           >
-            {{ { 0: "未触发", 1: "成功", 2: "失败" }[row.last_status] || "-" }}
+            {{ { 0: "未触发", 1: "成功", 2: "失败" }[row.last_status as 0 | 1 | 2] || "-" }}
           </el-tag>
         </template>
       </el-table-column>

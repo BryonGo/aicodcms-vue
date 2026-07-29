@@ -108,8 +108,8 @@ onMounted(() => {
 
 function onSubmit() {
   submitting.value = true;
-  const data = { ...form, status: form.statusBool ? 1 : 0 };
-  delete data.statusBool;
+  const { statusBool, ...rest } = form;
+  const data = { ...rest, status: statusBool ? 1 : 0 };
   editLink(data)
     .then((res: any) => {
       if (res.code === 0 || res.code === 200) {

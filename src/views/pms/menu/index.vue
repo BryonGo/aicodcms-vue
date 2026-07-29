@@ -362,6 +362,8 @@ export default defineComponent({
       ...toRefs(state),
       sys_show_hide,
       acType,
+      PlusIcon,
+      SearchIcon,
     };
   },
 });

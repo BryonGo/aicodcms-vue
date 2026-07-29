@@ -6,6 +6,7 @@ import type { App } from "vue";
  * @directive 参数方式：v-waves=" |light|red|orange|purple|green|teal"，如 `<div v-waves="'light'"></div>`
  */
 export function wavesDirective(app: App) {
+  const clickHandlers = new WeakMap<HTMLElement, (e: any) => void>();
   app.directive("waves", {
     mounted(el, binding) {
       el.classList.add("waves-effect");
@@ -17,7 +18,7 @@ export function wavesDirective(app: App) {
         }
         return style;
       }
-      function onCurrentClick(e: { [key: string]: unknown }) {
+      function onCurrentClick(e: any) {
         let elDiv = document.createElement("div");
         elDiv.classList.add("waves-ripple");
         el.appendChild(elDiv);
@@ -45,10 +46,13 @@ export function wavesDirective(app: App) {
           }, 750);
         }, 450);
       }
+      clickHandlers.set(el, onCurrentClick);
       el.addEventListener("mousedown", onCurrentClick, false);
     },
     unmounted(el) {
-      el.removeEventListener("mousedown", onCurrentClick);
+      const handler = clickHandlers.get(el);
+      if (handler) el.removeEventListener("mousedown", handler);
+      clickHandlers.delete(el);
     },
   });
 }

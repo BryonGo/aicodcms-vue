@@ -18,14 +18,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import GfTiptap from "/@/components/tiptap/index.vue";
+import type { ToolbarMode } from "/@/components/tiptap/editor-config";
 
 const props = withDefaults(
   defineProps<{
     modelValue?: string;
     title?: string;
     subtitle?: string;
-    /** tiptap 工具栏模式：full / mini / minimal */
-    toolbar?: "full" | "mini" | "minimal";
+    /** tiptap 工具栏模式：full / cms / mini */
+    toolbar?: ToolbarMode;
     placeholder?: string;
     showCount?: boolean;
     bordered?: boolean;

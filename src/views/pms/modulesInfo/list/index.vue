@@ -188,9 +188,9 @@ export default defineComponent({
     const word = computed(() => {
       if (showAll.value === false) {
         //对文字进行处理
-        return $t("message.pms.modulesInfoList.expandSearch");
+        return t("message.pms.modulesInfoList.expandSearch");
       } else {
-        return $t("message.pms.modulesInfoList.collapseSearch");
+        return t("message.pms.modulesInfoList.collapseSearch");
       }
     });
     const state = reactive<ModulesInfoTableDataState>({
@@ -279,7 +279,7 @@ export default defineComponent({
       }
       proxy.$router.push(`/pms/modules/info/list/edit?id=${row.id}`);
     };
-    const handleDelete = (row: ModulesInfoTableColumns) => {
+    const handleDelete = (row: ModulesInfoTableColumns | null) => {
       let msg = t("message.common.confirmDeleteBatch");
       let id: number[] = [];
       if (row) {

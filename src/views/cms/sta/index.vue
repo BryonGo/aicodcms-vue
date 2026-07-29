@@ -384,7 +384,7 @@ interface Snapshot {
   errors: number;
   last_error: string;
   error_samples?: ErrorSample[];
-  error_rate?: number;
+  error_rate: number;
   started_at: number;
   updated_at: number;
   elapsed_sec: number;

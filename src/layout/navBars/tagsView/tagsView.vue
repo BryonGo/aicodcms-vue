@@ -247,8 +247,8 @@ export default defineComponent({
       });
     };
     // 1、添加 tagsView：未设置隐藏（isHide）也添加到在 tagsView 中（可开启多标签详情，单标签详情）
-    const addTagsView = async (path, to) => {
-      let item = "";
+    const addTagsView = async (path: string, to?: any) => {
+      let item: any = "";
       if (to && to.meta.isDynamic) {
         if (!getThemeConfig.value.isShareTagsView) await solveAddTagsView(path, to);
         else await singleAddTagsView(path, to);
@@ -551,7 +551,7 @@ export default defineComponent({
     };
     // 拖动 resize 防抖，避免高频重建 Sortable
     const debounceSortableResize = (() => {
-      let timer;
+      let timer: ReturnType<typeof setTimeout>;
       return () => {
         clearTimeout(timer);
         timer = setTimeout(() => onSortableResize(), 150);
@@ -559,7 +559,7 @@ export default defineComponent({
     })();
 
     // 保存回调引用，用于 onUnmounted 正确移除监听器
-    const onContextmenuClick = (data) => {
+    const onContextmenuClick = (data: any) => {
       onCurrentContextmenuClick(data);
     };
     const onOpenOrCloseSortable = () => {

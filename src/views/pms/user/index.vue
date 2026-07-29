@@ -287,7 +287,7 @@ const { state, query, search, reset, onPageChange, onSelectionChange, remove } =
     list: res?.data?.list ?? [],
     total: res?.data?.total ?? 0,
   }),
-  deleteApi: deleteUser,
+  deleteApi: (ids: (string | number)[]) => deleteUser(ids.map(Number)),
   rowKey: "id",
 });
 

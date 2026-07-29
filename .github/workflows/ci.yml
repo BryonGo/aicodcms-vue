@@ -23,6 +23,12 @@ jobs:
       - name: typecheck
         run: npm run check
 
+      - name: vue-tsc type-check (informational)
+        # Non-blocking: tracks the baseline (currently ~135 errors) without
+        # failing CI. Flip to a required gate once the baseline is cleared.
+        continue-on-error: true
+        run: npm run type-check
+
       - name: unit tests (vitest)
         run: npm run test -- --run
 
