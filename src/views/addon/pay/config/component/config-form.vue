@@ -1,41 +1,26 @@
 <template>
   <div class="pay-form">
-    <!-- 面包屑 -->
-    <nav class="pay-form__breadcrumb">
-      <router-link to="/" class="pay-form__bc-link">{{ $t("message.router.home") }}</router-link>
-      <span class="pay-form__bc-sep">/</span>
-      <span class="pay-form__bc-text">{{ $t("message.sdk.payConfig.headerTitle") }}</span>
-      <span class="pay-form__bc-sep">/</span>
-      <span class="pay-form__bc-current">{{ $t("message.sdk.payConfig.addTitle") }}</span>
-    </nav>
+    <!-- 加载态 -->
+    <div v-if="loading" class="pay-form__loading">
+      <el-icon :size="28" class="pay-form__spin"><Loading /></el-icon>
+      <p>{{ $t("message.user.loading") }}</p>
+    </div>
 
-    <!-- 页头 -->
-    <header class="pay-form__header">
-      <button class="pay-form__back" @click="goBack">
-        <el-icon size="14"><ArrowLeft /></el-icon>
-        <span>{{ $t("message.sdk.payConfig.backToList") }}</span>
-      </button>
-      <div class="pay-form__header-main">
-        <h1 class="pay-form__title">{{ $t("message.sdk.payConfig.headerTitle") }}</h1>
-        <p class="pay-form__subtitle">
-          {{
-            gameName
-              ? `游戏: ${decodeURIComponent(gameName)}`
-              : $t("message.sdk.payConfig.addSubtitle")
-          }}
-        </p>
-      </div>
-    </header>
+    <!-- 错误态 -->
+    <div v-else-if="loadError" class="pay-form__error">
+      <el-icon :size="40"><WarningFilled /></el-icon>
+      <h3>{{ $t("message.sdk.payConfig.editErrorTitle") }}</h3>
+      <p>{{ loadError }}</p>
+      <el-button type="primary" @click="emit('cancel')">{{ $t("message.common.back") }}</el-button>
+    </div>
 
-    <!-- 表单卡片 -->
-    <div class="pay-form__card">
-      <el-form ref="formRef" :model="form" :rules="rules" label-position="top" size="large">
+    <!-- 正常态 -->
+    <div v-else class="pay-form__card">
+      <el-form ref="fr" :model="form" :rules="rules" label-position="top" size="large">
         <!-- 模块绑定 -->
         <section class="pay-form__section">
           <div class="pay-form__section-header">
-            <span class="pay-form__section-icon"
-              ><el-icon><Connection /></el-icon
-            ></span>
+            <span class="pay-form__section-icon"><el-icon><Connection /></el-icon></span>
             <h3 class="pay-form__section-title">{{ $t("message.sdk.payConfig.sectionModule") }}</h3>
           </div>
           <div class="pay-form__grid">
@@ -94,9 +79,7 @@
         <!-- 通道配置 -->
         <section class="pay-form__section">
           <div class="pay-form__section-header">
-            <span class="pay-form__section-icon"
-              ><el-icon><Coin /></el-icon
-            ></span>
+            <span class="pay-form__section-icon"><el-icon><Coin /></el-icon></span>
             <h3 class="pay-form__section-title">{{ $t("message.sdk.payConfig.colConfig") }}</h3>
           </div>
 
@@ -156,7 +139,9 @@
             <template v-if="channelStructuredFields.length > 0">
               <div
                 class="pay-form__extra-card"
-                :style="{ borderLeftColor: activeChannelMeta?.color || 'var(--cc-color-primary)' }"
+                :style="{
+                  borderLeftColor: activeChannelMeta?.color || 'var(--cc-color-primary)',
+                }"
               >
                 <div class="pay-form__extra-header">
                   <span
@@ -246,16 +231,10 @@
           </el-form-item>
         </section>
 
-        <!-- 操作按钮 -->
-        <div class="pay-form__actions">
-          <el-button size="large" @click="goBack">{{ $t("message.common.cancel") }}</el-button>
-          <button type="button" class="pay-form__submit" :disabled="submitting" @click="onSubmit">
-            <template v-if="!submitting"
-              ><el-icon size="16"><Check /></el-icon>
-              {{ $t("message.sdk.payConfig.addBtnSubmit") }}</template
-            >
-            <template v-else>{{ $t("message.sdk.payConfig.addBtnSubmitting") }}</template>
-          </button>
+        <!-- 元数据 -->
+        <div v-if="isEdit" class="pay-form__meta">
+          <span class="pay-form__meta-item"><b>创建:</b> {{ fmt(form.created_at) }}</span>
+          <span class="pay-form__meta-item"><b>更新:</b> {{ fmt(form.updated_at) }}</span>
         </div>
       </el-form>
     </div>
@@ -264,37 +243,66 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { ElMessage } from "element-plus";
-import { ArrowLeft, Connection, Coin, Check, Lock, View, Hide } from "@element-plus/icons-vue";
-import { addPayConfig, getPayChannelList, PayChannelItem } from "/@/api/addon/pay";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+  Loading,
+  WarningFilled,
+  Connection,
+  Coin,
+  Lock,
+  View,
+  Hide,
+} from "@element-plus/icons-vue";
+import {
+  addPayConfig,
+  editPayConfig,
+  getPayConfigDetail,
+  deletePayConfig,
+  getPayChannelList,
+  PayChannelItem,
+} from "/@/api/addon/pay";
 import {
   getChannelFields,
   parseExtraConfig,
   serializeExtraFields,
   normalizeNewlines,
   channelMeta,
-} from "./channelSchema";
+} from "../channelSchema";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
-const router = useRouter();
-const route = useRoute();
 
-const formRef = ref();
-const submitting = ref(false);
+const props = defineProps<{
+  mode: "add" | "edit";
+  id?: number | string;
+  appId?: number | string;
+  module?: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "success"): void;
+  (e: "deleted"): void;
+  (e: "cancel"): void;
+}>();
+
+const isEdit = computed(() => props.mode === "edit");
+
+const fr = ref();
+const loading = ref(false);
+const loadError = ref("");
 const channelOptions = ref<PayChannelItem[]>([]);
-const appId = computed(() => Number(route.query.app_id) || 0);
-const gameName = computed(() => (route.query.name as string) || "");
 const visibleFields = ref<Set<string>>(new Set());
 
-const form = reactive({
-  module: "game" as string,
-  platform: "" as string,
-  app_id: appId.value,
+const form = reactive<any>({
+  id: 0,
+  module: "game",
+  platform: "",
+  app_id: 0,
   channel_code: "",
   state: 1,
   extra_config: "",
+  created_at: 0,
+  updated_at: 0,
 });
 
 // 结构化扩展字段
@@ -313,7 +321,6 @@ function toggleVisibility(key: string) {
   visibleFields.value = s;
 }
 
-// 切换通道时回填结构化字段
 function fillExtraFields(json: string) {
   Object.keys(extraFields).forEach((k) => delete extraFields[k]);
   const parsed = parseExtraConfig(json);
@@ -326,7 +333,6 @@ watch(
     Object.keys(extraFields).forEach((k) => delete extraFields[k]);
     fillExtraFields(form.extra_config);
   },
-  { immediate: true },
 );
 
 watch(
@@ -357,6 +363,22 @@ const rules: Record<string, any> = {
   ],
 };
 
+function fmt(ts: number) {
+  return ts > 0
+    ? new Date(ts * 1000).toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "—";
+}
+
+function onExtraInput(val: string) {
+  form.extra_config = normalizeNewlines(val);
+}
+
 async function loadChannels() {
   try {
     const res: any = await getPayChannelList({ page: 1, row: 200 });
@@ -367,27 +389,51 @@ async function loadChannels() {
   }
 }
 
-function onExtraInput(val: string) {
-  form.extra_config = normalizeNewlines(val);
-}
-
-function goBack() {
-  router.push(
-    `/addon/pay/config/list?app_id=${form.app_id}&module=${form.module}&name=${gameName.value}`,
-  );
-}
-
-async function onSubmit() {
+async function loadData() {
+  const id = Number(props.id);
+  if (!id) {
+    loadError.value = t("message.sdk.payConfig.editMissingId");
+    loading.value = false;
+    return;
+  }
   try {
-    await formRef.value?.validate();
+    const res: any = await getPayConfigDetail({ id });
+    const d = res.data || res;
+    const item = d.pay_config || d;
+    if (!item || !item.id) {
+      loadError.value = t("message.sdk.payConfig.editErrorNotFound");
+      return;
+    }
+    Object.assign(form, item);
+    fillExtraFields(item.extra_config);
+  } catch {
+    loadError.value = t("message.common.msgNetworkError");
+  } finally {
+    loading.value = false;
+  }
+}
+
+const submit = async () => {
+  try {
+    await fr.value?.validate();
   } catch {
     return;
   }
   if (channelStructuredFields.value.length > 0) {
     form.extra_config = serializeExtraFields(channelStructuredFields.value, extraFields);
   }
-  submitting.value = true;
-  try {
+  if (isEdit.value) {
+    await editPayConfig({
+      id: form.id,
+      module: form.module,
+      platform: form.platform,
+      app_id: form.app_id,
+      channel_code: form.channel_code,
+      state: form.state,
+      extra_config: form.extra_config,
+    });
+    ElMessage.success(t("message.common.msgSaveOk"));
+  } else {
     await addPayConfig({
       module: form.module,
       platform: form.platform,
@@ -397,20 +443,42 @@ async function onSubmit() {
       extra_config: form.extra_config,
     });
     ElMessage.success(t("message.common.msgAddOk"));
-    goBack();
-  } finally {
-    submitting.value = false;
   }
-}
+  emit("success");
+};
 
-onMounted(() => loadChannels());
+const remove = async () => {
+  try {
+    await ElMessageBox.confirm(
+      t("message.sdk.payConfig.deleteConfirm", { code: form.channel_code }),
+      t("message.common.confirmDeleteTitle"),
+      { type: "warning" },
+    );
+  } catch {
+    return;
+  }
+  await deletePayConfig({ ids: [form.id] });
+  ElMessage.success(t("message.common.msgDeleteOk"));
+  emit("deleted");
+};
+
+onMounted(async () => {
+  await loadChannels();
+  if (isEdit.value && props.id) {
+    loading.value = true;
+    loadError.value = "";
+    await loadData();
+  } else {
+    form.module = props.module || "game";
+    form.app_id = props.appId ? Number(props.appId) : 0;
+    form.channel_code = "";
+  }
+});
+
+defineExpose({ submit, remove });
 </script>
 
 <style scoped>
-/* ═══════════════════════════════════════════
-   Carbon & Gold — Payment Config Add Form
-   ═══════════════════════════════════════════ */
-
 .pay-form {
   --gold: var(--cc-color-primary);
   --gold-light: var(--cc-color-primary-hover);
@@ -430,75 +498,32 @@ onMounted(() => loadChannels());
   margin: 0 auto;
 }
 
-/* ── Breadcrumb ── */
-.pay-form__breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  font-size: 13px;
-}
-.pay-form__bc-link {
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.pay-form__bc-link:hover {
-  color: var(--gold);
-}
-.pay-form__bc-sep {
+/* ── Loading / Error ── */
+.pay-form__loading,
+.pay-form__error {
+  text-align: center;
+  padding: 80px 20px;
   color: var(--text-muted);
 }
-.pay-form__bc-text {
-  color: var(--text-secondary);
-}
-.pay-form__bc-current {
+.pay-form__error h3 {
   color: var(--text);
+  margin: 16px 0 8px;
   font-weight: 600;
 }
-
-/* ── Header ── */
-.pay-form__header {
-  margin-bottom: 24px;
-  padding: 28px 32px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--gold);
-  border-radius: var(--radius);
+.pay-form__error p {
+  margin-bottom: 16px;
 }
-
-.pay-form__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  margin-bottom: 12px;
-  padding: 0;
-  transition: color 0.2s;
-}
-.pay-form__back:hover {
+.pay-form__spin {
+  animation: paySpin 1s linear infinite;
   color: var(--gold);
 }
-
-.pay-form__title {
-  font-family: var(--cc-font-sans);
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--slate);
-  margin: 0 0 4px;
-}
-
-.pay-form__subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
+@keyframes paySpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Form Card ── */
@@ -514,7 +539,6 @@ onMounted(() => loadChannels());
 .pay-form__section {
   margin-bottom: 32px;
 }
-
 .pay-form__section-header {
   display: flex;
   align-items: center;
@@ -523,7 +547,6 @@ onMounted(() => loadChannels());
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
 }
-
 .pay-form__section-icon {
   display: inline-flex;
   align-items: center;
@@ -535,7 +558,6 @@ onMounted(() => loadChannels());
   color: var(--gold);
   font-size: 14px;
 }
-
 .pay-form__section-title {
   font-family: var(--cc-font-sans);
   font-size: 12px;
@@ -582,11 +604,9 @@ onMounted(() => loadChannels());
 .pay-form__input {
   width: 100%;
 }
-
 .pay-form__card :deep(.el-form-item__label) {
   margin-bottom: 6px;
 }
-
 .pay-form__card :deep(.el-input__wrapper),
 .pay-form__card :deep(.el-textarea__inner),
 .pay-form__card :deep(.el-select .el-input__wrapper) {
@@ -663,7 +683,6 @@ onMounted(() => loadChannels());
   border-radius: var(--radius-sm);
   width: 100%;
 }
-
 .pay-form__extra-header {
   display: flex;
   align-items: center;
@@ -672,26 +691,22 @@ onMounted(() => loadChannels());
   padding-bottom: 10px;
   border-bottom: 1px dashed var(--border);
 }
-
 .pay-form__extra-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
 }
-
 .pay-form__extra-title {
   font-family: var(--cc-font-sans);
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
 }
-
 .pay-form__extra-fields {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .pay-form__extra-item {
   margin-bottom: 4px;
 }
@@ -711,72 +726,32 @@ onMounted(() => loadChannels());
   color: var(--gold);
 }
 
-/* ── Actions ── */
-.pay-form__actions {
+/* ── Meta ── */
+.pay-form__meta {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
+  gap: 24px;
+  padding: 12px 0 0;
+  margin-bottom: 20px;
   border-top: 1px solid var(--border);
 }
-
-.pay-form__submit {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 28px;
-  font-family: inherit;
-  font-size: 14px;
+.pay-form__meta-item {
+  font-family: var(--cc-font-sans);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.pay-form__meta-item b {
+  color: var(--text-secondary);
   font-weight: 600;
-  color: var(--cc-color-primary);
-  background: var(--cc-color-primary-softer);
-  border: 1px solid var(--cc-color-primary-soft);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  box-shadow: none;
-  transition: all 0.2s;
-}
-.pay-form__submit:hover:not(:disabled) {
-  background: var(--cc-color-primary-soft);
-  border-color: var(--cc-color-primary);
-}
-.pay-form__submit:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
 }
 
 /* ── Responsive ── */
-@media (min-width: 1440px) {
-  .pay-form {
-    max-width: 1320px;
-  }
-  .pay-form__header {
-    padding: 36px 44px;
-  }
-  .pay-form__card {
-    padding: 40px 48px;
-  }
-}
 @media (max-width: 768px) {
-  .pay-form__header {
-    padding: 20px;
-  }
   .pay-form__card {
     padding: 20px 16px;
     border-radius: 10px;
   }
   .pay-form__grid {
     grid-template-columns: 1fr;
-  }
-  .pay-form__title {
-    font-size: 20px;
-  }
-  .pay-form__actions {
-    flex-direction: column-reverse;
-  }
-  .pay-form__submit,
-  .pay-form__actions .el-button {
-    width: 100%;
   }
 }
 </style>

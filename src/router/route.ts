@@ -425,28 +425,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/addon/sdk/game/add",
-        name: "addonSdkGameAdd",
-        component: () => import("/@/views/addon/sdk/game/add.vue"),
-        meta: {
-          title: "message.sdk.gameAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/game/add"],
-        },
-      },
-      {
-        path: "/addon/sdk/game/edit",
-        name: "addonSdkGameEdit",
-        component: () => import("/@/views/addon/sdk/game/edit.vue"),
-        meta: {
-          title: "message.sdk.gameEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/game/edit"],
-        },
-      },
-      {
         path: "/addon/product/list",
         name: "addonSdkProductList",
         component: () => import("/@/views/addon/product/list/index.vue"),
@@ -491,28 +469,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/addon/sdk/version/add",
-        name: "addonSdkVersionAdd",
-        component: () => import("/@/views/addon/sdk/version/add.vue"),
-        meta: {
-          title: "message.sdk.versionAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/version/add"],
-        },
-      },
-      {
-        path: "/addon/sdk/version/edit",
-        name: "addonSdkVersionEdit",
-        component: () => import("/@/views/addon/sdk/version/edit.vue"),
-        meta: {
-          title: "message.sdk.versionEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/version/edit"],
-        },
-      },
-      {
         path: "/addon/pay/config/list",
         name: "addonPayConfigList",
         component: () => import("/@/views/addon/pay/config/list/index.vue"),
@@ -524,28 +480,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/addon/pay/config/add",
-        name: "addonPayConfigAdd",
-        component: () => import("/@/views/addon/pay/config/add.vue"),
-        meta: {
-          title: "message.sdk.payConfigAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/pay/config/add"],
-        },
-      },
-      {
-        path: "/addon/pay/config/edit",
-        name: "addonPayConfigEdit",
-        component: () => import("/@/views/addon/pay/config/edit.vue"),
-        meta: {
-          title: "message.sdk.payConfigEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/pay/config/edit"],
-        },
-      },
-      {
         path: "/addon/sdk/developer/list",
         name: "addonSdkDeveloperList",
         component: () => import("/@/views/addon/sdk/developer/list/index.vue"),
@@ -554,28 +488,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           is_hide: true,
           is_keep_alive: true,
           permissions: ["api/v1/addon/sdk/developer/list"],
-        },
-      },
-      {
-        path: "/addon/sdk/developer/add",
-        name: "addonSdkDeveloperAdd",
-        component: () => import("/@/views/addon/sdk/developer/add.vue"),
-        meta: {
-          title: "message.sdk.developerAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/developer/add"],
-        },
-      },
-      {
-        path: "/addon/sdk/developer/edit",
-        name: "addonSdkDeveloperEdit",
-        component: () => import("/@/views/addon/sdk/developer/edit.vue"),
-        meta: {
-          title: "message.sdk.developerEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/developer/edit"],
         },
       },
       {
@@ -656,28 +568,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/addon/sdk/ban/add",
-        name: "addonSdkBanAdd",
-        component: () => import("/@/views/addon/sdk/ban/add.vue"),
-        meta: {
-          title: "message.sdk.banAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/ban/add"],
-        },
-      },
-      {
-        path: "/addon/sdk/ban/edit",
-        name: "addonSdkBanEdit",
-        component: () => import("/@/views/addon/sdk/ban/edit.vue"),
-        meta: {
-          title: "message.sdk.banEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/ban/edit"],
-        },
-      },
-      {
         path: "/addon/sdk/login-log/list",
         name: "addonSdkLoginLogList",
         component: () => import("/@/views/addon/sdk/login-log/list/index.vue"),
@@ -733,28 +623,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           is_hide: true,
           is_keep_alive: true,
           permissions: ["api/v1/addon/sdk/currency/list"],
-        },
-      },
-      {
-        path: "/addon/sdk/currency/add",
-        name: "addonSdkCurrencyAdd",
-        component: () => import("/@/views/addon/sdk/currency/add.vue"),
-        meta: {
-          title: "message.sdk.currencyAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/currency/add"],
-        },
-      },
-      {
-        path: "/addon/sdk/currency/edit",
-        name: "addonSdkCurrencyEdit",
-        component: () => import("/@/views/addon/sdk/currency/edit.vue"),
-        meta: {
-          title: "message.sdk.currencyEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/sdk/currency/edit"],
         },
       },
       {

@@ -29,9 +29,7 @@
         show-overflow-tooltip
       >
         <template #default="{ row }">
-          <router-link :to="`/addon/sdk/developer/edit?id=${row.id}`" class="link-primary">{{
-            row.name
-          }}</router-link>
+          <span class="link-primary" @click="onEdit(row)">{{ row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -68,12 +66,45 @@
         </template>
       </el-table-column>
     </ProTable>
+
+    <ProDrawer
+      v-model="drawerVisible"
+      :title="drawerMode === 'add' ? $t('message.common.add') : $t('message.common.edit')"
+      size="lg"
+      :no-padding="true"
+      :destroy-on-close="true"
+      :show-footer="true"
+      :confirm-text="drawerMode === 'add' ? $t('message.common.submit') : $t('message.common.save')"
+      :cancel-text="$t('message.common.cancel')"
+      :confirm-loading="submitting"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    >
+      <template #actions>
+        <el-button
+          v-if="drawerMode === 'edit'"
+          type="danger"
+          plain
+          size="small"
+          @click="onDrawerDelete"
+        >
+          {{ $t("message.common.delete") }}
+        </el-button>
+      </template>
+      <DeveloperForm
+        ref="formRef"
+        :mode="drawerMode"
+        :id="editId"
+        @success="onSuccess"
+        @deleted="onDeleted"
+        @cancel="onCancel"
+      />
+    </ProDrawer>
   </ProPage>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref, reactive, onMounted, onActivated } from "vue";
-import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
 import { useI18n } from "vue-i18n";
@@ -81,14 +112,15 @@ import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import DeveloperForm from "/@/views/addon/sdk/developer/component/developer-form.vue";
 import { getDeveloperList, deleteDeveloper, DeveloperItem } from "/@/api/addon/sdk";
 
 export default defineComponent({
   name: "addonSdkDeveloperList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, ProDrawer, DeveloperForm, Plus },
   setup() {
     const { t } = useI18n();
-    const router = useRouter();
     const searchForm = reactive({ keyword: "" });
     const tableData = ref<DeveloperItem[]>([]);
     const loading = ref(false);
@@ -131,8 +163,44 @@ export default defineComponent({
       size.value = limit;
       loadData();
     };
-    const onAdd = () => router.push("/addon/sdk/developer/add");
-    const onEdit = (row: DeveloperItem) => router.push(`/addon/sdk/developer/edit?id=${row.id}`);
+    // ── 抽屉化新增/编辑 ──
+    const drawerVisible = ref(false);
+    const drawerMode = ref<"add" | "edit">("add");
+    const editId = ref<number | undefined>(undefined);
+    const submitting = ref(false);
+    const formRef = ref();
+    const onAdd = () => {
+      drawerMode.value = "add";
+      editId.value = undefined;
+      drawerVisible.value = true;
+    };
+    const onEdit = (row: DeveloperItem) => {
+      drawerMode.value = "edit";
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    const onConfirm = async () => {
+      submitting.value = true;
+      try {
+        await formRef.value?.submit();
+      } finally {
+        submitting.value = false;
+      }
+    };
+    const onSuccess = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onDeleted = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onCancel = () => {
+      drawerVisible.value = false;
+    };
+    const onDrawerDelete = () => {
+      formRef.value?.remove();
+    };
     const onDelete = (row: DeveloperItem) => {
       ElMessageBox.confirm(
         t("message.sdk.developer.deleteConfirm", { name: row.name }),
@@ -164,6 +232,16 @@ export default defineComponent({
       onAdd,
       onEdit,
       onDelete,
+      drawerVisible,
+      drawerMode,
+      editId,
+      submitting,
+      formRef,
+      onConfirm,
+      onSuccess,
+      onDeleted,
+      onCancel,
+      onDrawerDelete,
       Plus,
     };
   },
@@ -175,6 +253,7 @@ export default defineComponent({
   color: var(--cc-color-primary);
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
 }
 .link-primary:hover {
   text-decoration: underline;

@@ -57,9 +57,9 @@
         min-width="150"
         show-overflow-tooltip
         ><template #default="{ row }"
-          ><router-link :to="editLink(row)" class="link-primary">{{
+          ><span class="link-primary" @click="onEdit(row)">{{
             row.version_name || $t("message.sdk.version.unnamed")
-          }}</router-link></template
+          }}</span></template
         ></el-table-column
       >
       <el-table-column
@@ -124,6 +124,42 @@
       >
     </ProTable>
   </ProPage>
+
+  <ProDrawer
+    v-model="drawerVisible"
+    :title="drawerMode === 'add' ? $t('message.common.add') : $t('message.common.edit')"
+    size="xl"
+    :no-padding="true"
+    :destroy-on-close="true"
+    :show-footer="true"
+    :confirm-text="drawerMode === 'add' ? $t('message.common.submit') : $t('message.sdk.version.saveBtnText')"
+    :cancel-text="$t('message.common.cancel')"
+    :confirm-loading="submitting"
+    @confirm="onConfirm"
+    @cancel="onCancel"
+  >
+    <template #actions>
+      <el-button
+        v-if="drawerMode === 'edit'"
+        type="danger"
+        plain
+        size="small"
+        @click="onDrawerDelete"
+      >
+        {{ $t("message.common.delete") }}
+      </el-button>
+    </template>
+    <VersionForm
+      ref="formRef"
+      :mode="drawerMode"
+      :id="editId"
+      :app-id="appId"
+      :game-name="gameName"
+      @success="onSuccess"
+      @deleted="onDeleted"
+      @cancel="onCancel"
+    />
+  </ProDrawer>
 </template>
 
 <script lang="ts">
@@ -136,11 +172,13 @@ import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import VersionForm from "../component/version-form.vue";
 import { getVersionList, deleteVersion, editVersion, VersionItem } from "/@/api/addon/sdk";
 
 export default defineComponent({
   name: "addonSdkVersionList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, ProDrawer, VersionForm, Plus },
   setup() {
     const { t } = useI18n();
     const router = useRouter();
@@ -194,11 +232,44 @@ export default defineComponent({
     const onSelectionChange = (rows: VersionItem[]) => {
       selectedIds.value = rows.map((row) => row.id);
     };
-    const editLink = (row: VersionItem) =>
-      `/addon/sdk/version/edit?id=${row.id}&app_id=${appId}&name=${encodeURIComponent(gameName)}`;
-    const onAdd = () =>
-      router.push(`/addon/sdk/version/add?app_id=${appId}&name=${encodeURIComponent(gameName)}`);
-    const onEdit = (row: VersionItem) => router.push(editLink(row));
+    // ── 抽屉化新增/编辑 ──
+    const drawerVisible = ref(false);
+    const drawerMode = ref<"add" | "edit">("add");
+    const editId = ref<number | undefined>(undefined);
+    const submitting = ref(false);
+    const formRef = ref();
+    const onAdd = () => {
+      drawerMode.value = "add";
+      editId.value = undefined;
+      drawerVisible.value = true;
+    };
+    const onEdit = (row: VersionItem) => {
+      drawerMode.value = "edit";
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    const onConfirm = async () => {
+      submitting.value = true;
+      try {
+        await formRef.value?.submit();
+      } finally {
+        submitting.value = false;
+      }
+    };
+    const onSuccess = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onDeleted = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onCancel = () => {
+      drawerVisible.value = false;
+    };
+    const onDrawerDelete = () => {
+      formRef.value?.remove();
+    };
     const onToggleActive = (row: VersionItem) => {
       const action =
         row.enabled === 1
@@ -272,12 +343,21 @@ export default defineComponent({
       onReset,
       onPageChange,
       onSelectionChange,
-      editLink,
       onAdd,
       onEdit,
       onToggleActive,
       onDelete,
       onBatchDelete,
+      drawerVisible,
+      drawerMode,
+      editId,
+      submitting,
+      formRef,
+      onConfirm,
+      onSuccess,
+      onDeleted,
+      onCancel,
+      onDrawerDelete,
       Plus,
     };
   },

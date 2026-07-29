@@ -105,14 +105,14 @@
             min-width="180"
           >
             <template #default="{ row }">
-              <router-link :to="editLink(row)" class="pay-list__channel">
+              <span class="pay-list__channel" @click="onEdit(row)">
                 <span
                   class="pay-list__channel-dot"
                   :style="{ background: getChannelColor(row.channel_code) }"
                 />
                 <span class="pay-list__channel-name">{{ getChannelName(row.channel_code) }}</span>
                 <span class="pay-list__channel-code">{{ row.channel_code }}</span>
-              </router-link>
+              </span>
             </template>
           </el-table-column>
           <el-table-column :label="$t('message.sdk.payConfig.colConfig')" min-width="200">
@@ -180,6 +180,43 @@
       </div>
     </div>
   </ProPage>
+
+  <ProDrawer
+    v-model="drawerVisible"
+    :title="drawerMode === 'add' ? t('message.sdk.payConfig.addTitle') : t('message.sdk.payConfig.editTitle')"
+    :subtitle="pageSubtitle"
+    size="xl"
+    :no-padding="true"
+    :destroy-on-close="true"
+    :show-footer="true"
+    :confirm-text="drawerMode === 'add' ? t('message.sdk.payConfig.addBtnSubmit') : t('message.sdk.payConfig.editBtnSave')"
+    :cancel-text="t('message.common.cancel')"
+    :confirm-loading="submitting"
+    @confirm="onConfirm"
+    @cancel="onCancel"
+  >
+    <template #actions>
+      <el-button
+        v-if="drawerMode === 'edit'"
+        type="danger"
+        plain
+        size="small"
+        @click="onDrawerDelete"
+      >
+        {{ t("message.common.delete") }}
+      </el-button>
+    </template>
+    <ConfigForm
+      ref="formRef"
+      :mode="drawerMode"
+      :id="editId"
+      :app-id="searchForm.app_id || appId"
+      :module="searchForm.module || 'game'"
+      @success="onSuccess"
+      @deleted="onDeleted"
+      @cancel="onCancel"
+    />
+  </ProDrawer>
 </template>
 
 <script setup lang="ts">
@@ -188,6 +225,8 @@ import { useRouter, useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Plus, ArrowDown } from "@element-plus/icons-vue";
 import ProPage from "/@/components/pro/ProPage.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import ConfigForm from "../component/config-form.vue";
 import {
   getPayConfigList,
   deletePayConfig,
@@ -297,16 +336,43 @@ function onReset() {
 function onSelectionChange(rows: PayConfigItem[]) {
   selectedIds.value = rows.map((r) => r.id);
 }
-function editLink(row: PayConfigItem) {
-  return `/addon/pay/config/edit?id=${row.id}&app_id=${row.app_id}&module=${row.module}&name=${encodeURIComponent(gameName)}`;
-}
+// ── 抽屉化新增/编辑 ──
+const drawerVisible = ref(false);
+const drawerMode = ref<"add" | "edit">("add");
+const editId = ref<number | undefined>(undefined);
+const submitting = ref(false);
+const formRef = ref();
 function onAdd() {
-  router.push(
-    `/addon/pay/config/add?app_id=${searchForm.app_id || appId}&module=${searchForm.module || "game"}&name=${encodeURIComponent(gameName)}`,
-  );
+  drawerMode.value = "add";
+  editId.value = undefined;
+  drawerVisible.value = true;
 }
 function onEdit(row: PayConfigItem) {
-  router.push(editLink(row));
+  drawerMode.value = "edit";
+  editId.value = row.id;
+  drawerVisible.value = true;
+}
+async function onConfirm() {
+  submitting.value = true;
+  try {
+    await formRef.value?.submit();
+  } finally {
+    submitting.value = false;
+  }
+}
+function onSuccess() {
+  drawerVisible.value = false;
+  loadData();
+}
+function onDeleted() {
+  drawerVisible.value = false;
+  loadData();
+}
+function onCancel() {
+  drawerVisible.value = false;
+}
+function onDrawerDelete() {
+  formRef.value?.remove();
 }
 function onDelete(row: PayConfigItem) {
   ElMessageBox.confirm(

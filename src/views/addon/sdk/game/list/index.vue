@@ -60,10 +60,10 @@
         show-overflow-tooltip
       >
         <template #default="{ row }">
-          <router-link :to="`/addon/sdk/game/edit?id=${row.id}`" class="game-link">
+          <span class="game-link" @click="onEdit(row)">
             <el-avatar :size="28" shape="square" :src="row.icon_path" class="game-avatar" />
             {{ row.name }}
-          </router-link>
+          </span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('message.sdk.game.colPlatform')" width="100" align="center">
@@ -143,6 +143,40 @@
         </template>
       </el-table-column>
     </ProTable>
+
+    <ProDrawer
+      v-model="drawerVisible"
+      :title="drawerMode === 'add' ? $t('message.sdk.game.addTitle') : $t('message.sdk.game.editTitle')"
+      size="lg"
+      :no-padding="true"
+      :destroy-on-close="true"
+      :show-footer="true"
+      :confirm-text="drawerMode === 'add' ? $t('message.sdk.game.addBtnSubmit') : $t('message.sdk.game.editBtnSave')"
+      :cancel-text="$t('message.common.cancel')"
+      :confirm-loading="submitting"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    >
+      <template #actions>
+        <el-button
+          v-if="drawerMode === 'edit'"
+          type="danger"
+          plain
+          size="small"
+          @click="onDrawerDelete"
+        >
+          {{ $t("message.common.delete") }}
+        </el-button>
+      </template>
+      <GameForm
+        ref="formRef"
+        :mode="drawerMode"
+        :id="editId"
+        @success="onSuccess"
+        @deleted="onDeleted"
+        @cancel="onCancel"
+      />
+    </ProDrawer>
   </ProPage>
 </template>
 
@@ -162,6 +196,8 @@ import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import GameForm from "/@/views/addon/sdk/game/component/game-form.vue";
 import { getGameList, deleteGame, recoverGame, GameItem } from "/@/api/addon/sdk";
 
 export default defineComponent({
@@ -171,6 +207,8 @@ export default defineComponent({
     ProSearch,
     ProToolbar,
     ProTable,
+    ProDrawer,
+    GameForm,
     Plus,
     ArrowLeft,
     Delete,
@@ -240,8 +278,44 @@ export default defineComponent({
     const onSelectionChange = (rows: GameItem[]) => {
       selectedIds.value = rows.map((row) => row.id);
     };
-    const onAdd = () => router.push("/addon/sdk/game/add");
-    const onEdit = (row: GameItem) => router.push(`/addon/sdk/game/edit?id=${row.id}`);
+    // ── 抽屉化新增/编辑 ──
+    const drawerVisible = ref(false);
+    const drawerMode = ref<"add" | "edit">("add");
+    const editId = ref<number | undefined>(undefined);
+    const submitting = ref(false);
+    const formRef = ref();
+    const onAdd = () => {
+      drawerMode.value = "add";
+      editId.value = undefined;
+      drawerVisible.value = true;
+    };
+    const onEdit = (row: GameItem) => {
+      drawerMode.value = "edit";
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    const onConfirm = async () => {
+      submitting.value = true;
+      try {
+        await formRef.value?.submit();
+      } finally {
+        submitting.value = false;
+      }
+    };
+    const onSuccess = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onDeleted = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onCancel = () => {
+      drawerVisible.value = false;
+    };
+    const onDrawerDelete = () => {
+      formRef.value?.remove();
+    };
     const onDelete = (row: GameItem) => {
       ElMessageBox.confirm(
         t("message.sdk.game.deleteConfirm", { name: row.name }),
@@ -331,6 +405,16 @@ export default defineComponent({
       goProducts,
       goVersions,
       goPayConfig,
+      drawerVisible,
+      drawerMode,
+      editId,
+      submitting,
+      formRef,
+      onConfirm,
+      onSuccess,
+      onDeleted,
+      onCancel,
+      onDrawerDelete,
       Plus,
       ArrowLeft,
       Delete,
@@ -351,6 +435,7 @@ export default defineComponent({
   color: var(--cc-color-text-1);
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
 }
 .game-link:hover {
   color: var(--cc-color-primary);

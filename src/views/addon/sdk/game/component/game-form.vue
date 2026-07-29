@@ -1,69 +1,26 @@
 <template>
-  <div class="fa-page game-form-page">
-    <el-breadcrumb separator="→">
-      <el-breadcrumb-item :to="{ path: '/' }"
-        ><el-icon><HomeFilled /></el-icon> {{ $t("message.router.home") }}</el-breadcrumb-item
-      >
-      <el-breadcrumb-item>{{ $t("message.sdk.game.breadcrumbSdk") }}</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/addon/sdk/game/list' }">{{
-        $t("message.sdk.game.breadcrumbGame")
-      }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ $t("message.sdk.game.editTitle") }}</el-breadcrumb-item>
-    </el-breadcrumb>
-
+  <div class="game-form-page">
     <div v-if="loading" class="gm-loading">
       <el-icon class="gm-loading-icon" :size="28"><Loading /></el-icon>
       <p>{{ $t("message.sdk.game.editLoading") }}</p>
     </div>
-
     <template v-else-if="loadError">
       <div class="gm-error">
         <el-icon :size="40"><WarningFilled /></el-icon>
         <h3>{{ $t("message.sdk.game.editErrorTitle") }}</h3>
         <p>{{ loadError }}</p>
-        <el-button type="primary" @click="$router.push('/addon/sdk/game/list')">{{
+        <el-button type="primary" @click="emit('cancel')">{{
           $t("message.sdk.game.btnBackToGame")
         }}</el-button>
       </div>
     </template>
-
     <template v-else>
-      <div class="gm-page-header">
-        <el-button link class="gm-back-btn" @click="$router.push('/addon/sdk/game/list')">
-          <el-icon><ArrowLeft /></el-icon> {{ $t("message.sdk.game.btnBackToGame") }}
-        </el-button>
-        <div class="gm-header-row">
-          <div>
-            <h1 class="gm-page-title">{{ form.name || $t("message.sdk.game.editTitle") }}</h1>
-            <p class="gm-page-subtitle">
-              AppID: <span class="gm-id-badge">{{ form.app_id }}</span>
-              <el-tag
-                :type="form.deleted_at > 0 ? 'danger' : 'success'"
-                size="small"
-                effect="light"
-                style="margin-left: 8px"
-              >
-                {{
-                  form.deleted_at > 0
-                    ? $t("message.sdk.game.statusDeleted")
-                    : $t("message.sdk.game.statusNormal")
-                }}
-              </el-tag>
-            </p>
-          </div>
-          <el-button type="danger" plain size="large" @click="onDelete">
-            <el-icon><Delete /></el-icon> {{ $t("message.sdk.game.btnDelete") }}
-          </el-button>
-        </div>
-      </div>
-
       <div class="gm-form-card">
         <el-form ref="formRef" :model="form" :rules="rules" label-position="top" size="large">
-          <div class="gm-section gm-key-section">
+          <!-- 密钥信息（仅编辑模式） -->
+          <div v-if="isEdit" class="gm-section gm-key-section">
             <h3 class="gm-section-title">
-              <span class="gm-section-badge"
-                ><el-icon><Key /></el-icon
-              ></span>
+              <span class="gm-section-badge"><el-icon><Key /></el-icon></span>
               {{ $t("message.sdk.game.editSectionKey") }}
             </h3>
             <div class="gm-key-grid">
@@ -99,12 +56,11 @@
             </div>
           </div>
 
+          <!-- 基本信息 -->
           <div class="gm-section">
             <h3 class="gm-section-title">
-              <span class="gm-section-badge"
-                ><el-icon><Grid /></el-icon
-              ></span>
-              {{ $t("message.sdk.game.editSectionBasic") }}
+              <span class="gm-section-badge"><el-icon><Grid /></el-icon></span>
+              {{ isEdit ? $t("message.sdk.game.editSectionBasic") : $t("message.sdk.game.addSectionBasic") }}
             </h3>
             <el-row :gutter="20">
               <el-col :xs="24" :md="12">
@@ -116,7 +72,7 @@
                   >
                   <el-input
                     v-model="form.name"
-                    :placeholder="$t('message.sdk.game.addLabelName')"
+                    :placeholder="$t('message.sdk.game.addPlaceholderName')"
                     maxlength="64"
                   />
                 </el-form-item>
@@ -222,12 +178,11 @@
             </el-row>
           </div>
 
+          <!-- 登录配置 -->
           <div class="gm-section">
             <h3 class="gm-section-title">
-              <span class="gm-section-badge"
-                ><el-icon><User /></el-icon
-              ></span>
-              {{ $t("message.sdk.game.editSectionLogin") }}
+              <span class="gm-section-badge"><el-icon><User /></el-icon></span>
+              {{ isEdit ? $t("message.sdk.game.editSectionLogin") : $t("message.sdk.game.addSectionLogin") }}
             </h3>
             <div class="gm-toggle-group">
               <div class="gm-toggle-item">
@@ -239,14 +194,8 @@
                 <el-switch v-model="form.email_login_state" :active-value="1" :inactive-value="0" />
               </div>
               <div class="gm-toggle-item">
-                <span class="gm-toggle-label">{{
-                  $t("message.sdk.game.addLabelSocialLogin")
-                }}</span>
-                <el-switch
-                  v-model="form.social_login_state"
-                  :active-value="1"
-                  :inactive-value="0"
-                />
+                <span class="gm-toggle-label">{{ $t("message.sdk.game.addLabelSocialLogin") }}</span>
+                <el-switch v-model="form.social_login_state" :active-value="1" :inactive-value="0" />
               </div>
             </div>
             <el-form-item v-if="form.social_login_state === 1" prop="social_login_types">
@@ -262,12 +211,11 @@
             </el-form-item>
           </div>
 
+          <!-- 支付配置 -->
           <div class="gm-section">
             <h3 class="gm-section-title">
-              <span class="gm-section-badge"
-                ><el-icon><CreditCard /></el-icon
-              ></span>
-              {{ $t("message.sdk.game.editSectionPay") }}
+              <span class="gm-section-badge"><el-icon><CreditCard /></el-icon></span>
+              {{ isEdit ? $t("message.sdk.game.editSectionPay") : $t("message.sdk.game.addSectionPay") }}
             </h3>
             <div class="gm-toggle-group">
               <div class="gm-toggle-item">
@@ -331,11 +279,10 @@
             </el-form-item>
           </div>
 
-          <div class="gm-section">
+          <!-- 时间信息（仅编辑模式） -->
+          <div v-if="isEdit" class="gm-section">
             <h3 class="gm-section-title">
-              <span class="gm-section-badge"
-                ><el-icon><Clock /></el-icon
-              ></span>
+              <span class="gm-section-badge"><el-icon><Clock /></el-icon></span>
               {{ $t("message.sdk.game.editSectionTime") }}
             </h3>
             <div class="gm-meta-grid">
@@ -349,25 +296,6 @@
               </div>
             </div>
           </div>
-
-          <div class="gm-form-actions">
-            <el-button size="large" @click="$router.push('/addon/sdk/game/list')">{{
-              $t("message.common.cancel")
-            }}</el-button>
-            <el-button
-              type="primary"
-              size="large"
-              :loading="submitting"
-              @click="onSubmit"
-              class="gm-submit-btn"
-            >
-              <template v-if="!submitting"
-                ><el-icon style="margin-right: 4px"><Check /></el-icon>
-                {{ $t("message.sdk.game.editBtnSave") }}</template
-              >
-              <template v-else>{{ $t("message.sdk.game.editBtnSaving") }}</template>
-            </el-button>
-          </div>
         </el-form>
       </div>
     </template>
@@ -375,56 +303,51 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, onActivated, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useI18n } from "vue-i18n";
+import { defineComponent, ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  HomeFilled,
-  ArrowLeft,
   Grid,
   User,
   CreditCard,
-  Check,
   Key,
   CopyDocument,
-  Delete,
+  Clock,
   Loading,
   WarningFilled,
-  Clock,
 } from "@element-plus/icons-vue";
 import {
+  addGame,
   getGameDetail,
   editGame,
   deleteGame,
   getDeveloperList,
   DeveloperItem,
 } from "/@/api/addon/sdk";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
-  name: "addonSdkGameEdit",
+  name: "addonSdkGameForm",
   components: {
-    HomeFilled,
-    ArrowLeft,
     Grid,
     User,
     CreditCard,
-    Check,
     Key,
     CopyDocument,
-    Delete,
+    Clock,
     Loading,
     WarningFilled,
-    Clock,
   },
-  setup() {
+  props: {
+    mode: { type: String as () => "add" | "edit", default: "add" },
+    id: { type: [Number, String], default: undefined },
+  },
+  emits: ["success", "deleted", "cancel"],
+  setup(props, { emit }) {
     const { t } = useI18n();
-    const router = useRouter();
-    const route = useRoute();
     const formRef = ref();
-    const loading = ref(true);
-    const submitting = ref(false);
+    const loading = ref(false);
     const loadError = ref("");
+    const isEdit = computed(() => props.mode === "edit");
     const developerList = ref<DeveloperItem[]>([]);
 
     const form = reactive<any>({
@@ -473,6 +396,7 @@ export default defineComponent({
         .writeText(text)
         .then(() => ElMessage.success(t("message.sdk.game.copied")));
     };
+
     const loadDevelopers = async () => {
       try {
         const res: any = await getDeveloperList({ page: 1, row: 200 });
@@ -484,14 +408,11 @@ export default defineComponent({
     };
 
     const loadData = async () => {
-      const id = Number(route.query.id);
+      const id = Number(props.id);
       if (!id) {
-        loadError.value = t("message.sdk.game.editMissingId");
         loading.value = false;
         return;
       }
-      loading.value = true;
-      loadError.value = "";
       try {
         const res: any = await getGameDetail({ id });
         const d = res.data || res;
@@ -508,68 +429,65 @@ export default defineComponent({
       }
     };
 
-    const onSubmit = async () => {
+    const submit = async () => {
       try {
         await formRef.value?.validate();
       } catch {
         return;
       }
-      submitting.value = true;
-      try {
+      if (isEdit.value) {
         const { app_key, app_secret, app_id: _aid, ...editData } = form;
         await editGame(editData);
         ElMessage.success(t("message.sdk.game.saveSuccess"));
-        router.push("/addon/sdk/game/list");
-      } finally {
-        submitting.value = false;
+      } else {
+        const { app_key, app_secret, app_id: _aid, id: _id, ...addData } = form;
+        await addGame(addData);
+        ElMessage.success(t("message.sdk.game.addSuccess"));
       }
+      emit("success");
     };
 
-    const onDelete = () => {
-      ElMessageBox.confirm(
-        t("message.sdk.game.deleteConfirm", { name: form.name }),
-        t("message.sdk.game.deleteConfirmTitle"),
-        {
-          type: "warning",
-          confirmButtonText: t("message.sdk.game.deleteConfirmBtn"),
-          cancelButtonText: t("message.common.cancel"),
-        },
-      )
-        .then(async () => {
-          await deleteGame({ ids: [form.id] });
-          ElMessage.success(t("message.sdk.game.deleted"));
-          router.push("/addon/sdk/game/list");
-        })
-        .catch(() => {});
+    const remove = async () => {
+      try {
+        await ElMessageBox.confirm(
+          t("message.sdk.game.deleteConfirm", { name: form.name }),
+          t("message.sdk.game.deleteConfirmTitle"),
+          {
+            type: "warning",
+            confirmButtonText: t("message.sdk.game.deleteConfirmBtn"),
+            cancelButtonText: t("message.common.cancel"),
+          },
+        );
+      } catch {
+        return;
+      }
+      await deleteGame({ ids: [form.id] });
+      ElMessage.success(t("message.sdk.game.deleted"));
+      emit("deleted");
     };
 
-    onMounted(() => {
-      loadData();
+    onMounted(async () => {
       loadDevelopers();
+      if (isEdit.value && props.id) {
+        loading.value = true;
+        loadError.value = "";
+        await loadData();
+      }
     });
-    onActivated(() => {
-      loadData();
-      loadDevelopers();
-    });
-    watch(
-      () => route.query.id,
-      () => {
-        if (route.query.id) loadData();
-      },
-    );
 
     return {
       formRef,
       form,
       rules,
       loading,
-      submitting,
       loadError,
+      isEdit,
+      developerList,
       fmt,
       copyText,
-      onSubmit,
-      onDelete,
-      developerList,
+      submit,
+      remove,
+      emit,
     };
   },
 });
@@ -580,7 +498,6 @@ export default defineComponent({
   max-width: 960px;
   margin: 0 auto;
 }
-
 .gm-loading {
   text-align: center;
   padding: 80px 20px;
@@ -607,70 +524,6 @@ export default defineComponent({
   margin: 16px 0 8px;
   font-weight: 600;
 }
-
-.gm-page-header {
-  position: relative;
-  margin: 28px 0 24px;
-  padding: 32px 36px;
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-  border-radius: var(--cc-radius-xl);
-  border: 1px solid #c7d2fe;
-  overflow: hidden;
-}
-.gm-page-header::before {
-  content: "";
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-  border-radius: 50%;
-}
-.gm-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  position: relative;
-  z-index: 1;
-}
-.gm-back-btn {
-  font-family: "Outfit", system-ui, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--cc-color-text-3);
-  padding: 0;
-  margin-bottom: 10px;
-  transition: color 0.2s;
-}
-.gm-back-btn:hover {
-  color: #6366f1;
-}
-.gm-page-title {
-  font-family: "Outfit", system-ui, sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #1e1b4b;
-  margin: 0 0 4px;
-}
-.gm-page-subtitle {
-  font-family: "Outfit", system-ui, sans-serif;
-  font-size: 14px;
-  color: #818cf8;
-  margin: 0;
-}
-.gm-id-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  background: rgba(99, 102, 241, 0.08);
-  border-radius: 6px;
-  font-family: "JetBrains Mono", "SF Mono", monospace;
-  font-size: 13px;
-  font-weight: 500;
-  color: #6366f1;
-}
-
 .gm-form-card {
   background: var(--cc-color-surface);
   border: 1px solid #e0e7ff;
@@ -722,7 +575,6 @@ export default defineComponent({
   color: var(--cc-color-danger);
   margin-left: 2px;
 }
-
 .gm-key-section {
   background: #eef2ff;
   border-radius: var(--cc-radius-lg);
@@ -757,7 +609,6 @@ export default defineComponent({
   background: var(--cc-color-surface);
   border-color: #c7d2fe;
 }
-
 .gm-toggle-group {
   display: flex;
   gap: 32px;
@@ -778,7 +629,6 @@ export default defineComponent({
 .gm-switch-wrap {
   padding-top: 6px;
 }
-
 .gm-form-card :deep(.el-form-item__label) {
   margin-bottom: 6px;
 }
@@ -813,7 +663,6 @@ export default defineComponent({
 .gm-form-card :deep(.el-input__inner::placeholder) {
   color: var(--cc-color-text-4);
 }
-
 .gm-meta-grid {
   display: flex;
   gap: 32px;
@@ -839,57 +688,13 @@ export default defineComponent({
   font-weight: 500;
   color: var(--cc-color-text-2);
 }
-
-.gm-form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 1px solid #eef2ff;
-}
-.gm-form-actions .el-button {
-  font-family: "Outfit", system-ui, sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.005em;
-  border-radius: var(--cc-radius-md);
-  padding: 12px 28px;
-}
-.gm-submit-btn {
-  background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
-  border: none !important;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-  transition: all 0.25s !important;
-}
-.gm-submit-btn:hover:not(.is-loading) {
-  background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-  transform: translateY(-1px);
-}
-
 @media (max-width: 768px) {
-  .gm-page-header {
-    padding: 20px;
-  }
-  .gm-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
   .gm-form-card {
     padding: 20px 16px;
     border-radius: var(--cc-radius-lg);
   }
-  .gm-page-title {
-    font-size: 22px;
-  }
   .gm-toggle-group {
     gap: 16px;
-  }
-  .gm-form-actions {
-    flex-direction: column-reverse;
-  }
-  .gm-form-actions .el-button {
-    width: 100%;
   }
   .gm-key-grid {
     grid-template-columns: 1fr;

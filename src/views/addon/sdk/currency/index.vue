@@ -153,12 +153,45 @@
         }}</el-button>
       </template>
     </el-drawer>
+
+    <ProDrawer
+      v-model="drawerVisible"
+      :title="drawerMode === 'add' ? $t('message.common.add') : $t('message.common.edit')"
+      size="lg"
+      :no-padding="true"
+      :destroy-on-close="true"
+      :show-footer="true"
+      :confirm-text="drawerMode === 'add' ? $t('message.common.submit') : $t('message.common.save')"
+      :cancel-text="$t('message.common.cancel')"
+      :confirm-loading="submitting"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    >
+      <template #actions>
+        <el-button
+          v-if="drawerMode === 'edit'"
+          type="danger"
+          plain
+          size="small"
+          @click="onDrawerDelete"
+        >
+          {{ $t("message.common.delete") }}
+        </el-button>
+      </template>
+      <CurrencyForm
+        ref="formRef"
+        :mode="drawerMode"
+        :id="editId"
+        @success="onSuccess"
+        @deleted="onDeleted"
+        @cancel="onCancel"
+      />
+    </ProDrawer>
   </ProPage>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref, reactive, onMounted, onActivated, watch } from "vue";
-import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Plus, Refresh, Setting, Download } from "@element-plus/icons-vue";
 import { useI18n } from "vue-i18n";
@@ -166,6 +199,8 @@ import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import CurrencyForm from "./component/currency-form.vue";
 import {
   getCurrencyList,
   deleteCurrency,
@@ -177,10 +212,20 @@ import {
 
 export default defineComponent({
   name: "addonSdkCurrencyList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Refresh, Setting, Download },
+  components: {
+    ProPage,
+    ProSearch,
+    ProToolbar,
+    ProTable,
+    ProDrawer,
+    CurrencyForm,
+    Plus,
+    Refresh,
+    Setting,
+    Download,
+  },
   setup() {
     const { t } = useI18n();
-    const router = useRouter();
     const tableData = ref<any[]>([]);
     const loading = ref(false);
     const tableSize = ref<"large" | "default" | "small">("default");
@@ -230,8 +275,44 @@ export default defineComponent({
       size.value = limit;
       loadData();
     };
-    const onAdd = () => router.push("/addon/sdk/currency/add");
-    const onEdit = (row: any) => router.push(`/addon/sdk/currency/edit?id=${row.id}`);
+    const onAdd = () => {
+      drawerMode.value = "add";
+      editId.value = undefined;
+      drawerVisible.value = true;
+    };
+    const onEdit = (row: any) => {
+      drawerMode.value = "edit";
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    // ── 抽屉化新增/编辑 ──
+    const drawerVisible = ref(false);
+    const drawerMode = ref<"add" | "edit">("add");
+    const editId = ref<number | undefined>(undefined);
+    const submitting = ref(false);
+    const formRef = ref();
+    const onConfirm = async () => {
+      submitting.value = true;
+      try {
+        await formRef.value?.submit();
+      } finally {
+        submitting.value = false;
+      }
+    };
+    const onSuccess = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onDeleted = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onCancel = () => {
+      drawerVisible.value = false;
+    };
+    const onDrawerDelete = () => {
+      formRef.value?.remove();
+    };
     const onDel = (row: any) => {
       ElMessageBox.confirm(
         t("message.sdk.currency.deleteConfirm", { code: row.currency_code }),
@@ -364,6 +445,16 @@ export default defineComponent({
       saveApiKey,
       onDialogOpen,
       loadApiConfig,
+      drawerVisible,
+      drawerMode,
+      editId,
+      submitting,
+      formRef,
+      onConfirm,
+      onSuccess,
+      onDeleted,
+      onCancel,
+      onDrawerDelete,
       Plus,
       Refresh,
       Setting,

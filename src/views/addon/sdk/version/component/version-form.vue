@@ -1,15 +1,5 @@
 <template>
-  <div class="fa-page ver-form-page">
-    <el-breadcrumb separator="→">
-      <el-breadcrumb-item
-        ><el-icon><HomeFilled /></el-icon>
-        {{ $t("message.sdk.game.breadcrumbHome") }}</el-breadcrumb-item
-      >
-      <el-breadcrumb-item>{{ $t("message.sdk.game.breadcrumbSdk") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ $t("message.sdk.version.breadcrumbVersion") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ $t("message.common.edit") }}</el-breadcrumb-item>
-    </el-breadcrumb>
-
+  <div class="ver-form-page">
     <div v-if="loading" class="ver-loading">
       <el-icon :size="28" class="ver-spin"><Loading /></el-icon>
       <p>{{ $t("message.sdk.version.editLoading") }}</p>
@@ -19,46 +9,15 @@
         <el-icon :size="40"><WarningFilled /></el-icon>
         <h3>{{ $t("message.sdk.version.editErrorTitle") }}</h3>
         <p>{{ loadError }}</p>
-        <el-button type="primary" @click="goBack">{{ $t("message.common.back") }}</el-button>
+        <el-button type="primary" @click="emit('cancel')">{{ $t("message.common.back") }}</el-button>
       </div>
     </template>
     <template v-else>
-      <div class="ver-page-header">
-        <el-button link class="ver-back-btn" @click="goBack"
-          ><el-icon><ArrowLeft /></el-icon> {{ $t("message.common.back") }}</el-button
-        >
-        <div class="ver-header-row">
-          <div>
-            <h1 class="ver-page-title">{{ form.version_name || $t("message.common.edit") }}</h1>
-            <p class="ver-page-subtitle">
-              {{ $t("message.sdk.version.codeLabel") }}:
-              <span class="ver-id-badge">{{ form.version_code }}</span>
-              <el-tag
-                :type="form.enabled === 1 ? 'success' : 'info'"
-                size="small"
-                effect="light"
-                style="margin-left: 8px"
-              >
-                {{
-                  form.enabled === 1
-                    ? $t("message.sdk.version.activeTag")
-                    : $t("message.sdk.version.inactiveTag")
-                }}
-              </el-tag>
-            </p>
-          </div>
-          <el-button type="danger" plain size="large" @click="onDelete"
-            ><el-icon><Delete /></el-icon> {{ $t("message.common.delete") }}</el-button
-          >
-        </div>
-      </div>
-
       <div class="ver-form-card">
         <el-form ref="formRef" :model="form" :rules="rules" label-position="top" size="large">
           <div class="ver-section">
             <h3 class="ver-section-title">
-              <span class="ver-section-icon"
-                ><el-icon><Box /></el-icon></span
+              <span class="ver-section-icon"><el-icon><Box /></el-icon></span
               >{{ $t("message.sdk.version.editSectionInfo") }}
             </h3>
             <el-row :gutter="20">
@@ -145,29 +104,13 @@
               </el-col>
             </el-row>
           </div>
-          <div class="ver-meta-row">
+          <div v-if="isEdit" class="ver-meta-row">
             <span class="ver-meta"
               ><b>{{ $t("message.sdk.version.metaCreated") }}:</b> {{ fmt(form.created_at) }}</span
             >
             <span class="ver-meta"
               ><b>{{ $t("message.sdk.version.metaUpdated") }}:</b> {{ fmt(form.updated_at) }}</span
             >
-          </div>
-          <div class="ver-form-actions">
-            <el-button size="large" @click="goBack">{{ $t("message.common.cancel") }}</el-button>
-            <el-button
-              type="primary"
-              size="large"
-              :loading="submitting"
-              @click="onSubmit"
-              class="ver-submit-btn"
-            >
-              <template v-if="!submitting"
-                ><el-icon style="margin-right: 4px"><Check /></el-icon
-                >{{ $t("message.sdk.version.saveBtnText") }}</template
-              >
-              <template v-else>{{ $t("message.common.saving") }}</template>
-            </el-button>
           </div>
         </el-form>
       </div>
@@ -176,34 +119,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, computed, onMounted, onActivated, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { defineComponent, ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { Box, Loading, WarningFilled } from "@element-plus/icons-vue";
 import {
-  HomeFilled,
-  ArrowLeft,
-  Box,
-  Check,
-  Delete,
-  Loading,
-  WarningFilled,
-} from "@element-plus/icons-vue";
-import { getVersionDetail, editVersion, deleteVersion } from "/@/api/addon/sdk";
+  addVersion,
+  getVersionDetail,
+  editVersion,
+  deleteVersion,
+} from "/@/api/addon/sdk";
 import { useI18n } from "vue-i18n";
 
 export default defineComponent({
-  name: "addonSdkVersionEdit",
-  components: { HomeFilled, ArrowLeft, Box, Check, Delete, Loading, WarningFilled },
-  setup() {
+  name: "addonSdkVersionForm",
+  components: { Box, Loading, WarningFilled },
+  props: {
+    mode: { type: String as () => "add" | "edit", default: "add" },
+    id: { type: [Number, String], default: undefined },
+    appId: { type: [Number, String], default: 0 },
+    gameName: { type: String, default: "" },
+  },
+  emits: ["success", "deleted", "cancel"],
+  setup(props, { emit }) {
     const { t } = useI18n();
-    const router = useRouter();
-    const route = useRoute();
     const formRef = ref();
-    const loading = ref(true);
-    const submitting = ref(false);
+    const loading = ref(false);
     const loadError = ref("");
-    const appId = computed(() => Number(route.query.app_id) || 0);
-    const gameName = computed(() => (route.query.name as string) || "");
+    const isEdit = computed(() => props.mode === "edit");
     const form = reactive<any>({
       id: 0,
       app_id: 0,
@@ -235,11 +177,9 @@ export default defineComponent({
             minute: "2-digit",
           })
         : "—";
-    const goBack = () =>
-      router.push(`/addon/sdk/version/list?app_id=${appId.value}&name=${gameName.value}`);
 
     const loadData = async () => {
-      const id = Number(route.query.id);
+      const id = Number(props.id);
       if (!id) {
         loadError.value = t("message.sdk.version.editMissingId");
         loading.value = false;
@@ -261,14 +201,13 @@ export default defineComponent({
       }
     };
 
-    const onSubmit = async () => {
+    const submit = async () => {
       try {
         await formRef.value?.validate();
       } catch {
         return;
       }
-      submitting.value = true;
-      try {
+      if (isEdit.value) {
         await editVersion({
           id: form.id,
           app_id: form.app_id,
@@ -280,46 +219,39 @@ export default defineComponent({
           enabled: form.enabled,
         });
         ElMessage.success(t("message.sdk.version.saveSuccess"));
-        goBack();
-      } finally {
-        submitting.value = false;
+      } else {
+        await addVersion({ ...form, app_id: Number(props.appId) || 0 });
+        ElMessage.success(t("message.sdk.version.addSuccess"));
       }
+      emit("success");
     };
-    const onDelete = () => {
-      ElMessageBox.confirm(
-        t("message.sdk.version.deleteConfirm", { code: form.version_code }),
-        t("message.sdk.version.deleteTitle"),
-        { type: "warning" },
-      )
-        .then(async () => {
-          await deleteVersion({ ids: [form.id] });
-          ElMessage.success(t("message.sdk.version.deleted"));
-          goBack();
-        })
-        .catch(() => {});
+
+    const remove = async () => {
+      try {
+        await ElMessageBox.confirm(
+          t("message.sdk.version.deleteConfirm", { code: form.version_code }),
+          t("message.sdk.version.deleteTitle"),
+          { type: "warning" },
+        );
+      } catch {
+        return;
+      }
+      await deleteVersion({ ids: [form.id] });
+      ElMessage.success(t("message.sdk.version.deleted"));
+      emit("deleted");
     };
-    onMounted(() => loadData());
-    onActivated(() => loadData());
-    watch(
-      () => route.query.id,
-      () => {
-        if (route.query.id) loadData();
-      },
-    );
-    return {
-      formRef,
-      form,
-      rules,
-      loading,
-      submitting,
-      loadError,
-      appId,
-      gameName,
-      fmt,
-      goBack,
-      onSubmit,
-      onDelete,
-    };
+
+    onMounted(async () => {
+      if (isEdit.value && props.id) {
+        loading.value = true;
+        loadError.value = "";
+        await loadData();
+      } else {
+        form.app_id = Number(props.appId) || 0;
+      }
+    });
+
+    return { formRef, form, rules, loading, loadError, isEdit, fmt, submit, remove, emit };
   },
 });
 </script>
@@ -351,72 +283,6 @@ export default defineComponent({
   color: #4b5563;
   margin: 16px 0 8px;
 }
-
-.ver-page-header {
-  margin: 28px 0 24px;
-  padding: 32px 36px;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border-radius: var(--cc-radius-xl);
-  border: 1px solid #fcd34d;
-  overflow: hidden;
-  position: relative;
-}
-.ver-page-header::before {
-  content: "";
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
-}
-.ver-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  position: relative;
-  z-index: 1;
-}
-.ver-back-btn {
-  font-family: "Syne", system-ui, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--cc-color-text-3);
-  padding: 0;
-  margin-bottom: 10px;
-  transition: color 0.2s;
-}
-.ver-back-btn:hover {
-  color: #d97706;
-}
-.ver-page-title {
-  font-family: "Syne", system-ui, sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #78350f;
-  margin: 0 0 4px;
-  position: relative;
-  z-index: 1;
-}
-.ver-page-subtitle {
-  font-family: "Syne", system-ui, sans-serif;
-  font-size: 14px;
-  color: #d97706;
-  margin: 0;
-}
-.ver-id-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  background: rgba(245, 158, 11, 0.1);
-  border-radius: 6px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 14px;
-  font-weight: 600;
-  color: #d97706;
-}
-
 .ver-form-card {
   background: var(--cc-color-surface);
   border: 1px solid #fde68a;
@@ -464,7 +330,6 @@ export default defineComponent({
   color: var(--cc-color-danger);
   margin-left: 2px;
 }
-
 .ver-meta-row {
   display: flex;
   gap: 24px;
@@ -480,7 +345,6 @@ export default defineComponent({
 .ver-meta b {
   color: var(--cc-color-text-3);
 }
-
 .ver-form-card :deep(.el-form-item__label) {
   margin-bottom: 6px;
 }
@@ -519,65 +383,10 @@ export default defineComponent({
 .ver-form-card :deep(.el-input__inner::placeholder) {
   color: var(--cc-color-text-4);
 }
-
-.ver-form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 1px solid #fef3c7;
-}
-.ver-form-actions .el-button {
-  font-family: "Syne", system-ui, sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.005em;
-  border-radius: var(--cc-radius-md);
-  padding: 12px 28px;
-}
-.ver-submit-btn {
-  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-  border: none !important;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-  transition: all 0.25s !important;
-}
-.ver-submit-btn:hover:not(.is-loading) {
-  background: linear-gradient(135deg, #d97706, #b45309) !important;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
-  transform: translateY(-1px);
-}
-
-@media (min-width: 1440px) {
-  .ver-form-page {
-    max-width: 1320px;
-  }
-  .ver-page-header {
-    padding: 40px 48px;
-  }
-  .ver-form-card {
-    padding: 40px 48px;
-  }
-}
 @media (max-width: 768px) {
-  .ver-page-header {
-    padding: 20px;
-  }
-  .ver-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
   .ver-form-card {
     padding: 20px 16px;
     border-radius: var(--cc-radius-lg);
-  }
-  .ver-page-title {
-    font-size: 22px;
-  }
-  .ver-form-actions {
-    flex-direction: column-reverse;
-  }
-  .ver-form-actions .el-button {
-    width: 100%;
   }
 }
 </style>

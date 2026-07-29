@@ -54,9 +54,7 @@
         min-width="180"
         show-overflow-tooltip
         ><template #default="{ row }"
-          ><router-link :to="`/addon/sdk/ban/edit?id=${row.id}`" class="link-primary">{{
-            row.banned_target
-          }}</router-link></template
+          ><span class="link-primary" @click="onEdit(row)">{{ row.banned_target }}</span></template
         ></el-table-column
       >
       <el-table-column
@@ -123,12 +121,45 @@
       <p>{{ $t("message.sdk.ban.ruleExpired") }}</p>
       <p>{{ $t("message.sdk.ban.ruleGlobal") }}</p>
     </el-alert>
+
+    <ProDrawer
+      v-model="drawerVisible"
+      :title="drawerMode === 'add' ? $t('message.sdk.ban.addBtn') : $t('message.common.edit')"
+      size="lg"
+      :no-padding="true"
+      :destroy-on-close="true"
+      :show-footer="true"
+      :confirm-text="drawerMode === 'add' ? $t('message.common.submit') : $t('message.common.save')"
+      :cancel-text="$t('message.common.cancel')"
+      :confirm-loading="submitting"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    >
+      <template #actions>
+        <el-button
+          v-if="drawerMode === 'edit'"
+          type="danger"
+          plain
+          size="small"
+          @click="onDrawerDelete"
+        >
+          {{ $t("message.common.delete") }}
+        </el-button>
+      </template>
+      <BanForm
+        ref="formRef"
+        :mode="drawerMode"
+        :id="editId"
+        @success="onSuccess"
+        @deleted="onDeleted"
+        @cancel="onCancel"
+      />
+    </ProDrawer>
   </ProPage>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref, reactive, onMounted, onActivated } from "vue";
-import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
 import { useI18n } from "vue-i18n";
@@ -136,14 +167,15 @@ import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import BanForm from "/@/views/addon/sdk/ban/component/ban-form.vue";
 import { getBanList, deleteBan, BanItem } from "/@/api/addon/sdk";
 
 export default defineComponent({
   name: "addonSdkBanList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, ProDrawer, BanForm, Plus },
   setup() {
     const { t } = useI18n();
-    const router = useRouter();
     const searchForm = reactive<any>({
       app_id: undefined,
       ban_type: "",
@@ -244,8 +276,44 @@ export default defineComponent({
     const onSelectionChange = (rows: BanItem[]) => {
       selectedIds.value = rows.map((row) => row.id);
     };
-    const onAdd = () => router.push("/addon/sdk/ban/add");
-    const onEdit = (row: BanItem) => router.push(`/addon/sdk/ban/edit?id=${row.id}`);
+    // ── 抽屉化新增/编辑 ──
+    const drawerVisible = ref(false);
+    const drawerMode = ref<"add" | "edit">("add");
+    const editId = ref<number | undefined>(undefined);
+    const submitting = ref(false);
+    const formRef = ref();
+    const onAdd = () => {
+      drawerMode.value = "add";
+      editId.value = undefined;
+      drawerVisible.value = true;
+    };
+    const onEdit = (row: BanItem) => {
+      drawerMode.value = "edit";
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    const onConfirm = async () => {
+      submitting.value = true;
+      try {
+        await formRef.value?.submit();
+      } finally {
+        submitting.value = false;
+      }
+    };
+    const onSuccess = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onDeleted = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onCancel = () => {
+      drawerVisible.value = false;
+    };
+    const onDrawerDelete = () => {
+      formRef.value?.remove();
+    };
     const onDelete = (row: BanItem) => {
       ElMessageBox.confirm(t("message.sdk.ban.deleteConfirm"), t("message.common.confirmTitle"), {
         type: "warning",
@@ -298,6 +366,16 @@ export default defineComponent({
       onEdit,
       onDelete,
       onBatchDelete,
+      drawerVisible,
+      drawerMode,
+      editId,
+      submitting,
+      formRef,
+      onConfirm,
+      onSuccess,
+      onDeleted,
+      onCancel,
+      onDrawerDelete,
       Plus,
     };
   },
@@ -309,6 +387,7 @@ export default defineComponent({
   color: var(--cc-color-primary);
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
 }
 .link-primary:hover {
   text-decoration: underline;
