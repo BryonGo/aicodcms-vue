@@ -27,15 +27,28 @@
       </template>
     </ProSearch>
 
-    <ProToolbar v-model:size="tableSize" @refresh="loadData" />
+    <ProToolbar v-model:size="tableSize" @refresh="loadData">
+      <el-button
+        type="danger"
+        :icon="Delete"
+        :disabled="selectedIds.length === 0"
+        @click="onBatchDelete"
+      >
+        {{ $t("message.sdk.user.btnBatchDelete") }}
+        <span v-if="selectedIds.length > 0">({{ selectedIds.length }})</span>
+      </el-button>
+    </ProToolbar>
 
     <ProTable
+      ref="proTableRef"
       :data="tableData"
       :loading="loading"
       :size="tableSize"
       :total="total"
       :page="page"
       :page-size="size"
+      selection
+      @selection-change="onSelectionChange"
       @pagination="onPageChange"
     >
       <el-table-column prop="id" label="UID" width="110" align="center">
@@ -144,7 +157,7 @@
 import { computed, defineComponent, ref, reactive, onMounted, onActivated } from "vue";
 import { useI18n } from "vue-i18n";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
+import { Plus, Delete } from "@element-plus/icons-vue";
 import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
@@ -173,6 +186,12 @@ export default defineComponent({
     const page = ref(1);
     const size = ref(10);
     const total = ref(0);
+    const selectedRows = ref<UserItem[]>([]);
+    const selectedIds = computed(() => selectedRows.value.map((r) => r.id));
+    const proTableRef = ref<any>();
+    const onSelectionChange = (rows: UserItem[]) => {
+      selectedRows.value = rows;
+    };
 
     const searchFields = computed<ProSearchField[]>(() => [
       {
@@ -285,18 +304,58 @@ export default defineComponent({
         .catch(() => {});
     };
 
-    const onDelete = (row: UserItem) => {
-      ElMessageBox.confirm(
-        t("message.sdk.user.confirmDeleteUser", { name: row.username || row.email || row.id }),
-        t("message.sdk.user.confirmDeleteTitle"),
-        { type: "warning" },
-      )
-        .then(async () => {
-          await deleteUser({ ids: [row.id] });
-          ElMessage.success(t("message.sdk.user.msgDeleteSuccess"));
-          loadData();
-        })
-        .catch(() => {});
+    const onDelete = async (row: UserItem) => {
+      try {
+        await ElMessageBox.confirm(
+          t("message.sdk.user.confirmDeleteUser", { name: row.username || row.email || row.id }),
+          t("message.sdk.user.confirmDeleteTitle"),
+          { type: "warning" },
+        );
+      } catch {
+        return;
+      }
+      try {
+        await deleteUser({ ids: [row.id] });
+        ElMessage.success(t("message.sdk.user.msgDeleteSuccess"));
+      } catch (e: any) {
+        ElMessage.error(e?.msg || e?.message || t("message.sdk.user.msgDeleteFailed"));
+        return;
+      }
+      await afterDelete();
+    };
+
+    const onBatchDelete = async () => {
+      if (selectedIds.value.length === 0) return;
+      try {
+        await ElMessageBox.confirm(
+          t("message.sdk.user.confirmBatchDelete", { count: selectedIds.value.length }),
+          t("message.sdk.user.confirmDeleteTitle"),
+          { type: "warning" },
+        );
+      } catch {
+        return;
+      }
+      try {
+        await deleteUser({ ids: selectedIds.value });
+        ElMessage.success(
+          t("message.sdk.user.msgBatchDeleteSuccess", { count: selectedIds.value.length }),
+        );
+      } catch (e: any) {
+        ElMessage.error(e?.msg || e?.message || t("message.sdk.user.msgDeleteFailed"));
+        return;
+      }
+      await afterDelete();
+    };
+
+    // 删除后刷新列表；清空选择；若当前页被删空且不是首页则回退一页，避免停留在空页
+    const afterDelete = async () => {
+      await loadData();
+      proTableRef.value?.tableRef?.clearSelection?.();
+      selectedRows.value = [];
+      if (tableData.value.length === 0 && page.value > 1) {
+        page.value -= 1;
+        await loadData();
+      }
     };
 
     const onResetPwd = (row: UserItem) => {
@@ -339,12 +398,17 @@ export default defineComponent({
       onDelete,
       onResetPwd,
       onChangeStatus,
+      selectedIds,
+      onSelectionChange,
+      onBatchDelete,
+      proTableRef,
       addDialog,
       addLoading,
       addForm,
       resetAddForm,
       onSubmitAdd,
       Plus,
+      Delete,
     };
   },
 });
