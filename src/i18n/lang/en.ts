@@ -1176,6 +1176,8 @@ export default {
   cmsLink: {
     logoUrl: "Logo URL",
     target: "Target",
+    targetBlank: "Open in new tab",
+    targetSelf: "Open in current tab",
     group: "Group",
     selectGroup: "Select Group",
     urlRequired: "URL is required",

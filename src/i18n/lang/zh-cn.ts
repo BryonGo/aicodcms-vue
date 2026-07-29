@@ -886,6 +886,8 @@ export default {
   cmsLink: {
     logoUrl: "Logo 地址",
     target: "打开方式",
+    targetBlank: "新窗口打开",
+    targetSelf: "当前窗口打开",
     group: "分组",
     selectGroup: "选择分组",
     urlRequired: "URL不能为空",

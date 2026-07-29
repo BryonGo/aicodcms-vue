@@ -96,6 +96,21 @@
         </template>
       </el-table-column>
     </ProTable>
+
+    <ProDrawer
+      v-model="drawerVisible"
+      :title="drawerMode === 'add' ? t('message.menu_cms_link_add') : t('message.menu_cms_link_edit')"
+      :size="520"
+      :destroy-on-close="true"
+      :show-footer="true"
+      :confirm-text="t('message.common.confirm')"
+      :cancel-text="t('message.common.cancel')"
+      :confirm-loading="submitting"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    >
+      <LinkForm ref="formRef" :mode="drawerMode" :id="editId" @success="onSuccess" @cancel="onCancel" />
+    </ProDrawer>
   </ProPage>
 </template>
 
@@ -108,6 +123,8 @@ import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import LinkForm from "./component/link-form.vue";
 import { getLinkList, delLink } from "@/api/cms/link";
 
 const { t } = useI18n();
@@ -188,12 +205,41 @@ function handleSelectionChange(rows: any[]) {
   selectedIds.value = rows.map((row) => row.id);
 }
 
+const drawerVisible = ref(false);
+const drawerMode = ref<"add" | "edit">("add");
+const editId = ref<number | undefined>(undefined);
+const submitting = ref(false);
+const formRef = ref();
+
 function handleAdd() {
-  proxy.$router.push("/cms/link/list/add");
+  drawerMode.value = "add";
+  editId.value = undefined;
+  drawerVisible.value = true;
 }
 
 function handleUpdate(row: any) {
-  proxy.$router.push(`/cms/link/list/edit?id=${row.id}`);
+  drawerMode.value = "edit";
+  editId.value = row.id;
+  drawerVisible.value = true;
+}
+
+async function onConfirm() {
+  submitting.value = true;
+  try {
+    await formRef.value?.submit();
+  } finally {
+    submitting.value = false;
+  }
+}
+
+function onSuccess() {
+  drawerVisible.value = false;
+  tableData.page = 1;
+  getList();
+}
+
+function onCancel() {
+  drawerVisible.value = false;
 }
 
 function handleDelete(row: any | null) {

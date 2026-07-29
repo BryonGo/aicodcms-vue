@@ -350,37 +350,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           next("/401");
         },
       },
-      // ==================== CMS Link ====================
-      {
-        path: "/cms/link/list/add",
-        name: "cmsLinkAdd",
-        component: () => import("/@/views/cms/link/list/add.vue"),
-        meta: {
-          title: "message.router.cmsLinkAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/link/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/link/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/cms/link/list/edit",
-        name: "cmsLinkEdit",
-        component: () => import("/@/views/cms/link/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsLinkEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/link/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/link/edit")) return next();
-          next("/401");
-        },
-      },
       // ==================== PMS ModulesInfo ====================
       {
         path: "/pms/modules/info/list/add",
@@ -752,28 +721,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           is_hide: true,
           is_keep_alive: true,
           permissions: ["api/v1/addon/pay/channel/list"],
-        },
-      },
-      {
-        path: "/addon/pay/channel/add",
-        name: "addonPayChannelAdd",
-        component: () => import("/@/views/addon/pay/channel/add.vue"),
-        meta: {
-          title: "message.sdk.payChannelAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/pay/channel/add"],
-        },
-      },
-      {
-        path: "/addon/pay/channel/edit",
-        name: "addonPayChannelEdit",
-        component: () => import("/@/views/addon/pay/channel/edit.vue"),
-        meta: {
-          title: "message.sdk.payChannelEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/addon/pay/channel/edit"],
         },
       },
       // ---- 货币管理 ----

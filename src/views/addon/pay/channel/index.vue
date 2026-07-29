@@ -42,9 +42,7 @@
         </el-table-column>
         <el-table-column prop="name" :label="$t('message.common.colName')" min-width="140">
           <template #default="{ row }"
-            ><router-link :to="`/addon/pay/channel/edit?id=${row.id}`" class="pch-link">{{
-              row.name
-            }}</router-link></template
+            ><span class="pch-link" @click="onEdit(row)">{{ row.name }}</span></template
           >
         </el-table-column>
         <el-table-column
@@ -92,6 +90,27 @@
       </div>
     </div>
   </div>
+
+  <ProDrawer
+    v-model="drawerVisible"
+    :title="drawerMode === 'add' ? $t('message.sdk.payChannel.addTitle') : $t('message.sdk.payChannel.editTitle')"
+    :size="600"
+    :destroy-on-close="true"
+    :show-footer="true"
+    :confirm-text="$t('message.common.confirm')"
+    :cancel-text="$t('message.common.cancel')"
+    :confirm-loading="submitting"
+    @confirm="onConfirm"
+    @cancel="onCancel"
+  >
+    <ChannelForm
+      ref="formRef"
+      :mode="drawerMode"
+      :id="editId"
+      @success="onSuccess"
+      @cancel="onCancel"
+    />
+  </ProDrawer>
 </template>
 
 <script lang="ts">
@@ -101,10 +120,12 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { HomeFilled, Plus } from "@element-plus/icons-vue";
 import { getPayChannelList, deletePayChannel } from "/@/api/addon/pay";
 import { useI18n } from "vue-i18n";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import ChannelForm from "./component/channel-form.vue";
 
 export default defineComponent({
   name: "addonSdkPayChannelList",
-  components: { HomeFilled, Plus },
+  components: { HomeFilled, Plus, ProDrawer, ChannelForm },
   setup() {
     const router = useRouter();
     const { t } = useI18n();
@@ -129,8 +150,36 @@ export default defineComponent({
     const onSel = (rows: any[]) => {
       selIds.value = rows.map((r) => r.id);
     };
-    const onAdd = () => router.push("/addon/pay/channel/add");
-    const onEdit = (row: any) => router.push(`/addon/pay/channel/edit?id=${row.id}`);
+    const drawerVisible = ref(false);
+    const drawerMode = ref<"add" | "edit">("add");
+    const editId = ref<number | undefined>(undefined);
+    const submitting = ref(false);
+    const formRef = ref();
+    const onAdd = () => {
+      drawerMode.value = "add";
+      editId.value = undefined;
+      drawerVisible.value = true;
+    };
+    const onEdit = (row: any) => {
+      drawerMode.value = "edit";
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    const onConfirm = async () => {
+      submitting.value = true;
+      try {
+        await formRef.value?.submit();
+      } finally {
+        submitting.value = false;
+      }
+    };
+    const onSuccess = () => {
+      drawerVisible.value = false;
+      loadData();
+    };
+    const onCancel = () => {
+      drawerVisible.value = false;
+    };
     const onDel = (row: any) => {
       ElMessageBox.confirm(
         t("message.sdk.payChannel.deleteConfirm", { name: row.name }),
@@ -174,6 +223,14 @@ export default defineComponent({
       onEdit,
       onDel,
       onBatchDel,
+      drawerVisible,
+      drawerMode,
+      editId,
+      submitting,
+      formRef,
+      onConfirm,
+      onSuccess,
+      onCancel,
     };
   },
 });
