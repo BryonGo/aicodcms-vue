@@ -1,67 +1,6 @@
 <template>
-  <div class="chn-form-page">
-    <el-breadcrumb separator="→">
-      <el-breadcrumb-item :to="{ path: '/' }"
-        ><el-icon><HomeFilled /></el-icon> {{ $t("message.router.home") }}</el-breadcrumb-item
-      >
-      <el-breadcrumb-item>CMS</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/cms/channel/list' }">{{
-        $t("message.cms.channelList.breadcrumbCurrent")
-      }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
-    </el-breadcrumb>
-
-    <div v-if="loading" class="chn-loading">
-      <el-icon :size="28" class="chn-spin"><Loading /></el-icon>
-      <p>{{ $t("message.cms.channelEdit.loading") }}</p>
-    </div>
-
-    <template v-else-if="loadError">
-      <div class="chn-error">
-        <el-icon :size="40"><WarningFilled /></el-icon>
-        <h3>{{ $t("message.cms.channelEdit.loadError") }}</h3>
-        <p>{{ loadError }}</p>
-        <el-button type="primary" @click="$router.push('/cms/channel/list')">{{
-          $t("message.common.backToList")
-        }}</el-button>
-      </div>
-    </template>
-
-    <template v-else>
-      <div class="chn-page-header">
-        <el-button link class="chn-back-btn" @click="$router.push('/cms/channel/list')">
-          <el-icon><ArrowLeft /></el-icon> {{ $t("message.common.backToList") }}
-        </el-button>
-        <div class="chn-header-row">
-          <div>
-            <h1 class="chn-page-title">{{ formData.name || pageTitle }}</h1>
-            <p class="chn-page-subtitle">
-              <template v-if="formData.id"
-                >ID: <span class="chn-id-badge">{{ formData.id }}</span>
-                <el-tag
-                  :type="formData.status === '1' ? 'success' : 'info'"
-                  size="small"
-                  effect="light"
-                  style="margin-left: 8px"
-                >
-                  {{
-                    formData.status === "1"
-                      ? $t("message.common.normal")
-                      : $t("message.common.hidden")
-                  }}
-                </el-tag>
-              </template>
-              <template v-else>{{ $t("message.cms.channelEdit.addTitle") }}</template>
-            </p>
-          </div>
-          <el-button v-if="formData.id" type="danger" plain size="large" @click="onDelete">
-            <el-icon><Delete /></el-icon>{{ $t("message.common.delete") }}</el-button
-          >
-        </div>
-      </div>
-
-      <div class="chn-form-card">
-        <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" size="large">
+  <div class="chn-drawer-form">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" size="large">
           <el-tabs model-value="base" type="border-card" class="chn-tabs">
             <el-tab-pane :label="$t('message.cms.channelEdit.basicInfo')" name="base">
               <div class="chn-form-grid">
@@ -231,7 +170,7 @@
           </div>
 
           <div class="chn-form-actions">
-            <el-button size="large" @click="$router.push('/cms/channel/list')">{{
+            <el-button size="large" @click="$emit('close')">{{
               $t("message.common.cancel")
             }}</el-button>
             <el-button
@@ -248,16 +187,13 @@
               <template v-else>{{ $t("message.common.saving") }}</template>
             </el-button>
           </div>
-        </el-form>
-      </div>
-    </template>
-  </div>
+      </el-form>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, reactive, ref, toRefs, unref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox, UploadProps } from "element-plus";
 import {
   addCmsChannel,
@@ -272,22 +208,21 @@ import TranslationEditor, {
   type TranslationField,
 } from "/@/components/translation/TranslationEditor.vue";
 import {
-  HomeFilled,
-  ArrowLeft,
   Check,
   Delete,
-  Loading,
-  WarningFilled,
   Plus,
 } from "@element-plus/icons-vue";
 
 export default defineComponent({
   name: "apiV1ChannelEditPage",
-  components: { TranslationEditor },
-  setup() {
+  components: { TranslationEditor, Check, Delete, Plus },
+  props: {
+    editId: { type: Number, default: 0 },
+    parentId: { type: Number, default: 0 },
+  },
+  emits: ["saved", "close"],
+  setup(props, ctx) {
     const { t: $t } = useI18n();
-    const route = useRoute();
-    const router = useRouter();
     const baseURL = buildApiUrl("/");
     const { proxy } = <any>getCurrentInstance();
     const formRef = ref<HTMLElement | null>(null);
@@ -401,9 +336,8 @@ export default defineComponent({
     };
 
     const loadData = async () => {
-      const id = Number(route.query.id);
-      const parent_id = Number(route.query.parent_id || 0);
-      loading.value = true;
+      const id = props.editId;
+      const parent_id = props.parentId || 0;
       loadError.value = "";
 
       listCmsChannel({ row: 100, page: 1 })
@@ -421,7 +355,6 @@ export default defineComponent({
       state.formData.parent_id = parent_id || undefined;
 
       if (!id) {
-        loading.value = false;
         return;
       }
 
@@ -449,7 +382,6 @@ export default defineComponent({
       } catch {
         loadError.value = $t("message.common.msgNetworkErrorRetry");
       } finally {
-        loading.value = false;
       }
     };
 
@@ -479,7 +411,7 @@ export default defineComponent({
                 ? $t("message.cms.channelEdit.msgEditOk2")
                 : $t("message.cms.channelEdit.msgAddOk2"),
             );
-            router.push("/cms/channel/list");
+            ctx.emit("saved");
           })
           .finally(() => {
             submitting.value = false;
@@ -506,7 +438,7 @@ export default defineComponent({
 
     const onDelete = () => {
       ElMessageBox.confirm(
-        `Delete channel "${state.formData.name}"? This cannot be undone.`,
+        $t("message.common.confirmDeleteItem", { name: state.formData.name || "" }),
         $t("message.common.confirmDeleteTitle"),
         {
           type: "warning",
@@ -517,7 +449,7 @@ export default defineComponent({
         .then(async () => {
           await delCmsChannel([state.formData.id!]);
           ElMessage.success($t("message.common.msgDeleteOk"));
-          router.push("/cms/channel/list");
+          ctx.emit("saved");
         })
         .catch(() => {});
     };
@@ -554,109 +486,38 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.chn-form-page {
-  max-width: 960px;
-  margin: 0 auto;
-}
-.chn-loading {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--cc-color-text-3);
-}
-.chn-spin {
-  animation: chn-spin 1s linear infinite;
-}
-@keyframes chn-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-.chn-error {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--cc-color-text-4);
-}
-.chn-error h3 {
-  color: var(--cc-color-text-2);
-  margin: 16px 0 8px;
-  font-weight: 600;
+.chn-drawer-form {
+  padding: 24px;
 }
 
-.chn-page-header {
-  position: relative;
-  margin: 28px 0 24px;
-  padding: 32px 36px;
-  background: var(--cc-color-surface);
-  border-radius: 16px;
-  border: 1px solid var(--cc-color-border);
-  overflow: hidden;
+.chn-tabs {
+  margin-bottom: 24px;
 }
-.chn-page-header::before {
-  content: "";
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle, rgba(100, 116, 139, 0.08) 0%, transparent 70%);
-  border-radius: 50%;
+.chn-tabs :deep(.el-tabs__content) {
+  padding: 20px 0 0;
 }
-.chn-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  position: relative;
-  z-index: 1;
+.chn-tabs :deep(.el-tabs__header) {
+  background: transparent;
+  border: none;
+  margin-bottom: 0;
 }
-.chn-back-btn {
-  font-family: var(--cc-font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--cc-color-text-3);
-  padding: 0;
-  margin-bottom: 10px;
-  transition: color 0.2s;
+.chn-tabs :deep(.el-tabs__nav) {
+  border: none;
 }
-.chn-back-btn:hover {
-  color: var(--cc-color-text-1);
-}
-.chn-page-title {
-  font-family: var(--cc-font-sans);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--cc-color-text-1);
-  margin: 0 0 4px;
-}
-.chn-page-subtitle {
+.chn-tabs :deep(.el-tabs__item) {
   font-family: var(--cc-font-sans);
   font-size: 14px;
-  color: var(--cc-color-text-3);
-  margin: 0;
-}
-.chn-id-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  background: var(--cc-color-bg);
-  border-radius: 6px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
   font-weight: 500;
-  color: var(--cc-color-text-2);
+  color: var(--cc-color-text-3);
+  padding: 10px 20px;
+  border-radius: 8px 8px 0 0;
+}
+.chn-tabs :deep(.el-tabs__item.is-active) {
+  color: var(--cc-color-text-1);
+  background: #fff;
+  border-color: var(--cc-color-border);
 }
 
-.chn-form-card {
-  background: #fff;
-  border: 1px solid var(--cc-color-border);
-  border-radius: 16px;
-  padding: 36px 40px;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.02),
-    0 4px 16px rgba(100, 116, 139, 0.04);
-}
 .chn-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -687,34 +548,31 @@ export default defineComponent({
   color: var(--cc-color-text-3);
 }
 
-.chn-form-card :deep(.el-form-item__label) {
+.chn-drawer-form :deep(.el-form-item__label) {
   margin-bottom: 6px;
 }
-.chn-form-card :deep(.el-input__wrapper),
-.chn-form-card :deep(.el-textarea__inner),
-.chn-form-card :deep(.el-input-number__wrapper) {
+.chn-drawer-form :deep(.el-input__wrapper),
+.chn-drawer-form :deep(.el-textarea__inner),
+.chn-drawer-form :deep(.el-input-number__wrapper) {
   border-radius: 10px;
   background: var(--cc-color-bg);
   box-shadow: none;
   border: 1px solid var(--cc-color-border);
-  transition:
-    border-color 0.25s,
-    background 0.25s,
-    box-shadow 0.25s;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
-.chn-form-card :deep(.el-input__wrapper:hover),
-.chn-form-card :deep(.el-textarea__inner:hover) {
+.chn-drawer-form :deep(.el-input__wrapper:hover),
+.chn-drawer-form :deep(.el-textarea__inner:hover) {
   background: #fff;
   border-color: var(--cc-color-text-4);
 }
-.chn-form-card :deep(.el-input__wrapper.is-focus),
-.chn-form-card :deep(.el-textarea__inner:focus) {
+.chn-drawer-form :deep(.el-input__wrapper.is-focus),
+.chn-drawer-form :deep(.el-textarea__inner:focus) {
   background: #fff;
   border-color: var(--cc-color-text-3);
   box-shadow: 0 0 0 3px var(--cc-color-focus-ring);
 }
-.chn-form-card :deep(.el-input__inner),
-.chn-form-card :deep(.el-textarea__inner) {
+.chn-drawer-form :deep(.el-input__inner),
+.chn-drawer-form :deep(.el-textarea__inner) {
   font-family: var(--cc-font-sans);
   font-size: 14px;
   color: var(--cc-color-text-1);
@@ -722,7 +580,8 @@ export default defineComponent({
 
 .chn-form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
   padding-top: 24px;
   border-top: 1px solid var(--cc-color-border-light);
@@ -745,12 +604,12 @@ export default defineComponent({
   transform: translateY(-1px);
 }
 
-.chn-form-card :deep(.avatar-uploader .avatar) {
+.chn-drawer-form :deep(.avatar-uploader .avatar) {
   width: 128px;
   height: 128px;
   display: block;
 }
-.chn-form-card :deep(.avatar-uploader .el-upload) {
+.chn-drawer-form :deep(.avatar-uploader .el-upload) {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;
   cursor: pointer;
@@ -767,15 +626,6 @@ export default defineComponent({
 }
 
 @media (min-width: 1440px) {
-  .chn-form-page {
-    max-width: 1320px;
-  }
-  .chn-page-header {
-    padding: 40px 48px;
-  }
-  .chn-form-card {
-    padding: 40px 48px;
-  }
   .chn-form-grid {
     gap: 0 48px;
   }
@@ -783,21 +633,6 @@ export default defineComponent({
 @media (max-width: 768px) {
   .chn-form-grid {
     grid-template-columns: 1fr;
-  }
-  .chn-page-header {
-    padding: 20px;
-  }
-  .chn-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .chn-form-card {
-    padding: 20px 16px;
-    border-radius: 12px;
-  }
-  .chn-page-title {
-    font-size: 22px;
   }
   .chn-form-actions {
     flex-direction: column-reverse;

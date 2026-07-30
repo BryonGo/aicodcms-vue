@@ -128,6 +128,16 @@
       </el-table>
     </div>
   </div>
+
+  <el-drawer
+    :title="editId ? $t('message.router.pmsModulesFieldEdit') : $t('message.router.pmsModulesFieldAdd')"
+    v-model="drawerVisible"
+    size="650px"
+    destroy-on-close
+    direction="rtl"
+  >
+    <FieldEdit v-if="drawerVisible" :edit-id="editId" :module-id="moduleId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+  </el-drawer>
 </template>
 <script lang="ts">
 import {
@@ -152,6 +162,7 @@ import { useRoute, useRouter } from "vue-router";
 // @ts-ignore
 import { vDragable } from "element-plus-table-dragable";
 import { useI18n } from "vue-i18n";
+import FieldEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiV1SystemModulesFieldList",
@@ -162,6 +173,8 @@ export default defineComponent({
     const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
+    const drawerVisible = ref(false);
+    const editId = ref(0);
     const moduleId = ref(route.query.id ? Number(route.query.id) : 0);
     const { proxy } = <any>getCurrentInstance();
     const loading = ref(false);
@@ -263,7 +276,8 @@ export default defineComponent({
       multiple.value = !selection.length;
     };
     const handleAdd = () => {
-      proxy.$router.push(`/pms/modules/field/list/add?moduleId=${moduleId.value}`);
+      editId.value = 0;
+      drawerVisible.value = true;
     };
     const handleUpdate = (row: ModulesFieldTableColumns) => {
       if (!row) {
@@ -271,7 +285,13 @@ export default defineComponent({
           return item.id === state.ids[0];
         }) as ModulesFieldTableColumns;
       }
-      proxy.$router.push(`/pms/modules/field/list/edit?moduleId=${moduleId.value}&id=${row.id}`);
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      modulesFieldList();
     };
     const handleDelete = (row: ModulesFieldTableColumns | null) => {
       let msg = t("message.common.confirmDeleteBatch");
@@ -327,6 +347,9 @@ export default defineComponent({
       handleAdd,
       handleUpdate,
       handleDelete,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
       vDragable,
       dragOptions,
       ...toRefs(state),

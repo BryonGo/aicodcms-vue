@@ -188,6 +188,84 @@
                           clearable
                         />
                       </template>
+                      <!-- fetchable: 产品 ID 字段带「从 API 拉取」按钮，支持多选 -->
+                      <template v-else-if="f.fetchable">
+                        <div class="pay-form__fetch-row">
+                          <el-input
+                            v-model="extraFields[f.key]"
+                            :placeholder="f.placeholder"
+                            class="pay-form__mono"
+                            clearable
+                          >
+                            <template #suffix>
+                              <el-button
+                                link
+                                :icon="Search"
+                                :loading="fetchingProducts"
+                                size="small"
+                                class="pay-form__fetch-btn"
+                                :title="
+                                  canFetch(f)
+                                    ? t('message.sdk.payConfig.fetchProducts')
+                                    : t('message.sdk.payConfig.fetchNeedApiKey')
+                                "
+                                :disabled="!canFetch(f)"
+                                @click.stop="handleFetchProducts(f)"
+                              />
+                            </template>
+                          </el-input>
+                          <!-- 多选：已选产品标签 -->
+                          <div
+                            v-if="f.multiSelect && getSelectedProductIds(extraFields[f.key]).length > 0"
+                            class="pay-form__selected-tags"
+                          >
+                            <span
+                              v-for="pid in getSelectedProductIds(extraFields[f.key])"
+                              :key="pid"
+                              class="pay-form__selected-tag"
+                            >
+                              <span class="pay-form__selected-tag-text">{{ pid }}</span>
+                              <el-icon
+                                size="12"
+                                class="pay-form__selected-tag-remove"
+                                @click="removeSelectedProduct(pid, f.key)"
+                                ><svg viewBox="0 0 12 12" fill="none"><path d="M3 3L9 9M9 3L3 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></el-icon
+                              >
+                            </span>
+                          </div>
+                          <!-- 拉取结果下拉 -->
+                          <div
+                            v-if="fetchedProducts.length > 0 && activeFetchKey === f.key"
+                            class="pay-form__product-dropdown"
+                          >
+                            <div class="pay-form__product-hint">
+                              {{ f.multiSelect ? t("message.sdk.payConfig.selectProductMulti") : t("message.sdk.payConfig.selectProduct") }}
+                            </div>
+                            <div
+                              v-for="p in fetchedProducts"
+                              :key="p.product_id"
+                              class="pay-form__product-item"
+                              :class="{
+                                'pay-form__product-item--active': isProductSelected(p, f.key),
+                                'pay-form__product-item--multi': f.multiSelect,
+                              }"
+                              @click="selectProduct(p, f.key)"
+                            >
+                              <el-icon v-if="f.multiSelect" size="16" class="pay-form__product-check">
+                                <svg v-if="isProductSelected(p, f.key)" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M13.78 3.22a.75.75 0 010 1.06l-7 7a.75.75 0 01-1.06 0l-3-3a.75.75 0 011.06-1.06L6.25 9.69l6.47-6.47a.75.75 0 011.06 0z" clip-rule="evenodd"/></svg>
+                                <svg v-else viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="14" height="14" rx="3"/></svg>
+                              </el-icon>
+                              <div class="pay-form__product-main">
+                                <span class="pay-form__product-name">{{ p.name }}</span>
+                                <span class="pay-form__product-id">{{ p.product_id }}</span>
+                              </div>
+                              <span v-if="formatProductPrice(p)" class="pay-form__product-price">{{
+                                formatProductPrice(p)
+                              }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
                       <template v-else>
                         <el-input
                           v-model="extraFields[f.key]"
@@ -252,6 +330,7 @@ import {
   Lock,
   View,
   Hide,
+  Search,
 } from "@element-plus/icons-vue";
 import {
   addPayConfig,
@@ -259,7 +338,9 @@ import {
   getPayConfigDetail,
   deletePayConfig,
   getPayChannelList,
+  getPayProductsByKey,
   PayChannelItem,
+  type PayProductInfo,
 } from "/@/api/addon/pay";
 import {
   getChannelFields,
@@ -267,6 +348,8 @@ import {
   serializeExtraFields,
   normalizeNewlines,
   channelMeta,
+  getDefaultExtraValues,
+  type ExtraFieldDef,
 } from "../channelSchema";
 import { useI18n } from "vue-i18n";
 
@@ -292,6 +375,14 @@ const loading = ref(false);
 const loadError = ref("");
 const channelOptions = ref<PayChannelItem[]>([]);
 const visibleFields = ref<Set<string>>(new Set());
+
+// 加载数据时抑制 channel_code watcher，防止回写被覆盖
+const loadingData = ref(false);
+
+// ── 实时产品拉取 ──
+const fetchingProducts = ref(false);
+const fetchedProducts = ref<PayProductInfo[]>([]);
+const activeFetchKey = ref("");
 
 const form = reactive<any>({
   id: 0,
@@ -321,17 +412,138 @@ function toggleVisibility(key: string) {
   visibleFields.value = s;
 }
 
-function fillExtraFields(json: string) {
+/** 判断是否可拉取产品（需要 API Key 已填写） */
+function canFetch(f: any): boolean {
+  if (!f.fetchable) return false;
+  const apiKeyField = f.fetchApiKeyField || "api_key";
+  const apiKeyVal = (extraFields as any)[apiKeyField];
+  return typeof apiKeyVal === "string" && apiKeyVal.trim().length > 0;
+}
+
+/** 从支付通道 API 实时拉取产品列表 */
+async function handleFetchProducts(f: any) {
+  if (fetchingProducts.value) return;
+
+  const channelCode = form.channel_code;
+  const apiKeyField = f.fetchApiKeyField || "api_key";
+  const testModeField = f.fetchTestModeField || "test_mode";
+  const testModeTrueValue = f.fetchTestModeTrueValue || "true";
+
+  const apiKey = extraFields[apiKeyField] || "";
+  const testModeRaw = extraFields[testModeField] || "false";
+  const testMode = testModeRaw === testModeTrueValue;
+
+  if (!apiKey.trim()) {
+    ElMessage.warning(t("message.sdk.payConfig.fetchNeedApiKey"));
+    return;
+  }
+
+  fetchingProducts.value = true;
+  activeFetchKey.value = f.key;
+  fetchedProducts.value = [];
+
+  try {
+    const res: any = await getPayProductsByKey({ channel_code: channelCode, api_key: apiKey, test_mode: testMode });
+    const data = res.data || res;
+    const products: PayProductInfo[] = data.products || [];
+    fetchedProducts.value = products.filter((p) => p.status === "" || p.status === "active");
+    if (fetchedProducts.value.length === 0) {
+      ElMessage.info(t("message.sdk.payConfig.fetchNoProducts"));
+    }
+  } catch {
+    ElMessage.error(t("message.sdk.payConfig.fetchFailed"));
+    fetchedProducts.value = [];
+  } finally {
+    fetchingProducts.value = false;
+  }
+}
+
+/** 获取当前 schema 中匹配 key 的字段定义 */
+function getFieldDef(key: string) {
+  return channelStructuredFields.value.find((f) => f.key === key) as ExtraFieldDef | undefined;
+}
+
+/** 多选：切换产品选中/取消 */
+function selectProduct(p: PayProductInfo, key: string) {
+  const f = getFieldDef(key);
+  const isMulti = f?.multiSelect === true;
+  const current = extraFields[key] || "";
+
+  if (isMulti) {
+    const ids = current
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const idx = ids.indexOf(p.product_id);
+    if (idx >= 0) {
+      ids.splice(idx, 1);
+    } else {
+      ids.push(p.product_id);
+    }
+    extraFields[key] = ids.join(",");
+  } else {
+    // 单选：点击即填入
+    extraFields[key] = p.product_id;
+    fetchedProducts.value = [];
+    activeFetchKey.value = "";
+  }
+}
+
+/** 多选：判断某产品是否已选中 */
+function isProductSelected(p: PayProductInfo, key: string): boolean {
+  const current = extraFields[key] || "";
+  if (!current) return false;
+  const ids = current.split(",").map((s) => s.trim()).filter(Boolean);
+  return ids.includes(p.product_id);
+}
+
+/** 格式化产品价格显示 */
+function formatProductPrice(p: PayProductInfo): string {
+  if (p.price <= 0) return "";
+  const cur = (p.currency || "USD").toUpperCase();
+  return (p.price / 100).toFixed(2) + " " + cur;
+}
+
+/** 多选：解析已选产品 ID 列表 */
+function getSelectedProductIds(val: string): string[] {
+  if (!val) return [];
+  return val.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
+/** 多选：点击标签叉号移除单个产品 */
+function removeSelectedProduct(pid: string, key: string) {
+  const ids = getSelectedProductIds(extraFields[key]).filter((id) => id !== pid);
+  extraFields[key] = ids.join(",");
+}
+
+function applyExtraFromJson(json: string) {
   Object.keys(extraFields).forEach((k) => delete extraFields[k]);
   const parsed = parseExtraConfig(json);
-  Object.assign(extraFields, parsed);
+  // 先填 Schema 默认值，再填 JSON 中的实际值（JSON 数据优先）
+  const defaults = getDefaultExtraValues(form.channel_code);
+  Object.assign(extraFields, defaults, parsed);
+}
+
+/** 切换通道时：清空旧字段，填入新通道的 Schema 默认值 + JSON 数据 */
+function fillExtraFields(json: string) {
+  Object.keys(extraFields).forEach((k) => delete extraFields[k]);
+  const defaults = getDefaultExtraValues(form.channel_code);
+  const parsed = parseExtraConfig(json);
+  Object.assign(extraFields, defaults, parsed);
 }
 
 watch(
   () => form.channel_code,
-  () => {
-    Object.keys(extraFields).forEach((k) => delete extraFields[k]);
-    fillExtraFields(form.extra_config);
+  (newCode, oldCode) => {
+    // 加载数据时跳过 watcher，避免覆盖 loadData() 刚刚填好的值
+    if (loadingData.value) return;
+    // 仅在真正切换不同通道时才重构 extraFields
+    if (newCode !== oldCode && newCode) {
+      Object.keys(extraFields).forEach((k) => delete extraFields[k]);
+      const defaults = getDefaultExtraValues(form.channel_code);
+      const parsed = form.extra_config ? parseExtraConfig(form.extra_config) : {};
+      Object.assign(extraFields, defaults, parsed);
+    }
   },
 );
 
@@ -404,8 +616,10 @@ async function loadData() {
       loadError.value = t("message.sdk.payConfig.editErrorNotFound");
       return;
     }
+    loadingData.value = true;
     Object.assign(form, item);
     fillExtraFields(item.extra_config);
+    loadingData.value = false;
   } catch {
     loadError.value = t("message.common.msgNetworkError");
   } finally {
@@ -724,6 +938,149 @@ defineExpose({ submit, remove });
 }
 .pay-form__eye:hover {
   color: var(--gold);
+}
+
+/* ── 产品拉取 ── */
+.pay-form__fetch-row {
+  position: relative;
+}
+.pay-form__fetch-btn {
+  padding: 2px 4px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.pay-form__fetch-btn:hover {
+  color: var(--gold);
+}
+.pay-form__fetch-btn.is-disabled {
+  opacity: 0.3;
+}
+.pay-form__product-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  z-index: 100;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--cc-shadow-lg);
+  max-height: 260px;
+  overflow-y: auto;
+}
+.pay-form__product-hint {
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pay-form__product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+.pay-form__product-item:last-child {
+  border-bottom: none;
+}
+.pay-form__product-item:hover {
+  background: var(--gold-bg);
+}
+.pay-form__product-item--active {
+  background: var(--gold-bg);
+  border-left: 3px solid var(--gold);
+}
+.pay-form__product-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.pay-form__product-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pay-form__product-id {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pay-form__product-price {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-left: 16px;
+  white-space: nowrap;
+}
+
+/* ── 多选产品标签 ── */
+.pay-form__selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pay-form__selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--gold-bg);
+  border: 1px solid var(--gold-border);
+  border-radius: 4px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 12px;
+  color: var(--gold);
+  line-height: 1.6;
+}
+.pay-form__selected-tag-text {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pay-form__selected-tag-remove {
+  cursor: pointer;
+  opacity: 0.6;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+.pay-form__selected-tag-remove:hover {
+  opacity: 1;
+}
+
+/* ── 多选复选图标 ── */
+.pay-form__product-check {
+  flex-shrink: 0;
+  margin-right: 8px;
+  color: var(--text-muted);
+}
+.pay-form__product-item--active .pay-form__product-check {
+  color: var(--gold);
+}
+.pay-form__product-item--multi {
+  padding: 10px 12px;
+}
+.pay-form__product-item--multi:hover {
+  background: var(--gold-bg);
+}
+.pay-form__product-item--multi.pay-form__product-item--active {
+  background: var(--gold-bg);
 }
 
 /* ── Meta ── */

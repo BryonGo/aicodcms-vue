@@ -158,6 +158,16 @@
       </el-table>
     </div>
   </ProPage>
+
+  <el-drawer
+    :title="editId ? $t('message.router.pmsMenuEdit') : $t('message.router.pmsMenuAdd')"
+    v-model="drawerVisible"
+    size="700px"
+    destroy-on-close
+    direction="rtl"
+  >
+    <EditMenu v-if="drawerVisible" :edit-id="editId" :parent-id="parentId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+  </el-drawer>
 </template>
 
 <script lang="ts">
@@ -180,6 +190,7 @@ import Sortable from "sortablejs";
 import ProPage from "/@/components/pro/ProPage.vue";
 import { delMenu, getMenuList, menuSort } from "/@/api/pms/menu";
 import { useI18n } from "vue-i18n";
+import EditMenu from "./component/editMenu.vue";
 
 export default defineComponent({
   name: "apiV1SystemAuthMenuList",
@@ -188,6 +199,7 @@ export default defineComponent({
     PlusIcon: PlusIcon as any,
     SearchIcon: SearchIcon as any,
     Rank: Rank as any,
+    EditMenu,
   },
 
   setup() {
@@ -203,14 +215,25 @@ export default defineComponent({
     const { proxy } = getCurrentInstance() as any;
     const { sys_show_hide } = proxy.useDict("sys_show_hide");
     const acType = ref("add");
+    const drawerVisible = ref(false);
+    const editId = ref(0);
+    const parentId = ref(0);
 
     const onOpenAddMenu = (row: any) => {
       acType.value = "add";
-      proxy.$router.push(`/pms/menu/list/add?parent_id=${row?.id || 0}`);
+      editId.value = 0;
+      parentId.value = row?.id || 0;
+      drawerVisible.value = true;
     };
     const onOpenEditMenu = (row: any) => {
       acType.value = "edit";
-      proxy.$router.push(`/pms/menu/list/edit?id=${row.id}`);
+      editId.value = row.id;
+      parentId.value = 0;
+      drawerVisible.value = true;
+    };
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      menuList();
     };
     const onTabelRowDel = (row: any) => {
       ElMessageBox.confirm(
@@ -355,6 +378,10 @@ export default defineComponent({
       menuTableRef,
       onOpenAddMenu,
       onOpenEditMenu,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
+      parentId,
       onTabelRowDel,
       formatIsHide,
       menuList,

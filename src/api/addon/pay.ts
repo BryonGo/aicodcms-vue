@@ -135,3 +135,44 @@ export function editPayConfig(data: PayConfigEditParams) {
 export function deletePayConfig(data: { ids: number[] }) {
   return request({ url: "/api/v1/addon/pay/config/del", method: "delete", data });
 }
+
+// ==================== 产品列表（实时从支付通道 API 拉取） ====================
+
+/** 支付通道的产品信息（价格始终是最低币种单位，如美分） */
+export interface PayProductInfo {
+  product_id: string;
+  name: string;
+  price: number;  // 最低币种单位（如美分，100 = $1.00）
+  currency: string;
+  status: string;
+}
+
+export interface PayProductListParams {
+  channel_code: string; // "creem" | "waffo_pancake"
+  module: string;
+  platform: string;
+}
+
+export interface PayProductListByKeyParams {
+  channel_code: string; // "creem" | "waffo_pancake"
+  api_key: string;
+  test_mode: boolean;
+}
+
+/** 使用数据库配置拉取产品列表 */
+export function getPayProducts(params: PayProductListParams) {
+  return request<{ products: PayProductInfo[] }>({
+    url: "/api/v1/addon/pay/products",
+    method: "get",
+    params,
+  });
+}
+
+/** 使用显式凭证拉取产品列表 */
+export function getPayProductsByKey(params: PayProductListByKeyParams) {
+  return request<{ products: PayProductInfo[] }>({
+    url: "/api/v1/addon/pay/products-by-key",
+    method: "get",
+    params,
+  });
+}

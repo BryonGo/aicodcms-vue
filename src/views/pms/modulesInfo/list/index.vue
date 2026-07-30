@@ -149,6 +149,16 @@
       />
     </div>
   </div>
+
+  <el-drawer
+    :title="editId ? $t('message.router.pmsModulesInfoEdit') : $t('message.router.pmsModulesInfoAdd')"
+    v-model="drawerVisible"
+    size="600px"
+    destroy-on-close
+    direction="rtl"
+  >
+    <ModulesInfoEdit v-if="drawerVisible" :edit-id="editId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+  </el-drawer>
 </template>
 <script lang="ts">
 import {
@@ -169,6 +179,7 @@ import {
   ModulesInfoTableDataState,
 } from "/@/views/pms/modulesInfo/list/component/model";
 import { useRouter } from "vue-router";
+import ModulesInfoEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiV1SystemModulesInfoList",
@@ -179,6 +190,8 @@ export default defineComponent({
     const loading = ref(false);
     const queryRef = ref();
     const editRef = ref();
+    const drawerVisible = ref(false);
+    const editId = ref(0);
     // 是否显示所有搜索选项
     const showAll = ref(false);
     // 非单个禁用
@@ -228,7 +241,7 @@ export default defineComponent({
     };
     const handleCreateModule = (row: ModulesInfoTableColumns) => {
       ElMessageBox.confirm(
-        "Generating the model will back up and delete original table data. Continue?",
+        t("message.router.pmsModulesInfoGenModelConfirm"),
         t("message.pms.modulesInfoList.confirmWarning"),
         {
           cancelButtonText: t("message.common.cancel"),
@@ -269,7 +282,8 @@ export default defineComponent({
       multiple.value = !selection.length;
     };
     const handleAdd = () => {
-      proxy.$router.push("/pms/modules/info/list/add");
+      editId.value = 0;
+      drawerVisible.value = true;
     };
     const handleUpdate = (row: ModulesInfoTableColumns) => {
       if (!row) {
@@ -277,7 +291,12 @@ export default defineComponent({
           return item.id === state.ids[0];
         }) as ModulesInfoTableColumns;
       }
-      proxy.$router.push(`/pms/modules/info/list/edit?id=${row.id}`);
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      modulesInfoList();
     };
     const handleDelete = (row: ModulesInfoTableColumns | null) => {
       let msg = t("message.common.confirmDeleteBatch");
@@ -324,6 +343,9 @@ export default defineComponent({
       handleDelete,
       handleFieldEdit,
       handleCreateModule,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
       ...toRefs(state),
     };
   },

@@ -106,36 +106,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           permissions: ["api/v1/admin/block/list"],
         },
       },
-      {
-        path: "/cms/block/list/add",
-        name: "cmsBlockAdd",
-        component: () => import("/@/views/cms/block/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsBlockAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/block/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/block/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/cms/block/list/edit",
-        name: "cmsBlockEdit",
-        component: () => import("/@/views/cms/block/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsBlockEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/block/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/block/edit")) return next();
-          next("/401");
-        },
-      },
+
       // ==================== PMS Dict ====================
       {
         path: "/pms/dict/list/add",
@@ -195,19 +166,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         component: () => import("/@/views/pms/param/edit.vue"),
         meta: { title: "message.router.pmsParamEdit", is_hide: true, is_keep_alive: true },
       },
-      // ==================== PMS Sub-dialogs → Page-card routes ====================
-      {
-        path: "/pms/dept/list/add",
-        name: "pmsDeptAdd",
-        component: () => import("/@/views/pms/dept/edit.vue"),
-        meta: { title: "message.router.pmsDeptAdd", is_hide: true, is_keep_alive: true },
-      },
-      {
-        path: "/pms/dept/list/edit",
-        name: "pmsDeptEdit",
-        component: () => import("/@/views/pms/dept/edit.vue"),
-        meta: { title: "message.router.pmsDeptEdit", is_hide: true, is_keep_alive: true },
-      },
       {
         path: "/pms/dict/data/add",
         name: "pmsDictDataAdd",
@@ -221,18 +179,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         meta: { title: "message.router.pmsDictDataEdit", is_hide: true, is_keep_alive: true },
       },
       {
-        path: "/pms/user/list/add",
-        name: "pmsUserAdd",
-        component: () => import("/@/views/pms/user/edit.vue"),
-        meta: { title: "message.router.pmsUserAdd", is_hide: true, is_keep_alive: true },
-      },
-      {
-        path: "/pms/user/list/edit",
-        name: "pmsUserEdit",
-        component: () => import("/@/views/pms/user/edit.vue"),
-        meta: { title: "message.router.pmsUserEdit", is_hide: true, is_keep_alive: true },
-      },
-      {
         path: "/pms/role/list/add",
         name: "pmsRoleAdd",
         component: () => import("/@/views/pms/role/edit.vue"),
@@ -243,174 +189,6 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         name: "pmsRoleEdit",
         component: () => import("/@/views/pms/role/edit.vue"),
         meta: { title: "message.router.pmsRoleEdit", is_hide: true, is_keep_alive: true },
-      },
-      {
-        path: "/pms/menu/list/add",
-        name: "pmsMenuAdd",
-        component: () => import("/@/views/pms/menu/edit.vue"),
-        meta: { title: "message.router.pmsMenuAdd", is_hide: true, is_keep_alive: true },
-      },
-      {
-        path: "/pms/menu/list/edit",
-        name: "pmsMenuEdit",
-        component: () => import("/@/views/pms/menu/edit.vue"),
-        meta: { title: "message.router.pmsMenuEdit", is_hide: true, is_keep_alive: true },
-      },
-      // ==================== PMS Sub-dialogs (dept/user/role/menu/dicData) - routes for future page-card conversion ====================
-      // ==================== CMS Channel ====================
-      {
-        path: "/cms/channel/list/add",
-        name: "cmsChannelAdd",
-        component: () => import("/@/views/cms/channel/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsChannelAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/channel/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/channel/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/cms/channel/list/edit",
-        name: "cmsChannelEdit",
-        component: () => import("/@/views/cms/channel/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsChannelEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/channel/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/channel/edit")) return next();
-          next("/401");
-        },
-      },
-      // ==================== CMS Page ====================
-      {
-        path: "/cms/page/list/add",
-        name: "cmsPageAdd",
-        component: () => import("/@/views/cms/page/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsPageAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/page/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/page/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/cms/page/list/edit",
-        name: "cmsPageEdit",
-        component: () => import("/@/views/cms/page/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsPageEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/page/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/page/edit")) return next();
-          next("/401");
-        },
-      },
-      // ==================== CMS Tag ====================
-      {
-        path: "/cms/tag/list/add",
-        name: "cmsTagAdd",
-        component: () => import("/@/views/cms/tag/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsTagAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/tag/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/tag/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/cms/tag/list/edit",
-        name: "cmsTagEdit",
-        component: () => import("/@/views/cms/tag/list/edit.vue"),
-        meta: {
-          title: "message.router.cmsTagEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/tag/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/tag/edit")) return next();
-          next("/401");
-        },
-      },
-      // ==================== PMS ModulesInfo ====================
-      {
-        path: "/pms/modules/info/list/add",
-        name: "pmsModulesInfoAdd",
-        component: () => import("/@/views/pms/modulesInfo/list/edit.vue"),
-        meta: {
-          title: "message.router.pmsModulesInfoAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/modules/info/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/modules/info/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/pms/modules/info/list/edit",
-        name: "pmsModulesInfoEdit",
-        component: () => import("/@/views/pms/modulesInfo/list/edit.vue"),
-        meta: {
-          title: "message.router.pmsModulesInfoEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/modules/info/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/modules/info/edit")) return next();
-          next("/401");
-        },
-      },
-      // ==================== PMS ModulesField ====================
-      {
-        path: "/pms/modules/field/list/add",
-        name: "pmsModulesFieldAdd",
-        component: () => import("/@/views/pms/modulesField/list/edit.vue"),
-        meta: {
-          title: "message.router.pmsModulesFieldAdd",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/modules/field/add"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/modules/field/add")) return next();
-          next("/401");
-        },
-      },
-      {
-        path: "/pms/modules/field/list/edit",
-        name: "pmsModulesFieldEdit",
-        component: () => import("/@/views/pms/modulesField/list/edit.vue"),
-        meta: {
-          title: "message.router.pmsModulesFieldEdit",
-          is_hide: true,
-          is_keep_alive: true,
-          permissions: ["api/v1/admin/modules/field/edit"],
-        },
-        beforeEnter: (_to, _from, next) => {
-          if (checkPerm("api/v1/admin/modules/field/edit")) return next();
-          next("/401");
-        },
       },
       // ==================== SDK 管理 ====================
       {

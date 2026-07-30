@@ -125,6 +125,21 @@
       </el-table-column>
     </ProTable>
   </ProPage>
+
+    <el-drawer
+      :title="editId ? $t('message.router.cmsTagEdit') : $t('message.router.cmsTagAdd')"
+      v-model="drawerVisible"
+      size="650px"
+      destroy-on-close
+      direction="rtl"
+    >
+      <TagEdit v-if="drawerVisible" :edit-id="editId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+      <template #footer>
+        <div class="drawer-footer-hint">
+          <span class="hint-text">{{ $t("message.common.pressEscToClose") }}</span>
+        </div>
+      </template>
+    </el-drawer>
 </template>
 
 <script lang="ts">
@@ -150,16 +165,19 @@ import {
   CmsTagsTableColumns,
   CmsTagsTableDataState,
 } from "/@/views/cms/tag/list/component/model";
+import TagEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiV1CmsTagsList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Delete },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Delete, TagEdit },
   setup() {
     const { t } = useI18n();
     const { proxy } = <any>getCurrentInstance();
     const loading = ref(false);
     const multiple = ref(true);
     const tableSize = ref<"large" | "default" | "small">("default");
+    const drawerVisible = ref(false);
+    const editId = ref(0);
 
     const state = reactive<CmsTagsTableDataState>({
       ids: [],
@@ -215,11 +233,18 @@ export default defineComponent({
     };
 
     const handleAdd = () => {
-      proxy.$router.push("/cms/tag/list/add");
+      editId.value = 0;
+      drawerVisible.value = true;
     };
 
     const handleUpdate = (row: CmsTagsTableColumns) => {
-      proxy.$router.push(`/cms/tag/list/edit?id=${row.id}`);
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      cmsTagsList();
     };
 
     const handleDelete = (row: CmsTagsTableColumns | null) => {
@@ -265,6 +290,9 @@ export default defineComponent({
       handleAdd,
       handleUpdate,
       handleDelete,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
       Plus,
       Delete,
       ...toRefs(state),
@@ -277,5 +305,13 @@ export default defineComponent({
 .sel-count {
   font-size: var(--cc-font-13);
   color: var(--cc-color-text-3);
+}
+.drawer-footer-hint {
+  display: flex;
+  justify-content: flex-end;
+}
+.hint-text {
+  font-size: 12px;
+  color: var(--cc-color-text-4);
 }
 </style>

@@ -1,70 +1,6 @@
 <template>
-  <div class="mfld-form-page">
-    <el-breadcrumb separator="→">
-      <el-breadcrumb-item :to="{ path: '/' }"
-        ><el-icon><HomeFilled /></el-icon> {{ $t("message.router.home") }}</el-breadcrumb-item
-      >
-      <el-breadcrumb-item>{{ $t("message.pms.modulesField.breadcrumbPms") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{
-        $t("message.pms.modulesInfoList.breadcrumbCurrent")
-      }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{
-        $t("message.pms.modulesField.breadcrumbCurrent")
-      }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{
-        formData.id
-          ? $t("message.router.pmsModulesFieldEdit")
-          : $t("message.router.pmsModulesFieldAdd")
-      }}</el-breadcrumb-item>
-    </el-breadcrumb>
-
-    <div v-if="loading" class="mfld-loading">
-      <el-icon :size="28" class="mfld-spin"><Loading /></el-icon>
-      <p>{{ $t("message.pms.commonExt.loading") }}</p>
-    </div>
-
-    <template v-else-if="loadError">
-      <div class="mfld-error">
-        <el-icon :size="40"><WarningFilled /></el-icon>
-        <h3>{{ $t("message.pms.commonExt.loadError") }}</h3>
-        <p>{{ loadError }}</p>
-        <el-button type="primary" @click="onCancel">{{
-          $t("message.common.backToList")
-        }}</el-button>
-      </div>
-    </template>
-
-    <template v-else>
-      <div class="mfld-page-header">
-        <el-button link class="mfld-back-btn" @click="onCancel">
-          <el-icon><ArrowLeft /></el-icon> {{ $t("message.common.backToList") }}
-        </el-button>
-        <div class="mfld-header-row">
-          <div>
-            <h1 class="mfld-page-title">
-              {{
-                formData.label ||
-                (formData.id
-                  ? $t("message.router.pmsModulesFieldEdit")
-                  : $t("message.router.pmsModulesFieldAdd"))
-              }}
-            </h1>
-            <p class="mfld-page-subtitle">
-              {{ $t("message.pms.modulesFieldEdit.labelModel") }}:
-              <span class="mfld-model-badge">{{ modulesInfo?.name }}</span>
-              <template v-if="formData.id">
-                · ID: <span class="mfld-id-badge">{{ formData.id }}</span></template
-              >
-            </p>
-          </div>
-          <el-button v-if="formData.id" type="danger" plain size="large" @click="onDelete">
-            <el-icon><Delete /></el-icon>{{ $t("message.common.delete") }}</el-button
-          >
-        </div>
-      </div>
-
-      <div class="mfld-form-card">
-        <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" size="large">
+  <div class="mfld-drawer-form">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" size="large">
           <div class="mfld-form-grid">
             <el-form-item :label="$t('message.pms.modulesFieldEdit.labelModel')">
               <el-input :model-value="modulesInfo?.name" disabled />
@@ -204,12 +140,16 @@
           </div>
 
           <div v-if="formData.id" class="mfld-meta-row">
-            <span class="mfld-meta"><b>创建时间:</b> {{ fmtTs(formData.created_at) }}</span>
-            <span class="mfld-meta"><b>更新时间:</b> {{ fmtTs(formData.updated_at) }}</span>
+            <span class="mfld-meta"><b>{{ $t("message.common.colCreateTime") }}:</b> {{ fmtTs(formData.created_at) }}</span>
+            <span class="mfld-meta"><b>{{ $t("message.common.colUpdateTime") }}:</b> {{ fmtTs(formData.updated_at) }}</span>
           </div>
 
           <div class="mfld-form-actions">
-            <el-button size="large" @click="onCancel">{{ $t("message.common.cancel") }}</el-button>
+            <el-button v-if="formData.id" type="danger" plain size="large" @click="onDelete">
+              <el-icon><Delete /></el-icon>{{ $t("message.common.delete") }}</el-button
+            >
+            <div style="flex:1" />
+            <el-button size="large" @click="emit('close')">{{ $t("message.common.cancel") }}</el-button>
             <el-button
               type="primary"
               size="large"
@@ -224,24 +164,18 @@
               <template v-else>{{ $t("message.common.saving") }}</template>
             </el-button>
           </div>
-        </el-form>
-      </div>
-    </template>
-  </div>
+      </el-form>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { reactive, ref, onMounted, watch } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import {
-  HomeFilled,
-  ArrowLeft,
   Check,
   Delete,
-  Loading,
-  WarningFilled,
   QuestionFilled,
 } from "@element-plus/icons-vue";
 import {
@@ -253,17 +187,17 @@ import {
 import { getModulesInfo } from "/@/api/pms/modulesInfo";
 import { modulesInfoFieldOptions } from "/@/views/pms/modulesField/list/component/model";
 
+const props = withDefaults(defineProps<{ editId?: number; moduleId?: number }>(), { editId: 0, moduleId: 0 });
+const emit = defineEmits<{ saved: []; close: [] }>();
+
 const { t } = useI18n();
 const route = useRoute();
-const router = useRouter();
 const formRef = ref<FormInstance>();
-const loading = ref(false);
 const submitting = ref(false);
-const loadError = ref("");
 const modulesInfo = ref<any>(null);
 const fieldOptions = reactive(modulesInfoFieldOptions);
 
-const moduleId = computed(() => Number(route.query.moduleId || route.query.mid || 0));
+const moduleIdComputed = props.moduleId;
 
 interface FieldFormData {
   id: number | undefined;
@@ -312,7 +246,7 @@ const rules = {
 
 const fmtTs = (ts: number) => {
   if (!ts || ts <= 0) return "—";
-  return new Date(ts * 1000).toLocaleString("zh-CN", {
+  return new Date(ts * 1000).toLocaleString(undefined, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -322,14 +256,11 @@ const fmtTs = (ts: number) => {
 };
 
 const loadData = async () => {
-  const mid = moduleId.value;
-  const id = Number(route.query.id);
+  const mid = moduleIdComputed;
+  const id = props.editId;
   if (!mid) {
-    loading.value = false;
     return;
   }
-  loading.value = true;
-  loadError.value = "";
   try {
     const infoRes = await getModulesInfo(mid);
     modulesInfo.value = (infoRes as any).data;
@@ -354,15 +285,13 @@ const loadData = async () => {
         });
         formData.moduleId = mid;
       } else {
-        loadError.value = t("message.pms.modulesFieldEdit.notFound");
+        ElMessage.error(t("message.pms.modulesFieldEdit.notFound"));
       }
     } else {
       formData.moduleId = mid;
     }
   } catch {
-    loadError.value = t("message.common.msgNetworkErrorRetry");
-  } finally {
-    loading.value = false;
+    ElMessage.error(t("message.common.msgNetworkErrorRetry"));
   }
 };
 
@@ -374,7 +303,7 @@ const onSubmit = async () => {
   }
   submitting.value = true;
   try {
-    const data = { ...formData, moduleId: moduleId.value };
+    const data = { ...formData, moduleId: moduleIdComputed };
     if (formData.id) {
       await updateModulesField(data);
       ElMessage.success(t("message.common.msgEditOk"));
@@ -382,7 +311,7 @@ const onSubmit = async () => {
       await addModulesField(data);
       ElMessage.success(t("message.common.msgAddOk"));
     }
-    onCancel();
+    emit("saved");
   } catch {
     console.error(t("message.common.submitFailed"));
   } finally {
@@ -391,12 +320,7 @@ const onSubmit = async () => {
 };
 
 const onCancel = () => {
-  // 优先返回上一页（回退到列表），list 页的 watch 会自动刷新数据
-  if (window.history.length > 1) {
-    router.back();
-  } else {
-    router.push(`/pms/modules/field/list?id=${moduleId.value}`);
-  }
+  emit("close");
 };
 
 const onDelete = () => {
@@ -412,7 +336,7 @@ const onDelete = () => {
     .then(async () => {
       await delModulesField([formData.id!]);
       ElMessage.success(t("message.common.msgDeleteOk"));
-      onCancel();
+      emit("saved");
     })
     .catch(() => {});
 };
@@ -427,88 +351,8 @@ watch(
 </script>
 
 <style scoped>
-.mfld-form-page {
-  max-width: 960px;
-  margin: 0 auto;
-}
-.mfld-loading {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--cc-color-text-3);
-}
-.mfld-spin {
-  animation: mfld-spin 1s linear infinite;
-}
-@keyframes mfld-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-.mfld-error {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--cc-color-text-4);
-}
-.mfld-error h3 {
-  color: var(--cc-color-text-2);
-  margin: 16px 0 8px;
-  font-weight: 600;
-}
-
-.mfld-page-header {
-  position: relative;
-  margin: 28px 0 24px;
-  padding: 32px 36px;
-  background: var(--cc-color-surface);
-  border-radius: 16px;
-  border: 1px solid var(--cc-color-border-light);
-  overflow: hidden;
-}
-.mfld-page-header::before {
-  content: "";
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
-  border-radius: 50%;
-}
-.mfld-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  position: relative;
-  z-index: 1;
-}
-.mfld-back-btn {
-  font-family: var(--cc-font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--cc-color-primary);
-  padding: 0;
-  margin-bottom: 10px;
-  transition: color 0.2s;
-}
-.mfld-back-btn:hover {
-  color: #0369a1;
-}
-.mfld-page-title {
-  font-family: var(--cc-font-sans);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--cc-color-text-1);
-  margin: 0 0 4px;
-}
-.mfld-page-subtitle {
-  font-family: var(--cc-font-sans);
-  font-size: 14px;
-  color: var(--cc-color-primary);
-  margin: 0;
+.mfld-drawer-form {
+  padding: 24px;
 }
 .mfld-model-badge {
   display: inline-block;
@@ -528,16 +372,6 @@ watch(
   font-size: 13px;
   font-weight: 500;
   color: var(--cc-color-primary);
-}
-
-.mfld-form-card {
-  background: #fff;
-  border: 1px solid var(--cc-color-border-light);
-  border-radius: 16px;
-  padding: 36px 40px;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.02),
-    0 4px 16px rgba(14, 165, 233, 0.06);
 }
 .mfld-form-grid {
   display: grid;
@@ -580,33 +414,30 @@ watch(
   color: var(--cc-color-primary);
 }
 
-.mfld-form-card :deep(.el-form-item__label) {
+.mfld-drawer-form :deep(.el-form-item__label) {
   margin-bottom: 6px;
 }
-.mfld-form-card :deep(.el-input__wrapper),
-.mfld-form-card :deep(.el-textarea__inner) {
+.mfld-drawer-form :deep(.el-input__wrapper),
+.mfld-drawer-form :deep(.el-textarea__inner) {
   border-radius: 10px;
   background: var(--cc-color-bg);
   box-shadow: none;
   border: 1px solid var(--cc-color-border-light);
-  transition:
-    border-color 0.25s,
-    background 0.25s,
-    box-shadow 0.25s;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
-.mfld-form-card :deep(.el-input__wrapper:hover),
-.mfld-form-card :deep(.el-textarea__inner:hover) {
+.mfld-drawer-form :deep(.el-input__wrapper:hover),
+.mfld-drawer-form :deep(.el-textarea__inner:hover) {
   background: #fff;
   border-color: #7dd3fc;
 }
-.mfld-form-card :deep(.el-input__wrapper.is-focus),
-.mfld-form-card :deep(.el-textarea__inner:focus) {
+.mfld-drawer-form :deep(.el-input__wrapper.is-focus),
+.mfld-drawer-form :deep(.el-textarea__inner:focus) {
   background: #fff;
   border-color: var(--cc-color-primary);
   box-shadow: 0 0 0 3px var(--cc-color-focus-ring);
 }
-.mfld-form-card :deep(.el-input__inner),
-.mfld-form-card :deep(.el-textarea__inner) {
+.mfld-drawer-form :deep(.el-input__inner),
+.mfld-drawer-form :deep(.el-textarea__inner) {
   font-family: var(--cc-font-sans);
   font-size: 14px;
   color: var(--cc-color-text-1);
@@ -614,7 +445,8 @@ watch(
 
 .mfld-form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
   padding-top: 24px;
   border-top: 1px solid #e0f2fe;
@@ -638,15 +470,6 @@ watch(
 }
 
 @media (min-width: 1440px) {
-  .mfld-form-page {
-    max-width: 1320px;
-  }
-  .mfld-page-header {
-    padding: 40px 48px;
-  }
-  .mfld-form-card {
-    padding: 40px 48px;
-  }
   .mfld-form-grid {
     gap: 0 48px;
   }
@@ -654,21 +477,6 @@ watch(
 @media (max-width: 768px) {
   .mfld-form-grid {
     grid-template-columns: 1fr;
-  }
-  .mfld-page-header {
-    padding: 20px;
-  }
-  .mfld-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .mfld-form-card {
-    padding: 20px 16px;
-    border-radius: 12px;
-  }
-  .mfld-page-title {
-    font-size: 22px;
   }
   .mfld-form-actions {
     flex-direction: column-reverse;

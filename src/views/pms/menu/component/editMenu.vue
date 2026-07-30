@@ -1,27 +1,13 @@
 <template>
-  <div class="pms-card-container">
-    <div class="pms-card-page">
-      <div class="pms-card-header">
-        <div>
-          <h1 class="pms-card-title">
-            {{ ruleForm.id ? $t("message.common.edit") : $t("message.common.add") }}
-          </h1>
-          <p class="pms-card-sub">{{ $t("message.pms.menu.breadcrumbCurrent") }}</p>
-        </div>
-      </div>
-      <div class="pms-card-form">
-        <div v-if="loading" class="pms-card-loading">
-          <el-icon :size="28" class="pms-card-spin"><Loading /></el-icon>
-          <p>{{ $t("message.pms.menu.loadingMenuInfo") }}</p>
-        </div>
-        <el-form
-          v-else
-          ref="formRef"
-          :model="ruleForm"
-          :rules="rules"
-          label-position="top"
-          size="large"
-        >
+  <div class="menu-drawer-form">
+    <el-form
+      ref="formRef"
+      :model="ruleForm"
+      :rules="rules"
+      label-position="top"
+      size="large"
+      v-loading="loading"
+    >
           <div class="pms-card-grid">
             <!-- 上级菜单：el-tree 单选 -->
             <el-form-item :label="$t('message.pms.menu.colParentMenu')" class="pms-card-full">
@@ -173,21 +159,19 @@
                 :inactive-text="$t('message.common.no')"
             /></el-form-item>
           </div>
-          <div class="pms-card-actions">
-            <el-button size="large" @click="onCancel">{{ $t("message.common.cancel") }}</el-button
+          <div class="menu-form-actions">
+            <el-button size="large" @click="$emit('close')">{{ $t("message.common.cancel") }}</el-button
             ><el-button
               type="primary"
               size="large"
               :loading="submitting"
               @click="onSubmit"
-              class="pms-card-submit"
+              class="menu-submit-btn"
               >{{ submitting ? $t("message.common.saving") : $t("message.common.save") }}</el-button
             >
           </div>
         </el-form>
-      </div>
     </div>
-  </div>
 </template>
 <script lang="ts">
 import {
@@ -198,12 +182,9 @@ import {
   unref,
   getCurrentInstance,
   nextTick,
-  watch,
 } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { getMenuParams, addMenu, getMenuInfo, updateMenu } from "/@/api/pms/menu";
 import { ElMessage } from "element-plus";
-import { Loading } from "@element-plus/icons-vue";
 import IconSelector from "/@/components/iconSelector/index.vue";
 import { useI18n } from "vue-i18n";
 
@@ -222,10 +203,13 @@ function findNodeTitle(tree: any[], id: number): string {
 export default defineComponent({
   name: "systemEditMenu",
   components: { IconSelector },
-  setup() {
+  props: {
+    editId: { type: Number, default: 0 },
+    parentId: { type: Number, default: 0 },
+  },
+  emits: ["saved", "close"],
+  setup(props, ctx) {
     const { t } = useI18n();
-    const route = useRoute();
-    const router = useRouter();
     const formRef = ref();
     const treeRef = ref();
     const submitting = ref(false);
@@ -268,8 +252,15 @@ export default defineComponent({
         menuTreeData.value = proxy.handleTree(list, "id", "pid");
       })
       .then(() => {
-        // 树加载完成后，再加载编辑数据
-        const id = Number(route.query.id);
+        // 树加载完成后，再加载编辑数据（或设置 parentId）
+        const id = props.editId;
+        if (props.parentId) {
+          state.ruleForm.parent_id = props.parentId;
+          nextTick(() => {
+            parentMenuLabel.value = findNodeTitle(menuTreeData.value, props.parentId);
+            treeRef.value?.setCurrentKey(props.parentId);
+          });
+        }
         if (id) {
           loading.value = true;
           getMenuInfo(id)
@@ -325,7 +316,6 @@ export default defineComponent({
       treeVisible.value = false;
     };
 
-    const onCancel = () => router.back();
     const typeToNum: Record<string, number> = { M: 0, C: 1, F: 2 };
     const onSubmit = () => {
       const w = unref(formRef) as any;
@@ -337,55 +327,11 @@ export default defineComponent({
         (state.ruleForm.id ? updateMenu(payload) : addMenu(payload))
           .then(() => {
             ElMessage.success(state.ruleForm.id ? t("message.common.msgEditOk") : t("message.common.msgAddOk"));
-            router.back();
+            ctx.emit("saved");
           })
           .finally(() => (submitting.value = false));
       });
     };
-    watch(
-      () => route.query.id,
-      (newVal) => {
-        const newId = Number(newVal);
-        if (newId) {
-          loading.value = true;
-          getMenuInfo(newId)
-            .then((r: any) => {
-              const rule = r.data.rule;
-              if (rule) {
-                const menuTypeMap: Record<number, string> = { 0: "M", 1: "C", 2: "F" };
-                state.ruleForm = {
-                  id: rule.id,
-                  parent_id: rule.pid,
-                  menu_type: menuTypeMap[rule.menu_type] || "M",
-                  menu_name: rule.title,
-                  name: rule.name,
-                  icon: rule.icon,
-                  path: rule.path,
-                  redirect: rule.redirect,
-                  component: rule.component,
-                  link_url: rule.link_url,
-                  menu_sort: rule.weigh,
-                  is_hide: rule.is_hide,
-                  is_keep_alive: rule.is_cached,
-                  is_link: rule.is_link,
-                  is_iframe: rule.is_iframe,
-                  is_affix: rule.is_affix,
-                  roles: r.data.role_ids || [],
-                };
-                nextTick(() => {
-                  parentMenuLabel.value = rule.pid
-                    ? findNodeTitle(menuTreeData.value, rule.pid)
-                    : "";
-                  if (rule.pid) {
-                    treeRef.value?.setCurrentKey(rule.pid);
-                  }
-                });
-              }
-            })
-            .finally(() => (loading.value = false));
-        }
-      },
-    );
     return {
       ...toRefs(state),
       formRef,
@@ -398,129 +344,43 @@ export default defineComponent({
       submitting,
       loading,
       onSubmit,
-      onCancel,
     };
   },
 });
 </script>
 <style scoped>
-.pms-card-page {
-  max-width: 960px;
-  margin: 0 auto;
-  font-family: var(--cc-font-sans);
+.menu-drawer-form {
+  padding: 24px;
 }
 
-.pms-card-header {
-  margin: 28px 0 24px;
-  padding: 24px 28px 20px;
-  background: var(--cc-color-surface);
-  border-radius: 16px;
-  border: 1px solid var(--cc-color-border);
-}
-
-.pms-card-title {
-  font-family: var(--cc-font-sans);
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--cc-color-text-1);
-  margin: 0 0 4px;
-}
-
-.pms-card-sub {
-  font-family: var(--cc-font-sans);
-  font-size: 14px;
-  color: var(--cc-color-text-3);
-  margin: 0;
-}
-
-.pms-card-form {
-  background: #fff;
-  border: 1px solid var(--cc-color-border);
-  border-radius: 12px;
-  padding: 28px 32px;
-}
-
-.pms-card-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 32px;
-}
-
-.pms-card-full {
-  grid-column: 1 / -1;
-}
-
-.pms-card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 1px solid #eef1f5;
-}
-
-.pms-card-actions .el-button {
-  font-family: var(--cc-font-sans);
-  font-weight: 600;
-  border-radius: 10px;
-  padding: 12px 28px;
-}
-
-.pms-card-submit {
-  background: var(--cc-color-primary) !important;
-  border: none !important;
-}
-
-.pms-card-loading {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--cc-color-text-3);
-}
-
-.pms-card-spin {
-  animation: pms-spin 1s linear infinite;
-}
-
-@keyframes pms-spin {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 表单控件统一样式 */
-.pms-card-form :deep(.el-form-item) {
+.menu-drawer-form :deep(.el-form-item) {
   margin-bottom: 22px;
 }
 
-.pms-card-form :deep(.el-form-item__label) {
+.menu-drawer-form :deep(.el-form-item__label) {
   font-size: 13px;
   font-weight: 600;
   color: var(--cc-color-text-1);
   padding-bottom: 6px;
 }
 
-.pms-card-form :deep(.el-input__wrapper) {
+.menu-drawer-form :deep(.el-input__wrapper) {
   border-radius: 8px;
   border: 1px solid #d0d5dd;
   box-shadow: none;
-  transition:
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.pms-card-form :deep(.el-input__wrapper:hover) {
+.menu-drawer-form :deep(.el-input__wrapper:hover) {
   border-color: #a4b0c2;
 }
 
-.pms-card-form :deep(.el-input__wrapper.is-focus) {
+.menu-drawer-form :deep(.el-input__wrapper.is-focus) {
   border-color: var(--cc-color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.pms-card-form :deep(.el-radio-group) {
+.menu-drawer-form :deep(.el-radio-group) {
   margin-top: 2px;
 }
 
@@ -564,23 +424,34 @@ export default defineComponent({
   border-top: 1px solid #eef1f5;
 }
 
-/* ====== 响应式 ====== */
-@media (min-width: 1440px) {
-  .pms-card-page {
-    max-width: 1320px;
-  }
+.pms-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 32px;
+}
 
-  .pms-card-header {
-    padding: 28px 36px;
-  }
+.pms-card-full {
+  grid-column: 1 / -1;
+}
 
-  .pms-card-form {
-    padding: 36px 40px;
-  }
+.menu-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid #eef1f5;
+}
 
-  .pms-card-grid {
-    gap: 0 48px;
-  }
+.menu-form-actions .el-button {
+  font-family: var(--cc-font-sans);
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 12px 28px;
+}
+
+.menu-submit-btn {
+  background: var(--cc-color-primary) !important;
+  border: none !important;
 }
 
 @media (max-width: 768px) {
@@ -588,25 +459,12 @@ export default defineComponent({
     grid-template-columns: 1fr;
   }
 
-  .pms-card-header {
-    padding: 20px;
-  }
-
-  .pms-card-form {
-    padding: 20px 16px;
-    border-radius: 12px;
-  }
-
-  .pms-card-title {
-    font-size: 22px;
-  }
-
-  .pms-card-actions {
+  .menu-form-actions {
     flex-direction: column-reverse;
+  }
 
-    .el-button {
-      width: 100%;
-    }
+  .menu-form-actions .el-button {
+    width: 100%;
   }
 }
 </style>

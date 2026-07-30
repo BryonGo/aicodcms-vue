@@ -129,6 +129,16 @@
       </el-table-column>
     </ProTable>
   </ProPage>
+
+    <el-drawer
+      :title="editId ? $t('message.router.cmsBlockEdit') : $t('message.router.cmsBlockAdd')"
+      v-model="drawerVisible"
+      size="700px"
+      destroy-on-close
+      direction="rtl"
+    >
+      <BlockEdit v-if="drawerVisible" :edit-id="editId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+    </el-drawer>
 </template>
 
 <script lang="ts">
@@ -149,10 +159,11 @@ import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue"
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
 import { listCmsBlock, delCmsBlock, updateCmsBlockWeigh } from "/@/api/cms/block";
+import BlockEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiCmsBlockList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Delete, EditPen },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Delete, EditPen, BlockEdit },
   setup() {
     const { t } = useI18n();
     const { proxy } = <any>getCurrentInstance();
@@ -161,6 +172,8 @@ export default defineComponent({
     const tableSize = ref<"large" | "default" | "small">("default");
     const tableHeight = ref("calc(100vh - 300px)");
     const multiple = ref(true);
+    const drawerVisible = ref(false);
+    const editId = ref(0);
 
     const state = reactive({
       ids: [] as number[],
@@ -236,10 +249,17 @@ export default defineComponent({
     };
 
     const handleAdd = () => {
-      proxy.$router.push("/cms/block/list/add");
+      editId.value = 0;
+      drawerVisible.value = true;
     };
     const handleUpdate = (row: any) => {
-      proxy.$router.push(`/cms/block/list/edit?id=${row.id}`);
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      getList();
     };
 
     const handleSortChange = ({ prop, order }: { prop: string; order: string }) => {
@@ -300,6 +320,9 @@ export default defineComponent({
       handleDelete,
       handleAdd,
       handleUpdate,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
       handleSortChange,
       handleWeighChange,
       Plus,

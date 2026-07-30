@@ -253,6 +253,16 @@
       </div>
     </teleport>
   </ProPage>
+
+    <el-drawer
+      :title="editId ? $t('message.router.cmsChannelEdit') : $t('message.router.cmsChannelAdd')"
+      v-model="drawerVisible"
+      size="750px"
+      destroy-on-close
+      direction="rtl"
+    >
+      <ChannelEdit v-if="drawerVisible" :edit-id="editId" :parent-id="parentId" @saved="onDrawerSaved" @close="onDrawerClose" />
+    </el-drawer>
 </template>
 
 <script lang="ts">
@@ -292,6 +302,7 @@ import {
   ChannelTableColumns,
   ChannelTableDataState,
 } from "/@/views/cms/channel/list/component/model";
+import ChannelEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiCmsChannelList",
@@ -307,6 +318,7 @@ export default defineComponent({
     Document,
     Check,
     EditPen,
+    ChannelEdit,
   },
   setup() {
     const { t } = useI18n();
@@ -395,11 +407,27 @@ export default defineComponent({
       multiple.value = !selection.length;
     };
 
-    const handleAdd = (id = 0) => {
-      proxy.$router.push(`/cms/channel/list/add?parent_id=${id || 0}`);
+    const drawerVisible = ref(false);
+    const editId = ref(0);
+    const parentId = ref(0);
+
+    const handleAdd = (pid = 0) => {
+      editId.value = 0;
+      parentId.value = pid || 0;
+      drawerVisible.value = true;
     };
     const handleUpdate = (row: ChannelTableColumns) => {
-      proxy.$router.push(`/cms/channel/list/edit?id=${row.id}`);
+      editId.value = row.id;
+      parentId.value = 0;
+      drawerVisible.value = true;
+    };
+
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      CmsChannelList();
+    };
+    const onDrawerClose = () => {
+      drawerVisible.value = false;
     };
 
     const handleSortChange = ({ prop, order }: { prop: string; order: string }) => {
@@ -541,6 +569,11 @@ export default defineComponent({
       handleClearArticles,
       handleSortChange,
       handleWeighChange,
+      onDrawerSaved,
+      onDrawerClose,
+      drawerVisible,
+      editId,
+      parentId,
       flagColor,
       ctxMenu,
       showContextMenu,

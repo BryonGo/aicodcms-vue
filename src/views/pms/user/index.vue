@@ -201,6 +201,16 @@
       </section>
     </div>
   </ProPage>
+
+  <el-drawer
+    :title="editId ? $t('message.router.pmsUserEdit') : $t('message.router.pmsUserAdd')"
+    v-model="drawerVisible"
+    size="750px"
+    destroy-on-close
+    direction="rtl"
+  >
+    <EditUser v-if="drawerVisible" :edit-id="editId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+  </el-drawer>
 </template>
 
 <script setup lang="ts">
@@ -228,9 +238,13 @@ import {
   changeUserStatus,
 } from "/@/api/pms/user/index";
 import { parseTime } from "/@/utils/aicodcod";
+import EditUser from "./component/editUser.vue";
 
 const { t } = useI18n();
 const { proxy } = <any>getCurrentInstance();
+
+const drawerVisible = ref(false);
+const editId = ref(0);
 
 const density = ref<"large" | "default" | "small">("default");
 const filterText = ref("");
@@ -334,8 +348,18 @@ const clearDeptFilter = () => {
 };
 
 // ---- 操作 ----
-const onOpenAddUser = () => proxy.$router.push("/pms/user/list/add");
-const onOpenEditUser = (row: any) => proxy.$router.push(`/pms/user/list/edit?id=${row.id}`);
+const onOpenAddUser = () => {
+  editId.value = 0;
+  drawerVisible.value = true;
+};
+const onOpenEditUser = (row: any) => {
+  editId.value = row.id;
+  drawerVisible.value = true;
+};
+const onDrawerSaved = () => {
+  drawerVisible.value = false;
+  query();
+};
 
 // 单行删除 = remove(row)
 const onRowDel = (row: any) => {

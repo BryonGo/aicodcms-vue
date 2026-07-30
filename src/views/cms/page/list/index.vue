@@ -130,6 +130,16 @@
       </el-table-column>
     </ProTable>
   </ProPage>
+
+    <el-drawer
+      :title="editId ? $t('message.router.cmsPageEdit') : $t('message.router.cmsPageAdd')"
+      v-model="drawerVisible"
+      size="700px"
+      destroy-on-close
+      direction="rtl"
+    >
+      <PageEdit v-if="drawerVisible" :edit-id="editId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+    </el-drawer>
 </template>
 
 <script lang="ts">
@@ -147,15 +157,18 @@ import {
   CmsPageTableColumns,
   CmsPageTableDataState,
 } from "/@/views/cms/page/list/component/model";
+import PageEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiV1CmsPageList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Delete, Edit },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, Plus, Delete, Edit, PageEdit },
   setup() {
     const { t } = useI18n();
     const { proxy } = <any>getCurrentInstance();
     const loading = ref(false);
     const tableSize = ref<"large" | "default" | "small">("default");
+    const drawerVisible = ref(false);
+    const editId = ref(0);
 
     const state = reactive<CmsPageTableDataState>({
       ids: [],
@@ -210,11 +223,18 @@ export default defineComponent({
     };
 
     const handleAdd = () => {
-      proxy.$router.push("/cms/page/list/add");
+      editId.value = 0;
+      drawerVisible.value = true;
     };
 
     const handleUpdate = (row: CmsPageTableColumns) => {
-      proxy.$router.push(`/cms/page/list/edit?id=${row.id}`);
+      editId.value = row.id;
+      drawerVisible.value = true;
+    };
+
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      cmsPageList();
     };
 
     const handleDelete = (row: CmsPageTableColumns | null) => {
@@ -256,6 +276,9 @@ export default defineComponent({
       handleAdd,
       handleUpdate,
       handleDelete,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
       Plus,
       Delete,
       Edit,

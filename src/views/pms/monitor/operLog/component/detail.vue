@@ -1,7 +1,7 @@
 <template>
   <!-- 操作日志详情抽屉 -->
   <div class="system-sysOperLog-detail">
-    <el-drawer v-model="isShowDialog" size="80%" direction="ltr">
+    <el-drawer v-model="isShowDialog" size="80%" direction="rtl">
       <template #header>
         <h4>{{ $t("message.pms.operLog.detailTitle") }}</h4>
       </template>

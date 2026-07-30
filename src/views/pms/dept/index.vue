@@ -130,8 +130,18 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
   </div>
+</div>
+
+  <el-drawer
+    :title="editId ? $t('message.router.pmsDeptEdit') : $t('message.router.pmsDeptAdd')"
+    v-model="drawerVisible"
+    size="650px"
+    destroy-on-close
+    direction="rtl"
+  >
+    <EditDept v-if="drawerVisible" :edit-id="editId" :parent-id="parentId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+  </el-drawer>
 </template>
 
 <script lang="ts">
@@ -141,6 +151,7 @@ import { ElMessageBox, ElMessage } from "element-plus";
 
 import { deleteDept, getDeptList } from "/@/api/pms/dept";
 import { parseTime } from "/@/utils/aicodcod";
+import EditDept from "./component/editDept.vue";
 
 // 定义接口来定义对象的类型
 interface TableDataRow {
@@ -170,9 +181,14 @@ interface TableDataState {
 
 export default defineComponent({
   name: "systemDept",
+  components: { EditDept },
   setup() {
     const { t } = useI18n();
     const { proxy } = getCurrentInstance() as any;
+
+    const drawerVisible = ref(false);
+    const editId = ref(0);
+    const parentId = ref(0);
 
     const state = reactive<TableDataState>({
       tableData: {
@@ -197,13 +213,19 @@ export default defineComponent({
     };
     // 打开新增菜单弹窗
     const onOpenAddDept = (row?: TableDataRow) => {
-      proxy.$router.push(`/pms/dept/list/add?parent_id=${row?.dept_id || 0}`);
+      editId.value = 0;
+      parentId.value = row?.dept_id || 0;
+      drawerVisible.value = true;
     };
     // 打开编辑菜单弹窗
     const onOpenEditDept = (row: TableDataRow) => {
-      proxy.$router.push(
-        `/pms/dept/list/edit?id=${row.dept_id}&dept_name=${row.dept_name}&parent_id=${row.parent_id || 0}&order_num=${row.order_num || 0}&leader=${encodeURIComponent(row.leader || "")}&phone=${encodeURIComponent(row.phone || "")}&email=${encodeURIComponent(row.email || "")}&status=${row.status || 1}`,
-      );
+      editId.value = row.dept_id;
+      parentId.value = 0;
+      drawerVisible.value = true;
+    };
+    const onDrawerSaved = () => {
+      drawerVisible.value = false;
+      deptList();
     };
     // 删除当前行
     const onTabelRowDel = (row: TableDataRow) => {
@@ -232,6 +254,10 @@ export default defineComponent({
       deptList,
       onOpenAddDept,
       onOpenEditDept,
+      onDrawerSaved,
+      drawerVisible,
+      editId,
+      parentId,
       onTabelRowDel,
       parseTime,
       ...toRefs(state),
