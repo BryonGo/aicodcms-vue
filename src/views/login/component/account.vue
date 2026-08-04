@@ -116,7 +116,7 @@
       </div>
 
       <!-- Captcha -->
-      <div class="form-field" style="animation-delay: 0.25s">
+      <div v-if="showCaptcha" class="form-field" style="animation-delay: 0.25s">
         <el-form-item prop="verifyCode">
           <div class="captcha-row">
             <el-input
@@ -173,6 +173,11 @@
         </el-form-item>
       </div>
 
+      <!-- Turnstile 人机验证（Cloudflare，配置开启时服务端校验） -->
+      <div v-if="showTurnstile" class="form-field" style="animation-delay: 0.3s">
+        <div class="cf-turnstile" :data-sitekey="turnstileSiteKey" data-action="turnstile-spin-v2"></div>
+      </div>
+
       <!-- Submit Button -->
       <div class="form-field form-submit" style="animation-delay: 0.35s">
         <button
@@ -226,7 +231,7 @@ import { initBackEndControlRoutes } from "/@/router/backEnd";
 import { Session } from "/@/utils/storage";
 import { formatAxis } from "/@/utils/formatTime";
 import { NextLoading } from "/@/utils/loading";
-import { login, captcha } from "/@/api/login";
+import { login, captcha, verificationConfig } from "/@/api/login";
 
 export default defineComponent({
   name: "loginAccount",
@@ -273,11 +278,33 @@ export default defineComponent({
         signIn: false,
       },
       captchaSrc: "",
+      verificationMode: "none",
+      turnstileSiteKey: "",
     });
 
     onMounted(() => {
-      getCaptcha();
+      // 拉取登录验证方式配置（none/captcha/turnstile/both），按模式渲染验证组件
+      verificationConfig()
+        .then((res: any) => {
+          state.verificationMode = res.data.mode || "none";
+          state.turnstileSiteKey = res.data.turnstile_site_key || "";
+          if (showCaptcha.value) {
+            getCaptcha();
+          }
+        })
+        .catch(() => {
+          // 配置接口失败时退化为数字验证码（兼容旧后端）
+          state.verificationMode = "captcha";
+          getCaptcha();
+        });
     });
+
+    // 是否显示数字验证码（captcha/both 模式）
+    const showCaptcha = computed(() => ["captcha", "both"].includes(state.verificationMode));
+    // 是否显示 Turnstile（turnstile/both 模式）
+    const showTurnstile = computed(
+      () => ["turnstile", "both"].includes(state.verificationMode) && !!state.turnstileSiteKey,
+    );
 
     const getCaptcha = () => {
       captcha().then((res: any) => {
@@ -302,7 +329,9 @@ export default defineComponent({
       formWrap.validate((valid: boolean) => {
         if (valid) {
           state.loading.signIn = true;
-          login(state.ruleForm)
+          // Turnstile token（单次有效，失败后需 reset 重新获取）
+          const turnstileToken = (window as any).turnstile?.getResponse() || "";
+          login({ ...state.ruleForm, "cf-turnstile-response": turnstileToken })
             .then(async (res: any) => {
               const userInfo = res.data.user_info;
               userInfo.avatar = proxy.getUpFileUrl(userInfo.avatar);
@@ -330,6 +359,7 @@ export default defineComponent({
               const msg = err?.msg || err?.message || t("message.account.msgLoginFailed");
               ElMessage.error(msg);
               getCaptcha();
+              (window as any).turnstile?.reset();
             });
         }
       });
@@ -358,6 +388,8 @@ export default defineComponent({
       onSignIn,
       getCaptcha,
       loginForm,
+      showCaptcha,
+      showTurnstile,
       ...toRefs(state),
     };
   },

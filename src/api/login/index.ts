@@ -31,3 +31,13 @@ export function logout() {
     method: "get",
   });
 }
+
+/**
+ * 获取登录验证方式配置（none/captcha/turnstile/both + Turnstile site key）
+ */
+export function verificationConfig() {
+  return request({
+    url: "/api/v1/pub/verification/config",
+    method: "get",
+  });
+}
