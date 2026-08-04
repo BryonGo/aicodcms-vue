@@ -91,7 +91,30 @@
             :text-inside="true"
             :stroke-width="24"
             style="margin: 20px 0"
-          />
+          >
+            <template #default="{ percentage }">
+              <span v-if="article.status === 'running'">
+                {{ $t("message.cms.sta.statusGenerating") }}
+                {{ article.current_lang }} / #{{ article.current_id }}
+              </span>
+              <el-link
+                v-else-if="article.status === 'completed' && article.url"
+                type="success"
+                :href="article.url"
+                target="_blank"
+                style="color: #fff"
+              >
+                {{ $t("message.cms.sta.statusCompleted") }}
+              </el-link>
+              <span v-else-if="article.status === 'completed'">
+                {{ $t("message.cms.sta.statusCompleted") }}
+              </span>
+              <span v-else-if="article.status === 'failed'">
+                {{ $t("message.cms.sta.statusFailed") }}
+              </span>
+              <span v-else>{{ percentage }}%</span>
+            </template>
+          </el-progress>
 
           <el-row :gutter="16" style="margin-top: 16px">
             <el-col :span="6">
@@ -225,7 +248,20 @@
             :text-inside="true"
             :stroke-width="24"
             style="margin: 20px 0"
-          />
+          >
+            <template #default="{ percentage }">
+              <span v-if="list.status === 'running'">
+                {{ $t("message.cms.sta.statusGenerating") }}
+              </span>
+              <span v-else-if="list.status === 'completed'">
+                {{ $t("message.cms.sta.statusCompleted") }}
+              </span>
+              <span v-else-if="list.status === 'failed'">
+                {{ $t("message.cms.sta.statusFailed") }}
+              </span>
+              <span v-else>{{ percentage }}%</span>
+            </template>
+          </el-progress>
           <el-row :gutter="16"
             ><el-col :span="8"
               ><el-statistic
@@ -266,7 +302,20 @@
             :text-inside="true"
             :stroke-width="24"
             style="margin: 20px 0"
-          />
+          >
+            <template #default="{ percentage }">
+              <span v-if="tag.status === 'running'">
+                {{ $t("message.cms.sta.statusGenerating") }}
+              </span>
+              <span v-else-if="tag.status === 'completed'">
+                {{ $t("message.cms.sta.statusCompleted") }}
+              </span>
+              <span v-else-if="tag.status === 'failed'">
+                {{ $t("message.cms.sta.statusFailed") }}
+              </span>
+              <span v-else>{{ percentage }}%</span>
+            </template>
+          </el-progress>
           <el-row :gutter="16"
             ><el-col :span="8"
               ><el-statistic
@@ -385,6 +434,7 @@ interface Snapshot {
   last_error: string;
   error_samples?: ErrorSample[];
   error_rate: number;
+  url?: string;
   started_at: number;
   updated_at: number;
   elapsed_sec: number;
