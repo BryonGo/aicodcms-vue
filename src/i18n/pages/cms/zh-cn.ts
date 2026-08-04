@@ -495,6 +495,8 @@ export default {
     statusStopping: "停止中",
     statusCompleted: "已完成",
     statusFailed: "失败",
+    statusStopped: "已停止",
+    globalTitle: "静态HTML生成",
     msgStarted: "生成任务已启动",
     msgStartFailed: "启动失败",
     msgStopFailed: "停止失败",

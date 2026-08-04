@@ -4,6 +4,7 @@
     <LockScreen v-if="themeConfig.isLockScreen" />
     <Setings ref="setingsRef" v-show="themeConfig.lockScreenTime > 1" />
     <CloseFull v-if="!themeConfig.isLockScreen" />
+    <StaGlobalProgress />
   </el-config-provider>
 </template>
 
@@ -31,10 +32,11 @@ import setIntroduction from "/@/utils/setIconfont";
 import LockScreen from "/@/layout/lockScreen/index.vue";
 import Setings from "/@/layout/navBars/breadcrumb/setings.vue";
 import CloseFull from "/@/layout/navBars/breadcrumb/closeFull.vue";
+import StaGlobalProgress from "/@/components/staProgress/StaGlobalProgress.vue";
 
 export default defineComponent({
   name: "app",
-  components: { LockScreen, Setings, CloseFull },
+  components: { LockScreen, Setings, CloseFull, StaGlobalProgress },
   setup() {
     const { proxy } = <any>getCurrentInstance();
     const setingsRef = ref();

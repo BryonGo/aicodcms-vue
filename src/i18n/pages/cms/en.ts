@@ -484,6 +484,8 @@ export default {
     statusStopping: "Stopping",
     statusCompleted: "Completed",
     statusFailed: "Failed",
+    statusStopped: "Stopped",
+    globalTitle: "Static HTML Generation",
     msgStarted: "Generation started",
     msgStartFailed: "Start failed",
     msgStopFailed: "Stop failed",
