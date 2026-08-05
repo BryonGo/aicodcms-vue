@@ -428,17 +428,7 @@
             <el-button type="warning" @click="handlePurgeAll" :loading="purging">
               整站清除 CDN 缓存
             </el-button>
-            <el-input
-              v-model="imagePrompt"
-              placeholder="输入提示词，生成文章配图（Workers AI）"
-              style="width: 320px"
-              size="default"
-            />
-            <el-button type="primary" @click="handleImageGen" :loading="generating">
-              生成配图
-            </el-button>
-            <img v-if="generatedImage" :src="generatedImage" style="height: 48px; border-radius: 4px" alt="ai" />
-          </div>
+                      </div>
           <div v-if="cfStatus.error" style="margin-top: 8px; color: #e6a23c; font-size: 12px">
             {{ cfStatus.error }}
           </div>
@@ -468,7 +458,7 @@ import {
   stopGenerate,
   regenerateArticle,
 } from "/@/api/cms/sta";
-import { getCloudflareStatus, cloudflarePurge, cloudflareImageGen } from "/@/api/addon/cloudflare";
+import { getCloudflareStatus, cloudflarePurge } from "/@/api/addon/cloudflare";
 
 interface ErrorSample {
   article_id: number;
@@ -763,9 +753,6 @@ const onTabChange = (name: string) => {
 // ============ Cloudflare 插件（状态 / Purge / 配图） ============
 const cfStatus = ref<any>({});
 const purging = ref(false);
-const generating = ref(false);
-const imagePrompt = ref("");
-const generatedImage = ref("");
 
 const fetchCfStatus = async () => {
   try {
@@ -794,23 +781,6 @@ const handlePurgeAll = async () => {
     ElMessage.error(err?.msg || "Purge 失败");
   } finally {
     purging.value = false;
-  }
-};
-
-const handleImageGen = async () => {
-  if (!imagePrompt.value.trim()) {
-    ElMessage.warning("请输入配图提示词");
-    return;
-  }
-  generating.value = true;
-  try {
-    const res = await cloudflareImageGen(imagePrompt.value);
-    generatedImage.value = res?.data?.image || "";
-    if (!generatedImage.value) ElMessage.error(res?.data?.error || "生成失败");
-  } catch (err: any) {
-    ElMessage.error(err?.msg || "生成失败");
-  } finally {
-    generating.value = false;
   }
 };
 

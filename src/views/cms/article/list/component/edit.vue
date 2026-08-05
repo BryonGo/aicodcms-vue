@@ -263,6 +263,18 @@
                 </div>
               </el-upload>
               <div class="field-hint">{{ $t("message.cms.articleEdit.hintThumbnailSize") }}</div>
+              <!-- AI 生成配图（Cloudflare Workers AI） -->
+              <div style="margin-top: 8px">
+                <el-input
+                  v-model="aiPrompt"
+                  placeholder="AI 生成配图提示词（如：a cute cat, digital art）"
+                  size="small"
+                  style="width: 280px; display: inline-block"
+                />
+                <el-button size="small" type="primary" style="margin-left: 8px" :loading="aiGenerating" @click="handleAiCover">
+                  AI 生成配图
+                </el-button>
+              </div>
             </el-form-item>
           </section>
 
@@ -573,6 +585,8 @@ import ProEditor from "/@/components/pro/ProEditor.vue";
 import { type TranslationField } from "/@/components/translation/TranslationEditor.vue";
 import { useRoute, useRouter } from "vue-router";
 import { getChannelTree } from "/@/api/cms/article";
+import { cloudflareImageGen } from "/@/api/addon/cloudflare";
+import request from "/@/utils/request";
 import { listModulesField } from "/@/api/pms/modulesField";
 import { listModulesInfo } from "/@/api/pms/modulesInfo";
 import { ModulesFieldInfoData } from "/@/views/pms/modulesField/list/component/model";
@@ -1130,6 +1144,42 @@ export default defineComponent({
       upLoadingThumb.value = false;
     };
 
+    // AI 生成配图（Workers AI flux）→ 上传服务器 → 填入封面
+    const aiPrompt = ref("");
+    const aiGenerating = ref(false);
+    const handleAiCover = async () => {
+      if (!aiPrompt.value.trim()) {
+        ElMessage.warning("请输入配图提示词");
+        return;
+      }
+      aiGenerating.value = true;
+      try {
+        const res = await cloudflareImageGen(aiPrompt.value);
+        const dataUrl = res?.data?.image;
+        if (!dataUrl) {
+          ElMessage.error(res?.data?.error || "配图生成失败");
+          return;
+        }
+        // base64 → Blob → 上传到服务器（复用 /addon/upload）
+        const blob = await (await fetch(dataUrl)).blob();
+        const fd = new FormData();
+        fd.append("file", blob, `ai-cover-${Date.now()}.png`);
+        const up = await request({ url: "/api/v1/addon/upload", method: "post", data: fd });
+        const url = up?.data?.full_path || "";
+        if (url) {
+          imageUrlThumb.value = url;
+          state.formData.image = url;
+          ElMessage.success("配图已生成并设为封面");
+        } else {
+          ElMessage.error("配图上传失败");
+        }
+      } catch (e: any) {
+        ElMessage.error(e?.msg || e?.message || "配图生成失败");
+      } finally {
+        aiGenerating.value = false;
+      }
+    };
+
     const beforeAvatarUploadThumb = () => {
       upLoadingThumb.value = true;
       return true;
@@ -1263,6 +1313,9 @@ export default defineComponent({
       editLangName,
       imageUrlThumb,
       upLoadingThumb,
+      aiPrompt,
+      aiGenerating,
+      handleAiCover,
       handleAvatarSuccessThumb,
       beforeAvatarUploadThumb,
       setUpData,
