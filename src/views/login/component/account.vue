@@ -330,7 +330,12 @@ export default defineComponent({
         if (valid) {
           state.loading.signIn = true;
           // Turnstile token（单次有效，失败后需 reset 重新获取）
-          const turnstileToken = (window as any).turnstile?.getResponse() || "";
+          let turnstileToken = "";
+          try {
+            turnstileToken = (window as any).turnstile?.getResponse?.() || "";
+          } catch {
+            /* widget 未渲染（非 turnstile 模式）时忽略 */
+          }
           login({ ...state.ruleForm, "cf-turnstile-response": turnstileToken })
             .then(async (res: any) => {
               const userInfo = res.data.user_info;
@@ -359,7 +364,11 @@ export default defineComponent({
               const msg = err?.msg || err?.message || t("message.account.msgLoginFailed");
               ElMessage.error(msg);
               getCaptcha();
-              (window as any).turnstile?.reset();
+              try {
+                (window as any).turnstile?.reset?.();
+              } catch {
+                /* widget 未渲染时忽略 */
+              }
             });
         }
       });
