@@ -18,6 +18,22 @@
       </div>
     </div>
 
+    <!-- CDN 状态（统一 CDN 模块，多提供商） -->
+    <div class="cdn-status-bar">
+      <span class="cdn-status-label">CDN</span>
+      <el-tag :type="cdnReady ? 'success' : 'info'" size="small">
+        {{ cdnStatus?.provider || "cloudflare" }}
+        {{ cdnReady ? "正常" : cdnStatus?.configured ? "异常" : "未配置" }}
+      </el-tag>
+      <span v-if="cdnStatus?.zone_name" class="cdn-status-zone">
+        {{ cdnStatus.zone_name }} · {{ cdnStatus.plan || "--" }}
+      </span>
+      <span v-if="cdnStatus?.error" class="cdn-status-error">{{ cdnStatus.error }}</span>
+      <el-button size="small" type="warning" plain style="margin-left: auto" :loading="cdnPurging" @click="handleCdnPurge">
+        清除缓存
+      </el-button>
+    </div>
+
     <!-- KPI 行 -->
     <div class="kpi-grid">
       <KpiCard
@@ -204,6 +220,8 @@
 
 <script setup lang="ts">
 import { computed, ref, reactive, onMounted, onActivated, onUnmounted, nextTick, watch } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { getCdnStatus, cdnPurge } from "/@/api/addon/cdn";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
@@ -693,8 +711,40 @@ const handleResize = () => {
   wcChart?.resize();
 };
 
+// ============ CDN 状态（统一 CDN 模块） ============
+const cdnStatus = ref<any>(null);
+const cdnPurging = ref(false);
+const cdnReady = computed(() => !!cdnStatus.value?.enabled);
+
+const fetchCdnStatus = async () => {
+  try {
+    const res = await getCdnStatus();
+    cdnStatus.value = res?.data || null;
+  } catch {
+    /* ignore */
+  }
+};
+
+const handleCdnPurge = async () => {
+  try {
+    await ElMessageBox.confirm("整站清除 CDN 缓存？", "CDN Purge", { type: "warning" });
+  } catch {
+    return;
+  }
+  cdnPurging.value = true;
+  try {
+    const res = await cdnPurge({ purge_all: true });
+    ElMessage.success(res?.data?.detail || "已清除");
+  } catch (e: any) {
+    ElMessage.error(e?.msg || "Purge 失败");
+  } finally {
+    cdnPurging.value = false;
+  }
+};
+
 onMounted(() => {
   refreshAll();
+  fetchCdnStatus();
   window.addEventListener("resize", handleResize);
 });
 onActivated(() => {
@@ -725,6 +775,29 @@ watch(isDark, () => {
 </script>
 
 <style scoped>
+.cdn-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  background: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-border-color-light);
+  font-size: 13px;
+}
+.cdn-status-label {
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+.cdn-status-zone {
+  color: var(--el-text-color-regular);
+}
+.cdn-status-error {
+  color: #e6a23c;
+  font-size: 12px;
+}
+
 /* ===== 欢迎条 ===== */
 .welcome-bar {
   position: relative;
