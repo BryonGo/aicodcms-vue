@@ -219,6 +219,7 @@ import {
   getCurrentInstance,
   ref,
   unref,
+  nextTick,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
@@ -288,6 +289,16 @@ export default defineComponent({
         .then((res: any) => {
           state.verificationMode = res.data.mode || "none";
           state.turnstileSiteKey = res.data.turnstile_site_key || "";
+          // 动态挂载的 .cf-turnstile 不会触发 api.js 自动渲染，需显式 render
+          if (showTurnstile.value) {
+            nextTick(() => {
+              const el = document.querySelector(".cf-turnstile") as any;
+              if (el && (window as any).turnstile && !el.getAttribute("data-widget-id")) {
+                const wid = (window as any).turnstile.render(el, { sitekey: state.turnstileSiteKey, action: "turnstile-spin-v2" });
+                el.setAttribute("data-widget-id", wid);
+              }
+            });
+          }
           if (showCaptcha.value) {
             getCaptcha();
           }
