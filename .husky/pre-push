@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 拦截 force push / 推送到受保护分支
+PROTECTED='^(main|master|release.*|develop)$'
+ZERO="0000000000000000000000000000000000000000"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$ZERO" ] && continue
+  branch="${local_ref#refs/heads/}"
+
+  if echo "$branch" | grep -Eq "$PROTECTED"; then
+    if [ "$remote_sha" != "$ZERO" ]; then
+      if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+        echo "🛑 拒绝 force push 到受保护分支: $branch"
+        exit 1
+      fi
+    fi
+    echo "⚠️  正在推送到受保护分支: $branch —— 请确保已通过 CI/Review。"
+  fi
+done
+
+exit 0

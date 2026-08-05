@@ -1,8 +1,19 @@
 import request from "/@/utils/request";
 
+// ===== 云厂商 =====
+
+export const S3_PROVIDERS = [
+  { value: "minio.s3", label: "MinIO" },
+  { value: "tencent.cos", label: "Tencent COS" },
+  { value: "aliyun.oss", label: "Aliyun OSS" },
+  { value: "qiniu.kodo", label: "Qiniu Kodo" },
+  { value: "baidu.bos", label: "Baidu BOS" },
+  { value: "google.gcs", label: "Google GCS" },
+] as const;
+
 // ===== 文件操作 =====
 
-export function listMinioFiles(query: { prefix?: string; marker?: string; max_keys?: number }) {
+export function listMinioFiles(query: { prefix?: string; marker?: string; max_keys?: number; provider?: string }) {
   return request({
     url: "/api/v1/addon/minio/list",
     method: "get",
@@ -10,166 +21,172 @@ export function listMinioFiles(query: { prefix?: string; marker?: string; max_ke
   });
 }
 
-export function deleteMinioFile(fileName: string) {
+export function deleteMinioFile(fileName: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/del",
     method: "delete",
-    data: { file_name: fileName },
+    data: { file_name: fileName, provider },
   });
 }
 
-export function statMinioFile(fileName: string) {
+export function statMinioFile(fileName: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/stat",
     method: "get",
-    params: { "file-name": fileName },
+    params: { "file-name": fileName, provider },
   });
 }
 
-export function presignedGetUrl(fileName: string) {
+export function presignedGetUrl(fileName: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/presigned-get",
     method: "get",
-    params: { "file-name": fileName },
+    params: { "file-name": fileName, provider },
   });
 }
 
-export function presignedViewUrl(fileName: string) {
+export function presignedViewUrl(fileName: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/presigned-view",
     method: "get",
-    params: { "file-name": fileName },
+    params: { "file-name": fileName, provider },
   });
 }
 
-export function presignedPutUrl(fileName: string) {
+export function presignedPutUrl(fileName: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/presigned-put",
     method: "get",
-    params: { "file-name": fileName },
+    params: { "file-name": fileName, provider },
   });
 }
 
-export function mkdirMinioDir(path: string) {
+export function mkdirMinioDir(path: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/mkdir",
     method: "post",
-    data: { path },
+    data: { path, provider },
   });
 }
 
-export function copyMinioObject(src: string, dest: string, move = false) {
+export function copyMinioObject(src: string, dest: string, move = false, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/copy",
     method: "post",
-    data: { src, dest, move },
+    data: { src, dest, move, provider },
   });
 }
 
-export function batchDeleteMinioFiles(keys: string[]) {
+export function batchDeleteMinioFiles(keys: string[], provider?: string) {
   return request({
     url: "/api/v1/addon/minio/batch-del",
     method: "delete",
-    data: { keys },
+    data: { keys, provider },
   });
 }
 
 // ===== 存储桶操作 =====
 
-export function getMinioBuckets() {
+export function getMinioBuckets(provider?: string) {
   return request({
     url: "/api/v1/addon/minio/buckets",
     method: "get",
+    params: { provider },
   });
 }
 
 // ===== 对象标签 =====
 
-export function getMinioTags(fileName: string) {
+export function getMinioTags(fileName: string, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/tagging",
     method: "get",
-    params: { "file-name": fileName },
+    params: { "file-name": fileName, provider },
   });
 }
 
-export function setMinioTags(fileName: string, tags: { key: string; value: string }[]) {
+export function setMinioTags(fileName: string, tags: { key: string; value: string }[], provider?: string) {
   return request({
     url: "/api/v1/addon/minio/tagging",
     method: "put",
-    data: { "file-name": fileName, tags },
+    data: { "file-name": fileName, tags, provider },
   });
 }
 
-export function deleteMinioTags(fileName: string, keys: string[]) {
+export function deleteMinioTags(fileName: string, keys: string[], provider?: string) {
   return request({
     url: "/api/v1/addon/minio/tagging",
     method: "delete",
-    data: { "file-name": fileName, keys },
+    data: { "file-name": fileName, keys, provider },
   });
 }
 
 // ===== 桶设置 =====
 
-export function getBucketSettings() {
+export function getBucketSettings(provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/settings",
     method: "get",
+    params: { provider },
   });
 }
 
-export function setBucketVersioning(enabled: boolean) {
+export function setBucketVersioning(enabled: boolean, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/versioning",
     method: "post",
-    data: { enabled },
+    data: { enabled, provider },
   });
 }
 
-export function getBucketLifecycle() {
+export function getBucketLifecycle(provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/lifecycle",
     method: "get",
+    params: { provider },
   });
 }
 
-export function setBucketLifecycle(rules: any[]) {
+export function setBucketLifecycle(rules: any[], provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/lifecycle",
     method: "post",
-    data: { rules },
+    data: { rules, provider },
   });
 }
 
 // ===== 桶策略 =====
 
-export function getBucketPolicy() {
+export function getBucketPolicy(provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/policy",
     method: "get",
+    params: { provider },
   });
 }
 
-export function setBucketPolicy(data: { mode: string; policy?: string; allow_domains?: string[] }) {
+export function setBucketPolicy(data: { mode: string; policy?: string; allow_domains?: string[] }, provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/policy",
     method: "post",
-    data,
+    data: { ...data, provider },
   });
 }
 
 // ===== 桶加密 =====
 
-export function setBucketEncryption() {
+export function setBucketEncryption(provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/encryption",
     method: "post",
+    data: { provider },
   });
 }
 
-export function removeBucketEncryption() {
+export function removeBucketEncryption(provider?: string) {
   return request({
     url: "/api/v1/addon/minio/bucket/encryption",
     method: "delete",
+    data: { provider },
   });
 }

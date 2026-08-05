@@ -24,6 +24,7 @@ export const useMinioStore = defineStore("minio", () => {
   // ===== State =====
   const buckets = ref<MinioBucketInfo[]>([]);
   const currentBucket = ref("");
+  const currentProvider = ref("minio.s3");
   const files = ref<MinioFileInfo[]>([]);
   const selectedFiles = ref<MinioFileInfo[]>([]);
   const breadcrumbs = ref<BreadcrumbItem[]>([{ name: "根目录", prefix: "" }]);
@@ -56,6 +57,17 @@ export const useMinioStore = defineStore("minio", () => {
 
   // ===== Actions =====
 
+  /** 切换云厂商 */
+  async function switchProvider(provider: string) {
+    if (provider === currentProvider.value) return;
+    currentProvider.value = provider;
+    currentPrefix.value = "";
+    breadcrumbs.value = [{ name: "根目录", prefix: "" }];
+    detailFile.value = null;
+    selectedFiles.value = [];
+    await fetchFiles();
+  }
+
   /** 切换存储桶 */
   async function switchBucket(bucketName: string) {
     currentBucket.value = bucketName;
@@ -74,6 +86,7 @@ export const useMinioStore = defineStore("minio", () => {
         prefix: currentPrefix.value,
         max_keys: params?.max_keys || 500,
         marker: params?.marker || "",
+        provider: currentProvider.value,
       });
       const data = res.data || res;
       files.value = data.files || [];
@@ -161,6 +174,7 @@ export const useMinioStore = defineStore("minio", () => {
       form.append("file-name", item.raw);
       form.append("type", "100");
       form.append("path", item.targetPath);
+      form.append("provider", currentProvider.value);
       try {
         await request({
           url: "/api/v1/addon/minio/put",
@@ -192,7 +206,7 @@ export const useMinioStore = defineStore("minio", () => {
       await request({
         url: "/api/v1/addon/minio/mkdir",
         method: "post",
-        data: { path },
+        data: { path, provider: currentProvider.value },
       });
       ElMessage.success("目录创建成功");
       newDirDialogVisible.value = false;
@@ -205,7 +219,7 @@ export const useMinioStore = defineStore("minio", () => {
   /** 删除文件（单条） */
   async function deleteFile(file: MinioFileInfo) {
     try {
-      await deleteMinioFile(file.key);
+      await deleteMinioFile(file.key, currentProvider.value);
       ElMessage.success("删除成功");
       if (detailFile.value?.key === file.key) detailFile.value = null;
       await fetchFiles();
@@ -224,14 +238,14 @@ export const useMinioStore = defineStore("minio", () => {
     try {
       // 目录递归删除（逐个调用 /del）
       for (const dir of dirs) {
-        await deleteMinioFile(dir);
+        await deleteMinioFile(dir, currentProvider.value);
       }
       // 文件批量删除
       if (files.length > 0) {
         await request({
           url: "/api/v1/addon/minio/batch-del",
           method: "delete",
-          data: { keys: files },
+          data: { keys: files, provider: currentProvider.value },
         });
       }
       ElMessage.success(`成功删除 ${items.length} 项`);
@@ -252,7 +266,7 @@ export const useMinioStore = defineStore("minio", () => {
       await request({
         url: "/api/v1/addon/minio/copy",
         method: "post",
-        data: { src: oldKey, dest: newKey, move: true },
+        data: { src: oldKey, dest: newKey, move: true, provider: currentProvider.value },
       });
       ElMessage.success("重命名成功");
       renameDialogVisible.value = false;
@@ -266,7 +280,7 @@ export const useMinioStore = defineStore("minio", () => {
   /** 下载文件 */
   async function downloadFile(key: string) {
     try {
-      const res: any = await presignedGetUrl(key);
+      const res: any = await presignedGetUrl(key, currentProvider.value);
       const url = urlObjToStr((res.data || res)["presigned-get-url"]);
       if (url) window.open(url, "_blank");
       else ElMessage.error("获取下载地址失败");
@@ -278,7 +292,7 @@ export const useMinioStore = defineStore("minio", () => {
   /** 复制链接 */
   async function copyFileUrl(key: string) {
     try {
-      const res: any = await presignedViewUrl(key);
+      const res: any = await presignedViewUrl(key, currentProvider.value);
       const url = urlObjToStr((res.data || res)["presigned-view-url"]);
       if (url) {
         await navigator.clipboard.writeText(url);
@@ -308,7 +322,7 @@ export const useMinioStore = defineStore("minio", () => {
   /** 加载图片的签名URL */
   async function loadPreviewUrl(file: MinioFileInfo) {
     try {
-      const res: any = await presignedViewUrl(file.key);
+      const res: any = await presignedViewUrl(file.key, currentProvider.value);
       const url = urlObjToStr((res.data || res)["presigned-view-url"]);
       if (url) {
         previewUrl.value = url;
@@ -342,6 +356,7 @@ export const useMinioStore = defineStore("minio", () => {
       const res: any = await request({
         url: "/api/v1/addon/minio/buckets",
         method: "get",
+        params: { provider: currentProvider.value },
       });
       const data = res.data || res;
       buckets.value = data.buckets || [];
@@ -362,7 +377,7 @@ export const useMinioStore = defineStore("minio", () => {
 
   async function fetchTags(fileName: string) {
     try {
-      const res: any = await getMinioTags(fileName);
+      const res: any = await getMinioTags(fileName, currentProvider.value);
       tags.value = (res.data || res).tags || [];
     } catch {
       tags.value = [];
@@ -372,7 +387,7 @@ export const useMinioStore = defineStore("minio", () => {
   async function addTag(fileName: string, key: string, value: string) {
     const newTags = [...tags.value, { key, value }];
     try {
-      await setMinioTags(fileName, newTags);
+      await setMinioTags(fileName, newTags, currentProvider.value);
       tags.value = newTags;
       ElMessage.success("标签添加成功");
     } catch {
@@ -382,7 +397,7 @@ export const useMinioStore = defineStore("minio", () => {
 
   async function removeTag(fileName: string, key: string) {
     try {
-      await deleteMinioTags(fileName, [key]);
+      await deleteMinioTags(fileName, [key], currentProvider.value);
       tags.value = tags.value.filter((t) => t.key !== key);
       ElMessage.success("标签已删除");
     } catch {
@@ -404,7 +419,7 @@ export const useMinioStore = defineStore("minio", () => {
   async function fetchBucketSettings() {
     settingsLoading.value = true;
     try {
-      const [settingsRes, policyRes] = await Promise.all([getBucketSettings(), getBucketPolicy()]);
+      const [settingsRes, policyRes] = await Promise.all([getBucketSettings(currentProvider.value), getBucketPolicy(currentProvider.value)]);
       const settings = settingsRes.data || settingsRes;
       const policy = policyRes.data || policyRes;
       bucketSettings.value = {
@@ -424,13 +439,13 @@ export const useMinioStore = defineStore("minio", () => {
   }
 
   async function toggleVersioning(enabled: boolean) {
-    await setBucketVersioning(enabled);
+    await setBucketVersioning(enabled, currentProvider.value);
     bucketSettings.value.versioning.enabled = enabled;
     ElMessage.success(enabled ? "版本控制已启用" : "版本控制已关闭");
   }
 
   async function saveLifecycleRules(rules: any[]) {
-    await setBucketLifecycle(rules);
+    await setBucketLifecycle(rules, currentProvider.value);
     bucketSettings.value.lifecycle = rules;
     ElMessage.success("生命周期规则已更新");
   }
@@ -439,11 +454,11 @@ export const useMinioStore = defineStore("minio", () => {
 
   async function toggleEncryption(enabled: boolean) {
     if (enabled) {
-      await request({ url: "/api/v1/addon/minio/bucket/encryption", method: "post" });
+      await request({ url: "/api/v1/addon/minio/bucket/encryption", method: "post", data: { provider: currentProvider.value } });
       bucketSettings.value.encryption.algorithm = "AES256";
       ElMessage.success("桶加密已开启");
     } else {
-      await request({ url: "/api/v1/addon/minio/bucket/encryption", method: "delete" });
+      await request({ url: "/api/v1/addon/minio/bucket/encryption", method: "delete", data: { provider: currentProvider.value } });
       bucketSettings.value.encryption.algorithm = "";
       ElMessage.warning("桶加密已关闭，已有加密文件仍可正常读取，新文件不再加密");
     }
@@ -453,7 +468,7 @@ export const useMinioStore = defineStore("minio", () => {
 
   /** 设置后重新拉取最新策略状态（供 setBucketPublic/Private/Hotlink 复用） */
   async function refreshPolicy() {
-    const res: any = await getBucketPolicy();
+    const res: any = await getBucketPolicy(currentProvider.value);
     const data = res.data || res;
     bucketSettings.value.policy = {
       is_public: data.is_public ?? false,
@@ -464,19 +479,19 @@ export const useMinioStore = defineStore("minio", () => {
   }
 
   async function setBucketPublic() {
-    await setBucketPolicy({ mode: "public" });
+    await setBucketPolicy({ mode: "public" }, currentProvider.value);
     await refreshPolicy();
     ElMessage.success("桶已设为公开");
   }
 
   async function setBucketPrivate() {
-    await setBucketPolicy({ mode: "private" });
+    await setBucketPolicy({ mode: "private" }, currentProvider.value);
     await refreshPolicy();
     ElMessage.success("桶已设为私有");
   }
 
   async function setBucketHotlink(allowDomains: string[]) {
-    await setBucketPolicy({ mode: "hotlink", allow_domains: allowDomains });
+    await setBucketPolicy({ mode: "hotlink", allow_domains: allowDomains }, currentProvider.value);
     await refreshPolicy();
     ElMessage.success("防盗链规则已更新");
   }
@@ -485,6 +500,7 @@ export const useMinioStore = defineStore("minio", () => {
     // state
     buckets,
     currentBucket,
+    currentProvider,
     files,
     selectedFiles,
     breadcrumbs,
@@ -518,6 +534,7 @@ export const useMinioStore = defineStore("minio", () => {
     settingsLoading,
 
     // actions
+    switchProvider,
     switchBucket,
     fetchFiles,
     loadMore,

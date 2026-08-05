@@ -1,4 +1,51 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# ---- 1. 敏感信息扫描 ----
+echo "🔍 扫描暂存区敏感信息..."
+
+SENSITIVE_FILES="(\.key$|\.env$|key\.json$|credentials|id_rsa|id_ed25519)"
+EXAMPLE_WHITELIST='\.example\.(ya?ml|json|env)$'
+CRED_PATTERN='((access_key|secret_key|accessKey|secretKey|api_key|apiKey|api_token|password|token)\s*[:=]\s*["'\'']?(AKIA[0-9A-Z]{16}|sk-[A-Za-z0-9]{20,}|GOOG1[0-9A-Z]{8,}|cfat_[A-Za-z0-9]+|0x4AAAA[0-9A-Za-z]+|[A-Za-z0-9/+]{32,}|["'\''][^"'\'' ]{12,}["'\'']))|-----BEGIN (RSA |EC |OPENSSH |PRIVATE)KEY-----)'
+
+FOUND=0
+STAGED=$(git diff --cached --name-only --diff-filter=ACM || true)
+
+for file in $STAGED; do
+  [ -z "$file" ] && continue
+  if echo "$file" | grep -Eq "$EXAMPLE_WHITELIST"; then
+    echo "ℹ️  模板文件放行: $file"
+    continue
+  fi
+  if echo "$file" | grep -Eq "$SENSITIVE_FILES"; then
+    echo "❌ 高危文件被暂存: $file"
+    FOUND=1
+  fi
+  if git cat-file -e ":$file" 2>/dev/null; then
+    if git show ":$file" 2>/dev/null | grep -Eq "$CRED_PATTERN"; then
+      echo "❌ 文件 $file 含疑似凭据内容，已阻止提交"
+      FOUND=1
+    fi
+  fi
+done
+
+if [ "$FOUND" -ne 0 ]; then
+  echo ""
+  echo "🛑 提交被拦截：发现敏感信息。如需强制提交，请用 git commit --no-verify（不推荐）。"
+  exit 1
+fi
+echo "✅ 敏感信息扫描通过"
+
+# ---- 2. 前端构建验证 ----
+echo "🔨 验证前端构建 (bun run build)..."
+if ! bun run build 2>/tmp/gosdkvue_build.log; then
+  echo "❌ bun run build 失败："
+  cat /tmp/gosdkvue_build.log
+  echo ""
+  echo "🛑 提交被拦截：构建未通过。修复后再提交。"
+  exit 1
+fi
+echo "✅ bun run build 通过"
+
+# ---- 3. 原有类型检查 ----
 node scripts/type-check-staged.mjs

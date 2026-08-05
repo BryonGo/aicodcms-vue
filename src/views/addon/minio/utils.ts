@@ -13,6 +13,8 @@ export function urlObjToStr(obj: any): string {
   if (obj.Scheme && obj.Host) {
     let s = obj.Scheme + "://" + obj.Host + (obj.Path || "");
     if (obj.RawQuery) s += "?" + obj.RawQuery;
+    // Go JSON 会把 & 转义为 \u0026，需要还原
+    s = s.replace(/\\u0026/g, "&");
     return s;
   }
   return "";

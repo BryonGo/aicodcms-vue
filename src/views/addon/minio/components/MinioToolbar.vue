@@ -1,6 +1,19 @@
 <template>
   <div class="minio-toolbar">
     <div class="toolbar-left">
+      <el-select
+        v-model="currentProvider"
+        size="small"
+        style="width: 160px; margin-right: 12px"
+        @change="store.switchProvider"
+      >
+        <el-option
+          v-for="p in providers"
+          :key="p.value"
+          :label="p.label"
+          :value="p.value"
+        />
+      </el-select>
       <el-breadcrumb separator="/">
         <el-breadcrumb-item v-for="(crumb, idx) in store.breadcrumbs" :key="idx">
           <a
@@ -32,15 +45,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { useMinioStore } from "../store";
+import { S3_PROVIDERS } from "/@/api/addon/minio";
 import { Refresh, UploadFilled, FolderAdd, Setting } from "@element-plus/icons-vue";
 
 export default defineComponent({
   name: "MinioToolbar",
   setup() {
     const store = useMinioStore();
-    return { store, Refresh, UploadFilled, FolderAdd, Setting };
+    const currentProvider = ref(store.currentProvider);
+    const providers = S3_PROVIDERS;
+
+    watch(currentProvider, (val) => {
+      store.switchProvider(val);
+    });
+
+    return { store, currentProvider, providers, Refresh, UploadFilled, FolderAdd, Setting };
   },
 });
 </script>

@@ -106,7 +106,7 @@ export default defineComponent({
     async function ensureThumbnail(key: string, mime: string) {
       if (!isImageFile(mime, key) || thumbCache.value[key]) return;
       try {
-        const res: any = await presignedViewUrl(key);
+        const res: any = await presignedViewUrl(key, store.currentProvider);
         const url = urlObjToStr((res.data || res)["presigned-view-url"]);
         if (url) thumbCache.value[key] = url;
       } catch {
