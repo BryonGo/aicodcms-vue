@@ -661,6 +661,13 @@ export default {
     deliverClicked: "已点击",
     deliverSpam: "举报",
     deliverUnsub: "取消订阅",
+    statsTitle: "近 7 天发送统计",
+    statsTotal: "总发送",
+    statsDelivered: "已送达",
+    statsOpened: "已打开",
+    statsClicked: "已点击",
+    statsBounce: "退信",
+    statsFailed: "失败",
   },
 
   addon_sitemap: {

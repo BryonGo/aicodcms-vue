@@ -662,6 +662,13 @@ export default {
     deliverClicked: "Clicked",
     deliverSpam: "Spam",
     deliverUnsub: "Unsubscribed",
+    statsTitle: "Last 7 Days Stats",
+    statsTotal: "Total Sent",
+    statsDelivered: "Delivered",
+    statsOpened: "Opened",
+    statsClicked: "Clicked",
+    statsBounce: "Bounce",
+    statsFailed: "Failed",
   },
 
   addon_sitemap: {

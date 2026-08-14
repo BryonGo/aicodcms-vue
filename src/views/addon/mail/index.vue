@@ -31,6 +31,56 @@
       </div>
     </el-card>
 
+    <!-- 近 7 天发送统计 -->
+    <el-card v-if="stats" shadow="never" class="mail-account-card">
+      <div class="mail-stats-title">
+        {{ $t("message.addon_mail.statsTitle") }}
+      </div>
+      <div class="mail-stats-total">
+        <div class="mail-stats-total-item">
+          <span class="label">{{ $t("message.addon_mail.statsTotal") }}</span>
+          <span class="value">{{ stats.total.total }}</span>
+        </div>
+        <div class="mail-stats-total-item">
+          <span class="label">{{ $t("message.addon_mail.statsDelivered") }}</span>
+          <span class="value good">{{ stats.total.delivered }}</span>
+        </div>
+        <div class="mail-stats-total-item">
+          <span class="label">{{ $t("message.addon_mail.statsOpened") }}</span>
+          <span class="value good">{{ stats.total.opened }}</span>
+        </div>
+        <div class="mail-stats-total-item">
+          <span class="label">{{ $t("message.addon_mail.statsClicked") }}</span>
+          <span class="value">{{ stats.total.clicked }}</span>
+        </div>
+        <div class="mail-stats-total-item">
+          <span class="label">{{ $t("message.addon_mail.statsBounce") }}</span>
+          <span class="value warn">{{ stats.total.bounce }}</span>
+        </div>
+        <div class="mail-stats-total-item">
+          <span class="label">{{ $t("message.addon_mail.statsFailed") }}</span>
+          <span class="value warn">{{ stats.total.failed }}</span>
+        </div>
+      </div>
+      <div class="mail-stats-chart">
+        <div v-for="day in stats.daily" :key="day.date" class="mail-stats-col">
+          <div class="mail-stats-bars">
+            <div
+              class="bar bar-delivered"
+              :style="{ height: barHeight(day.delivered) }"
+              :title="`${$t('message.addon_mail.statsDelivered')}: ${day.delivered}`"
+            />
+            <div
+              class="bar bar-failed"
+              :style="{ height: barHeight(day.failed) }"
+              :title="`${$t('message.addon_mail.statsFailed')}: ${day.failed}`"
+            />
+          </div>
+          <div class="mail-stats-date">{{ day.date.slice(5) }}</div>
+        </div>
+      </div>
+    </el-card>
+
     <ProSearch
       v-model="filters"
       :fields="searchFields"
@@ -248,9 +298,11 @@ import {
   getSendCloudWebhooks,
   addSendCloudWebhook,
   deleteSendCloudWebhook,
+  getMailStats,
   type MailLogItem,
   type SendCloudUserInfo,
   type SendCloudWebhookItem,
+  type MailStats,
 } from "/@/api/addon/mail";
 
 const { t } = useI18n();
@@ -300,6 +352,7 @@ const searchFields = computed<ProSearchField[]>(() => [
 
 // ---- SendCloud 账户 ----
 const userInfo = ref<SendCloudUserInfo | null>(null);
+const stats = ref<MailStats | null>(null);
 
 const loadUserInfo = async () => {
   try {
@@ -308,6 +361,22 @@ const loadUserInfo = async () => {
   } catch {
     // 非 SendCloud 驱动或未配置时静默（不打扰日志页）
   }
+};
+
+const loadStats = async () => {
+  try {
+    const res: any = await getMailStats();
+    stats.value = res.data || res;
+  } catch {
+    // 静默
+  }
+};
+
+// 柱状图高度：按 7 天最大值归一化到 60px
+const barHeight = (v: number) => {
+  if (!stats.value) return "0px";
+  const max = Math.max(...stats.value.daily.map((d) => Math.max(d.delivered, d.failed)), 1);
+  return `${Math.round((v / max) * 60)}px`;
 };
 
 // ---- 投递状态 ----
@@ -500,6 +569,7 @@ const handleResend = async (row: MailLogItem) => {
 onMounted(() => {
   loadList();
   loadUserInfo();
+  loadStats();
 });
 </script>
 
@@ -537,6 +607,68 @@ onMounted(() => {
 }
 .mail-webhook-alert {
   margin-bottom: 12px;
+}
+.mail-stats-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.mail-stats-total {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.mail-stats-total-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mail-stats-total-item .label {
+  font-size: var(--cc-font-13);
+  color: var(--cc-color-text-3);
+}
+.mail-stats-total-item .value {
+  font-size: 18px;
+  font-weight: 600;
+}
+.mail-stats-total-item .value.good {
+  color: var(--el-color-success);
+}
+.mail-stats-total-item .value.warn {
+  color: var(--el-color-danger);
+}
+.mail-stats-chart {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  height: 86px;
+}
+.mail-stats-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+.mail-stats-bars {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 64px;
+}
+.mail-stats-bars .bar {
+  width: 14px;
+  border-radius: 3px 3px 0 0;
+}
+.bar-delivered {
+  background: var(--el-color-success);
+}
+.bar-failed {
+  background: var(--el-color-danger);
+}
+.mail-stats-date {
+  font-size: var(--cc-font-12);
+  color: var(--cc-color-text-3);
+  margin-top: 4px;
 }
 .mail-time {
   font-size: var(--cc-font-13);

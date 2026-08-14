@@ -94,3 +94,30 @@ export function deleteSendCloudWebhook(data: {
 }) {
   return request({ url: "/api/v1/addon/mail/sendcloud/webhook", method: "delete", data });
 }
+
+export interface MailDailyStat {
+  date: string;
+  count: number;
+  delivered: number;
+  failed: number;
+}
+
+export interface MailTotalStat {
+  total: number;
+  delivered: number;
+  opened: number;
+  clicked: number;
+  bounce: number;
+  invalid: number;
+  failed: number;
+}
+
+export interface MailStats {
+  daily: MailDailyStat[];
+  total: MailTotalStat;
+}
+
+/** Get mail send stats (last 7 days) */
+export function getMailStats() {
+  return request<MailStats>({ url: "/api/v1/addon/mail/stats", method: "get" });
+}
