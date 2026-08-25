@@ -42,6 +42,30 @@
         </el-dropdown-menu>
       </template>
     </el-dropdown>
+    <el-dropdown
+      :show-timeout="70"
+      :hide-timeout="50"
+      trigger="click"
+      @command="onSiteChange"
+    >
+      <span class="layout-navbars-breadcrumb-user-link site-selector">
+        <i class="iconfont icon-quanqiu" :title="'站点'"></i>
+        <span class="site-selector-name">{{ currentSiteName }}</span>
+        <el-icon class="el-icon--right"><ele-ArrowDown /></el-icon>
+      </span>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item
+            v-for="s in siteSites"
+            :key="s.code"
+            :command="s.code"
+            :disabled="s.code === currentSiteCode"
+          >
+            {{ s.name }}（{{ s.code }}）
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
     <div class="layout-navbars-breadcrumb-user-icon" @click="onSearchClick">
       <el-icon :title="$t('message.user.title2')">
         <ele-Search />
@@ -101,6 +125,7 @@ import { ElMessageBox, ElMessage } from "element-plus";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import { useUserInfo } from "/@/stores/userInfo";
+import { useSiteInfo } from "/@/stores/siteInfo";
 import { useThemeConfig } from "/@/stores/themeConfig";
 import other from "/@/utils/other";
 import { Session, Local } from "/@/utils/storage";
@@ -119,8 +144,10 @@ export default defineComponent({
     const { proxy } = <any>getCurrentInstance();
     const router = useRouter();
     const stores = useUserInfo();
+    const storesSite = useSiteInfo();
     const storesThemeConfig = useThemeConfig();
     const { userInfos } = storeToRefs(stores);
+    const { sites: siteSites, currentSiteCode } = storeToRefs(storesSite);
     const { themeConfig } = storeToRefs(storesThemeConfig);
     const searchRef = ref();
     // 默认头像 fallback (内联 SVG 用户图标)
@@ -142,6 +169,10 @@ export default defineComponent({
       if (layoutArr.includes(layout) || (layout === "classic" && !isClassicSplitMenu)) num = "1";
       else num = "";
       return num;
+    });
+    // 当前站点名（站群选择器）
+    const currentSiteName = computed(() => {
+      return storesSite.currentSite?.name || "默认站点";
     });
     // 全屏点击时
     const onScreenfullClick = () => {
@@ -256,6 +287,13 @@ export default defineComponent({
           window.location.reload();
         });
     };
+    // 站点切换（站群）
+    const onSiteChange = (code: string) => {
+      if (code === currentSiteCode.value) return;
+      storesSite.setCurrent(code);
+      ElMessage.success("已切换到站点，页面即将刷新");
+      setTimeout(() => window.location.reload(), 400);
+    };
     // 设置 element plus 组件的国际化
     const setI18nConfig = (locale: string) => {
       proxy.mittBus.emit("getI18nConfig", proxy.i18n.global.messages.value[locale]);
@@ -294,9 +332,15 @@ export default defineComponent({
         initI18n();
         initComponentSize();
       }
+      // 站群：加载当前管理员可见站点
+      storesSite.init();
     });
     return {
       userInfos,
+      siteSites,
+      currentSiteCode,
+      currentSiteName,
+      onSiteChange,
       onLayoutSetingClick,
       onHandleCommandClick,
       onScreenfullClick,
@@ -352,6 +396,23 @@ export default defineComponent({
 .layout-navbars-breadcrumb-user-icon:hover i {
   display: inline-block;
   animation: logoAnimation 0.3s ease-in-out;
+}
+.site-selector {
+  padding: 0 10px;
+  cursor: pointer;
+  color: var(--cc-color-text-2);
+  transition: color 0.18s ease;
+}
+.site-selector:hover {
+  color: var(--cc-color-text-1);
+}
+.site-selector-name {
+  font-size: 13px;
+  margin: 0 4px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 :deep(.el-dropdown) {
   color: var(--cc-color-text-2);

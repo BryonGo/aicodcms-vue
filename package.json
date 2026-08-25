@@ -86,7 +86,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
-    "@types/node": "^18.0.6",
+    "@types/node": "^24.0.0",
     "@types/nprogress": "^0.2.0",
     "@types/sortablejs": "^1.13.0",
     "@vitejs/plugin-vue": "^6.0.6",

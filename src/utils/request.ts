@@ -81,6 +81,12 @@ service.interceptors.request.use(
     config.headers["Accept-Language"] = currentLang;
     console.log("[Lang] >>> Accept-Language:", currentLang, "| URL:", config.url);
 
+    // 站群：注入当前站点（X-Site-Code），后台接口按站点隔离数据
+    const siteCode = Local.get("currentSiteCode");
+    if (siteCode) {
+      config.headers["X-Site-Code"] = siteCode;
+    }
+
     // FormData 请求：清除 Content-Type 让浏览器自动设置 multipart boundary
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
@@ -167,6 +173,19 @@ service.interceptors.response.use(
           .catch(() => {
             is401Alerting = false;
           });
+      } else if (error.response.status === 403) {
+        // 站群：403 可能是「无权访问该站点」而非登录失效，区分提示避免误踢
+        const data = error.response.data || {};
+        const msg = String(data.message || "");
+        if (msg.indexOf("站点") >= 0 || msg.toLowerCase().indexOf("site") >= 0) {
+          ElMessageBox.alert(
+            "无权访问该站点，请通过右上角切换站点，或联系超管分配权限",
+            "站点权限不足",
+            { confirmButtonText: "确定" },
+          );
+        } else {
+          ElMessage.error("没有访问权限");
+        }
       } else if (error.response.status === 500) {
         ElMessage({
           message: "请求接口出错 500",
