@@ -310,6 +310,10 @@ describe("addon/shortio", () => {
     expect(mockRequest).toHaveBeenCalledWith(
       expect.objectContaining({ url: "/api/v1/addon/shortio/stats", method: "get" }),
     );
+    await mod.setShortioCta("link_x");
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/set-cta", method: "post" }),
+    );
     await mod.listShortioDomains();
     expect(mockRequest).toHaveBeenCalledWith(
       expect.objectContaining({ url: "/api/v1/addon/shortio/domains", method: "get" }),

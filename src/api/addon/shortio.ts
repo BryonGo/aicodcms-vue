@@ -32,6 +32,11 @@ export function shortioStats(id: string, days: number) {
   return request({ url: "/api/v1/addon/shortio/stats", method: "get", params: { id, days } });
 }
 
+// 设为当前站点主 CTA（写 site.cta_url，模板 {{$c.Config "site.cta_url"}} 立即生效）
+export function setShortioCta(id: string) {
+  return request({ url: "/api/v1/addon/shortio/set-cta", method: "post", data: { id } });
+}
+
 // 账户域名列表
 export function listShortioDomains() {
   return request({ url: "/api/v1/addon/shortio/domains", method: "get" });

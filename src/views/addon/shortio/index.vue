@@ -98,8 +98,11 @@
         <el-table-column :label="t('addon_shortio.createdAt')" width="150" align="center">
           <template #default="scope">{{ formatTs(scope.row.created_at) }}</template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.actions')" width="170" align="center" fixed="right">
+        <el-table-column :label="t('addon_shortio.actions')" width="230" align="center" fixed="right">
           <template #default="scope">
+            <el-button link size="small" type="success" @click="onSetCta(scope.row)">
+              <el-icon><ele-Position /></el-icon> {{ t("addon_shortio.setCta") }}
+            </el-button>
             <el-button link size="small" type="primary" @click="onOpenEdit(scope.row)">
               <el-icon><ele-Edit /></el-icon> {{ t("addon_shortio.edit") }}
             </el-button>
@@ -222,6 +225,7 @@ import {
   delShortioLinks,
   enableShortioLink,
   shortioStats,
+  setShortioCta,
   listShortioDomains,
 } from "/@/api/addon/shortio";
 
@@ -376,6 +380,20 @@ export default defineComponent({
         .catch(() => {});
     };
 
+    const onSetCta = (row: any) => {
+      ElMessageBox.confirm(
+        t("addon_shortio.setCtaConfirm", { code: row.code, url: row.short_url }),
+        t("addon_shortio.tip"),
+        { type: "warning" },
+      )
+        .then(() => {
+          setShortioCta(row.id).then(() => {
+            ElMessage.success(t("addon_shortio.setCtaOk"));
+          });
+        })
+        .catch(() => {});
+    };
+
     const onCopy = (row: any, showTip = true) => {
       const url = row.short_url || `https://${row.code}`;
       navigator.clipboard
@@ -426,6 +444,7 @@ export default defineComponent({
       onSubmit,
       onDel,
       onToggle,
+      onSetCta,
       onCopy,
       onOpenStats,
       onLoadStats,
