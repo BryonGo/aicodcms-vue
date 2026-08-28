@@ -27,16 +27,16 @@
     <div class="pms-card-toolbar">
       <el-input
         v-model="tableData.param.keyword"
-        :placeholder="t('message.addon_.keywordPlaceholder')"
+        :placeholder="t('message.addon_shortio.keywordPlaceholder')"
         clearable
         style="width: 220px"
         @keyup.enter="load"
         @clear="load"
       />
       <el-select v-model="tableData.param.status" style="width: 140px" @change="load">
-        <el-option :label="t('message.addon_.allStatus')" :value="-1" />
-        <el-option :label="t('message.addon_.enabled')" :value="1" />
-        <el-option :label="t('message.addon_.disabled')" :value="0" />
+        <el-option :label="t('message.addon_shortio.allStatus')" :value="-1" />
+        <el-option :label="t('message.addon_shortio.enabled')" :value="1" />
+        <el-option :label="t('message.addon_shortio.disabled')" :value="0" />
       </el-select>
       <el-button type="primary" @click="load">
         <el-icon><ele-Search /></el-icon> {{ t("message.addon_shortio.search") }}
@@ -49,7 +49,7 @@
     <div class="pms-card-table">
       <el-table :data="tableData.data" stripe border size="small" style="width: 100%">
         <el-table-column type="index" label="#" width="50" align="center" />
-        <el-table-column :label="t('message.addon_.code')" width="130">
+        <el-table-column :label="t('message.addon_shortio.code')" width="130">
           <template #default="scope">
             <el-link type="primary" :underline="false" @click="onCopy(scope.row)">
               {{ scope.row.code }}
@@ -57,15 +57,15 @@
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="name" :label="t('message.addon_.name')" min-width="110" show-overflow-tooltip />
-        <el-table-column :label="t('message.addon_.targetUrl')" min-width="180" show-overflow-tooltip>
+        <el-table-column prop="name" :label="t('message.addon_shortio.name')" min-width="110" show-overflow-tooltip />
+        <el-table-column :label="t('message.addon_shortio.targetUrl')" min-width="180" show-overflow-tooltip>
           <template #default="scope">
             <el-link type="primary" :underline="false" :href="scope.row.target_url" target="_blank">
               {{ scope.row.target_url }}
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column :label="t('message.addon_.status')" width="90" align="center">
+        <el-table-column :label="t('message.addon_shortio.status')" width="90" align="center">
           <template #default="scope">
             <el-switch
               :model-value="scope.row.status === 1"
@@ -74,31 +74,31 @@
             />
           </template>
         </el-table-column>
-        <el-table-column :label="t('message.addon_.redirectType')" width="80" align="center">
+        <el-table-column :label="t('message.addon_shortio.redirectType')" width="80" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.redirect_type === 301 ? 'warning' : 'success'" size="small" effect="light" round>
               {{ scope.row.redirect_type || "默认" }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column :label="t('message.addon_.expireAt')" width="150" align="center">
+        <el-table-column :label="t('message.addon_shortio.expireAt')" width="150" align="center">
           <template #default="scope">
             <span :class="{ 'expired-text': isExpired(scope.row.expire_at) }">
               {{ formatTs(scope.row.expire_at) }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column :label="t('message.addon_.clickCount')" width="90" align="center">
+        <el-table-column :label="t('message.addon_shortio.clickCount')" width="90" align="center">
           <template #default="scope">
             <el-link type="primary" :underline="false" @click="onOpenStats(scope.row)">
               {{ scope.row.click_count ?? 0 }}
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column :label="t('message.addon_.createdAt')" width="150" align="center">
+        <el-table-column :label="t('message.addon_shortio.createdAt')" width="150" align="center">
           <template #default="scope">{{ formatTs(scope.row.created_at) }}</template>
         </el-table-column>
-        <el-table-column :label="t('message.addon_.actions')" width="230" align="center" fixed="right">
+        <el-table-column :label="t('message.addon_shortio.actions')" width="230" align="center" fixed="right">
           <template #default="scope">
             <el-button link size="small" type="success" @click="onSetCta(scope.row)">
               <el-icon><ele-Position /></el-icon> {{ t("message.addon_shortio.setCta") }}
@@ -127,49 +127,49 @@
     <!-- 新增/编辑弹窗 -->
     <el-dialog
       v-model="dialog.visible"
-      :title="dialog.isEdit ? t('message.addon_.editTitle') : t('message.addon_.addTitle')"
+      :title="dialog.isEdit ? t('message.addon_shortio.editTitle') : t('message.addon_shortio.addTitle')"
       width="560px"
       destroy-on-close
       :close-on-click-modal="false"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item :label="t('message.addon_.code')" prop="code">
+        <el-form-item :label="t('message.addon_shortio.code')" prop="code">
           <el-input
             v-model="form.code"
-            :placeholder="t('message.addon_.codePlaceholder')"
+            :placeholder="t('message.addon_shortio.codePlaceholder')"
             maxlength="64"
             :disabled="dialog.isEdit"
           />
         </el-form-item>
-        <el-form-item :label="t('message.addon_.name')" prop="name">
-          <el-input v-model="form.name" :placeholder="t('message.addon_.namePlaceholder')" maxlength="128" />
+        <el-form-item :label="t('message.addon_shortio.name')" prop="name">
+          <el-input v-model="form.name" :placeholder="t('message.addon_shortio.namePlaceholder')" maxlength="128" />
         </el-form-item>
-        <el-form-item :label="t('message.addon_.targetUrl')" prop="target_url">
-          <el-input v-model="form.target_url" :placeholder="t('message.addon_.urlPlaceholder')" />
+        <el-form-item :label="t('message.addon_shortio.targetUrl')" prop="target_url">
+          <el-input v-model="form.target_url" :placeholder="t('message.addon_shortio.urlPlaceholder')" />
         </el-form-item>
-        <el-form-item :label="t('message.addon_.redirectType')">
+        <el-form-item :label="t('message.addon_shortio.redirectType')">
           <el-radio-group v-model="form.redirect_type">
             <el-radio :value="0">{{ t("message.addon_shortio.redirectDefault") }}</el-radio>
             <el-radio :value="302">302</el-radio>
             <el-radio :value="301">301</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :label="t('message.addon_.expireAt')">
+        <el-form-item :label="t('message.addon_shortio.expireAt')">
           <el-date-picker
             v-model="form.expire_at"
             type="datetime"
             value-format="X"
-            :placeholder="t('message.addon_.expirePlaceholder')"
+            :placeholder="t('message.addon_shortio.expirePlaceholder')"
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item :label="t('message.addon_.status')">
+        <el-form-item :label="t('message.addon_shortio.status')">
           <el-switch
             v-model="form.status"
             :active-value="1"
             :inactive-value="0"
-            :active-text="t('message.addon_.enabled')"
-            :inactive-text="t('message.addon_.disabled')"
+            :active-text="t('message.addon_shortio.enabled')"
+            :inactive-text="t('message.addon_shortio.disabled')"
           />
         </el-form-item>
       </el-form>
@@ -182,7 +182,7 @@
     </el-dialog>
 
     <!-- 点击统计抽屉 -->
-    <el-drawer v-model="stats.visible" :title="t('message.addon_.statsTitle')" size="480px" destroy-on-close>
+    <el-drawer v-model="stats.visible" :title="t('message.addon_shortio.statsTitle')" size="480px" destroy-on-close>
       <template v-if="stats.data">
         <div class="stats-head">
           <div>
