@@ -41,6 +41,8 @@ export default {
     pmsMenuEdit: "编辑菜单",
     addonJobAdd: "添加任务",
     addonJobEdit: "编辑任务",
+    addonShortlink: "短链管理",
+    addonShortio: "Short.io 短链",
   },
 
   statusDraft: "草稿",

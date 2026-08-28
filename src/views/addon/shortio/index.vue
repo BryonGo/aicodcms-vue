@@ -2,14 +2,14 @@
   <div class="pms-card-container">
     <el-breadcrumb separator="→" class="mb15">
       <el-breadcrumb-item :to="{ path: '/' }">{{ t("message.router.home") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ t("addon_shortio.plugin") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ t("addon_shortio.title") }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ t("message.addon_shortio.plugin") }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ t("message.addon_shortio.title") }}</el-breadcrumb-item>
     </el-breadcrumb>
 
     <div class="pms-card-header">
       <div>
-        <h1 class="pms-card-title">{{ t("addon_shortio.title") }}</h1>
-        <p class="pms-card-sub">{{ t("addon_shortio.subtitle") }}</p>
+        <h1 class="pms-card-title">{{ t("message.addon_shortio.title") }}</h1>
+        <p class="pms-card-sub">{{ t("message.addon_shortio.subtitle") }}</p>
         <div v-if="domains.length > 0" class="pms-card-domain">
           <el-tag v-for="d in domains" :key="d.id" size="small" :type="d.state === 'configured' ? 'success' : 'warning'" effect="light" round>
             {{ d.hostname }} · {{ d.state }}
@@ -18,7 +18,7 @@
       </div>
       <div class="pms-card-actions">
         <el-button size="large" type="success" class="pms-card-add" @click="onOpenAdd">
-          <el-icon><ele-FolderAdd /></el-icon> {{ t("addon_shortio.add") }}
+          <el-icon><ele-FolderAdd /></el-icon> {{ t("message.addon_shortio.add") }}
         </el-button>
       </div>
     </div>
@@ -27,29 +27,29 @@
     <div class="pms-card-toolbar">
       <el-input
         v-model="tableData.param.keyword"
-        :placeholder="t('addon_shortio.keywordPlaceholder')"
+        :placeholder="t('message.addon_.keywordPlaceholder')"
         clearable
         style="width: 220px"
         @keyup.enter="load"
         @clear="load"
       />
       <el-select v-model="tableData.param.status" style="width: 140px" @change="load">
-        <el-option :label="t('addon_shortio.allStatus')" :value="-1" />
-        <el-option :label="t('addon_shortio.enabled')" :value="1" />
-        <el-option :label="t('addon_shortio.disabled')" :value="0" />
+        <el-option :label="t('message.addon_.allStatus')" :value="-1" />
+        <el-option :label="t('message.addon_.enabled')" :value="1" />
+        <el-option :label="t('message.addon_.disabled')" :value="0" />
       </el-select>
       <el-button type="primary" @click="load">
-        <el-icon><ele-Search /></el-icon> {{ t("addon_shortio.search") }}
+        <el-icon><ele-Search /></el-icon> {{ t("message.addon_shortio.search") }}
       </el-button>
       <el-button @click="onReset">
-        <el-icon><ele-Refresh /></el-icon> {{ t("addon_shortio.reset") }}
+        <el-icon><ele-Refresh /></el-icon> {{ t("message.addon_shortio.reset") }}
       </el-button>
     </div>
 
     <div class="pms-card-table">
       <el-table :data="tableData.data" stripe border size="small" style="width: 100%">
         <el-table-column type="index" label="#" width="50" align="center" />
-        <el-table-column :label="t('addon_shortio.code')" width="130">
+        <el-table-column :label="t('message.addon_.code')" width="130">
           <template #default="scope">
             <el-link type="primary" :underline="false" @click="onCopy(scope.row)">
               {{ scope.row.code }}
@@ -57,15 +57,15 @@
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="name" :label="t('addon_shortio.name')" min-width="110" show-overflow-tooltip />
-        <el-table-column :label="t('addon_shortio.targetUrl')" min-width="180" show-overflow-tooltip>
+        <el-table-column prop="name" :label="t('message.addon_.name')" min-width="110" show-overflow-tooltip />
+        <el-table-column :label="t('message.addon_.targetUrl')" min-width="180" show-overflow-tooltip>
           <template #default="scope">
             <el-link type="primary" :underline="false" :href="scope.row.target_url" target="_blank">
               {{ scope.row.target_url }}
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.status')" width="90" align="center">
+        <el-table-column :label="t('message.addon_.status')" width="90" align="center">
           <template #default="scope">
             <el-switch
               :model-value="scope.row.status === 1"
@@ -74,43 +74,43 @@
             />
           </template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.redirectType')" width="80" align="center">
+        <el-table-column :label="t('message.addon_.redirectType')" width="80" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.redirect_type === 301 ? 'warning' : 'success'" size="small" effect="light" round>
               {{ scope.row.redirect_type || "默认" }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.expireAt')" width="150" align="center">
+        <el-table-column :label="t('message.addon_.expireAt')" width="150" align="center">
           <template #default="scope">
             <span :class="{ 'expired-text': isExpired(scope.row.expire_at) }">
               {{ formatTs(scope.row.expire_at) }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.clickCount')" width="90" align="center">
+        <el-table-column :label="t('message.addon_.clickCount')" width="90" align="center">
           <template #default="scope">
             <el-link type="primary" :underline="false" @click="onOpenStats(scope.row)">
               {{ scope.row.click_count ?? 0 }}
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.createdAt')" width="150" align="center">
+        <el-table-column :label="t('message.addon_.createdAt')" width="150" align="center">
           <template #default="scope">{{ formatTs(scope.row.created_at) }}</template>
         </el-table-column>
-        <el-table-column :label="t('addon_shortio.actions')" width="230" align="center" fixed="right">
+        <el-table-column :label="t('message.addon_.actions')" width="230" align="center" fixed="right">
           <template #default="scope">
             <el-button link size="small" type="success" @click="onSetCta(scope.row)">
-              <el-icon><ele-Position /></el-icon> {{ t("addon_shortio.setCta") }}
+              <el-icon><ele-Position /></el-icon> {{ t("message.addon_shortio.setCta") }}
             </el-button>
             <el-button link size="small" type="primary" @click="onOpenEdit(scope.row)">
-              <el-icon><ele-Edit /></el-icon> {{ t("addon_shortio.edit") }}
+              <el-icon><ele-Edit /></el-icon> {{ t("message.addon_shortio.edit") }}
             </el-button>
             <el-button link size="small" type="info" @click="onOpenStats(scope.row)">
-              <el-icon><ele-DataLine /></el-icon> {{ t("addon_shortio.stats") }}
+              <el-icon><ele-DataLine /></el-icon> {{ t("message.addon_shortio.stats") }}
             </el-button>
             <el-button link size="small" type="danger" @click="onDel(scope.row)">
-              <el-icon><ele-Delete /></el-icon> {{ t("addon_shortio.del") }}
+              <el-icon><ele-Delete /></el-icon> {{ t("message.addon_shortio.del") }}
             </el-button>
           </template>
         </el-table-column>
@@ -127,79 +127,79 @@
     <!-- 新增/编辑弹窗 -->
     <el-dialog
       v-model="dialog.visible"
-      :title="dialog.isEdit ? t('addon_shortio.editTitle') : t('addon_shortio.addTitle')"
+      :title="dialog.isEdit ? t('message.addon_.editTitle') : t('message.addon_.addTitle')"
       width="560px"
       destroy-on-close
       :close-on-click-modal="false"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item :label="t('addon_shortio.code')" prop="code">
+        <el-form-item :label="t('message.addon_.code')" prop="code">
           <el-input
             v-model="form.code"
-            :placeholder="t('addon_shortio.codePlaceholder')"
+            :placeholder="t('message.addon_.codePlaceholder')"
             maxlength="64"
             :disabled="dialog.isEdit"
           />
         </el-form-item>
-        <el-form-item :label="t('addon_shortio.name')" prop="name">
-          <el-input v-model="form.name" :placeholder="t('addon_shortio.namePlaceholder')" maxlength="128" />
+        <el-form-item :label="t('message.addon_.name')" prop="name">
+          <el-input v-model="form.name" :placeholder="t('message.addon_.namePlaceholder')" maxlength="128" />
         </el-form-item>
-        <el-form-item :label="t('addon_shortio.targetUrl')" prop="target_url">
-          <el-input v-model="form.target_url" :placeholder="t('addon_shortio.urlPlaceholder')" />
+        <el-form-item :label="t('message.addon_.targetUrl')" prop="target_url">
+          <el-input v-model="form.target_url" :placeholder="t('message.addon_.urlPlaceholder')" />
         </el-form-item>
-        <el-form-item :label="t('addon_shortio.redirectType')">
+        <el-form-item :label="t('message.addon_.redirectType')">
           <el-radio-group v-model="form.redirect_type">
-            <el-radio :value="0">{{ t("addon_shortio.redirectDefault") }}</el-radio>
+            <el-radio :value="0">{{ t("message.addon_shortio.redirectDefault") }}</el-radio>
             <el-radio :value="302">302</el-radio>
             <el-radio :value="301">301</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :label="t('addon_shortio.expireAt')">
+        <el-form-item :label="t('message.addon_.expireAt')">
           <el-date-picker
             v-model="form.expire_at"
             type="datetime"
             value-format="X"
-            :placeholder="t('addon_shortio.expirePlaceholder')"
+            :placeholder="t('message.addon_.expirePlaceholder')"
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item :label="t('addon_shortio.status')">
+        <el-form-item :label="t('message.addon_.status')">
           <el-switch
             v-model="form.status"
             :active-value="1"
             :inactive-value="0"
-            :active-text="t('addon_shortio.enabled')"
-            :inactive-text="t('addon_shortio.disabled')"
+            :active-text="t('message.addon_.enabled')"
+            :inactive-text="t('message.addon_.disabled')"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialog.visible = false">{{ t("addon_shortio.cancel") }}</el-button>
+        <el-button @click="dialog.visible = false">{{ t("message.addon_shortio.cancel") }}</el-button>
         <el-button type="primary" :loading="dialog.saving" @click="onSubmit">
-          {{ t("addon_shortio.save") }}
+          {{ t("message.addon_shortio.save") }}
         </el-button>
       </template>
     </el-dialog>
 
     <!-- 点击统计抽屉 -->
-    <el-drawer v-model="stats.visible" :title="t('addon_shortio.statsTitle')" size="480px" destroy-on-close>
+    <el-drawer v-model="stats.visible" :title="t('message.addon_.statsTitle')" size="480px" destroy-on-close>
       <template v-if="stats.data">
         <div class="stats-head">
           <div>
             <div class="stats-code">{{ stats.code }}</div>
             <div class="stats-total">
-              {{ t("addon_shortio.totalClicks") }}
+              {{ t("message.addon_shortio.totalClicks") }}
               <b>{{ stats.data.total }}</b>
             </div>
           </div>
           <el-radio-group v-model="stats.days" size="small" @change="onLoadStats">
-            <el-radio-button :value="7">{{ t("addon_shortio.days7") }}</el-radio-button>
-            <el-radio-button :value="14">{{ t("addon_shortio.days14") }}</el-radio-button>
-            <el-radio-button :value="30">{{ t("addon_shortio.days30") }}</el-radio-button>
+            <el-radio-button :value="7">{{ t("message.addon_shortio.days7") }}</el-radio-button>
+            <el-radio-button :value="14">{{ t("message.addon_shortio.days14") }}</el-radio-button>
+            <el-radio-button :value="30">{{ t("message.addon_shortio.days30") }}</el-radio-button>
           </el-radio-group>
         </div>
         <div v-if="stats.data.daily.length === 0" class="stats-empty">
-          {{ t("addon_shortio.noData") }}
+          {{ t("message.addon_shortio.noData") }}
         </div>
         <div v-else class="stats-bars">
           <div v-for="d in stats.data.daily" :key="d.date" class="stats-bar-row">
@@ -273,15 +273,15 @@ export default defineComponent({
       code: [
         {
           pattern: /^[A-Za-z0-9_-]{1,64}$/,
-          message: t("addon_shortio.codeRuleMsg"),
+          message: t("message.addon_shortio.codeRuleMsg"),
           trigger: "blur",
         },
       ],
       target_url: [
-        { required: true, message: t("addon_shortio.urlRequired"), trigger: "blur" },
+        { required: true, message: t("message.addon_shortio.urlRequired"), trigger: "blur" },
         {
           pattern: /^https?:\/\/\S+$/,
-          message: t("addon_shortio.urlRuleMsg"),
+          message: t("message.addon_shortio.urlRuleMsg"),
           trigger: "blur",
         },
       ],
@@ -333,7 +333,7 @@ export default defineComponent({
         dialog.saving = true;
         saveShortioLink(form)
           .then((res: any) => {
-            ElMessage.success(t("addon_shortio.saveOk"));
+            ElMessage.success(t("message.addon_shortio.saveOk"));
             dialog.visible = false;
             load();
             if (res?.data?.shortio?.code) onCopy(res.data.shortio, false);
@@ -345,12 +345,12 @@ export default defineComponent({
     };
 
     const onDel = (row: any) => {
-      ElMessageBox.confirm(t("addon_shortio.delConfirm", { code: row.code }), t("addon_shortio.tip"), {
+      ElMessageBox.confirm(t("message.addon_shortio.delConfirm", { code: row.code }), t("message.addon_shortio.tip"), {
         type: "warning",
       })
         .then(() => {
           delShortioLinks([row.id]).then(() => {
-            ElMessage.success(t("addon_shortio.delOk"));
+            ElMessage.success(t("message.addon_shortio.delOk"));
             load();
           });
         })
@@ -358,16 +358,16 @@ export default defineComponent({
     };
 
     const onToggle = (row: any, v: boolean) => {
-      const tip = v ? t("addon_shortio.enableConfirm", { code: row.code }) : t("addon_shortio.disableConfirm", { code: row.code });
-      ElMessageBox.confirm(tip, t("addon_shortio.tip"), { type: "warning" })
+      const tip = v ? t("message.addon_shortio.enableConfirm", { code: row.code }) : t("message.addon_shortio.disableConfirm", { code: row.code });
+      ElMessageBox.confirm(tip, t("message.addon_shortio.tip"), { type: "warning" })
         .then(() => {
           row._switching = true;
           enableShortioLink(row.id, v ? 1 : 0)
             .then(() => {
-              ElMessage.success(v ? t("addon_shortio.enableOk") : t("addon_shortio.disableOk"));
+              ElMessage.success(v ? t("message.addon_shortio.enableOk") : t("message.addon_shortio.disableOk"));
               if (!v) {
                 // short.io 归档的链接不再出现在列表中
-                ElMessage.info(t("addon_shortio.archivedHint"));
+                ElMessage.info(t("message.addon_shortio.archivedHint"));
                 load();
               } else {
                 row.status = 1;
@@ -382,13 +382,13 @@ export default defineComponent({
 
     const onSetCta = (row: any) => {
       ElMessageBox.confirm(
-        t("addon_shortio.setCtaConfirm", { code: row.code, url: row.short_url }),
-        t("addon_shortio.tip"),
+        t("message.addon_shortio.setCtaConfirm", { code: row.code, url: row.short_url }),
+        t("message.addon_shortio.tip"),
         { type: "warning" },
       )
         .then(() => {
           setShortioCta(row.id).then(() => {
-            ElMessage.success(t("addon_shortio.setCtaOk"));
+            ElMessage.success(t("message.addon_shortio.setCtaOk"));
           });
         })
         .catch(() => {});
@@ -399,10 +399,10 @@ export default defineComponent({
       navigator.clipboard
         ?.writeText(url)
         .then(() => {
-          if (showTip) ElMessage.success(t("addon_shortio.copyOk", { url }));
+          if (showTip) ElMessage.success(t("message.addon_shortio.copyOk", { url }));
         })
         .catch(() => {
-          if (showTip) ElMessage.warning(t("addon_shortio.copyFail"));
+          if (showTip) ElMessage.warning(t("message.addon_shortio.copyFail"));
         });
     };
 

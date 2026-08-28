@@ -40,6 +40,8 @@ export default {
     pmsMenuEdit: "Edit Menu",
     addonJobAdd: "Add Job",
     addonJobEdit: "Edit Job",
+    addonShortlink: "Short Links",
+    addonShortio: "Short.io Links",
   },
   statusDraft: "Draft",
   statusDraftHint: "Please enter a title before saving as draft",
