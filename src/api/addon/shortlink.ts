@@ -17,9 +17,9 @@ export function saveShortlink(data: object) {
   return request({ url: "/api/v1/addon/shortlink/save", method: "post", data });
 }
 
-// 批量删除短链
+// 批量删除短链（GoFrame DELETE 不解析 body，id 走 query）
 export function delShortlinks(ids: number[]) {
-  return request({ url: "/api/v1/addon/shortlink/del", method: "delete", data: { ids } });
+  return request({ url: "/api/v1/addon/shortlink/del", method: "delete", params: { ids } });
 }
 
 // 启用/禁用

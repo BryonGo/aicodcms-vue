@@ -282,3 +282,37 @@ describe("addon/shortlink", () => {
     );
   });
 });
+
+describe("addon/shortio", () => {
+  it("list/detail/save/del/enable/stats/domains", async () => {
+    const mod = await import("/@/api/addon/shortio");
+    await mod.listShortioLinks({});
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/list", method: "get" }),
+    );
+    await mod.getShortioLink("link_x");
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/detail", method: "get" }),
+    );
+    await mod.saveShortioLink({});
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/save", method: "post" }),
+    );
+    await mod.delShortioLinks(["link_x"]);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/del", method: "delete" }),
+    );
+    await mod.enableShortioLink("link_x", 0);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/enable", method: "post" }),
+    );
+    await mod.shortioStats("link_x", 7);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/stats", method: "get" }),
+    );
+    await mod.listShortioDomains();
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortio/domains", method: "get" }),
+    );
+  });
+});
