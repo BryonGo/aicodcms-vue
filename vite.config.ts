@@ -53,6 +53,7 @@ export default defineConfig(({ mode }) => {
     base: mode === "development" ? "./" : env.VITE_PUBLIC_PATH,
     server: {
       host: "0.0.0.0",
+      allowedHosts: ["console.taohuadao.app", "console.thdmid.com", "localhost"],
       port: Number(env.VITE_PORT) || 8888,
       open: env.VITE_OPEN === "true",
       proxy: {},
