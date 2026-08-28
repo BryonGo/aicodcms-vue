@@ -263,7 +263,10 @@ export default {
     placeholderImage: "图片URL",
     placeholderUrl: "链接地址",
     placeholderType: "类型",
-  },
+  
+    transTitle: "标题翻译",
+    transContent: "内容翻译",
+    msgTypeRequired: "请选择区块类型",},
   // ========== 单页编辑 ==========
   pageEdit: {
     addTitle: "添加单页",
@@ -292,7 +295,8 @@ export default {
     transDescription: "描述",
     transTemplate: "模板",
     transContent: "正文",
-  },
+  
+    notFound: "页面不存在",},
   // ========== 模板管理 ==========
   tplList: {
     waiting: "等待中",
@@ -634,7 +638,11 @@ export default {
     trashEmpty: "回收站为空",
     placeholderSelectLang: "请选择要编辑的语言",
     msgSelectHardDelete: "请选择要彻底删除的文章",
-  },
+  
+    flagHot: "热门",
+    flagNew: "最新",
+    flagRecommend: "推荐",
+    flagTop: "置顶",},
   // ========== 区块列表 ==========
   blockList: {
     breadcrumbs: { home: "首页", cms: "内容管理", block: "区块管理" },
@@ -724,4 +732,10 @@ export default {
   "cms.defaultLang": "默认",
   "cms.defaultLanguage": "默认语言",
   "cms.flag": "标志",
+
+  tpl: {
+    waiting: "等待中",
+  },
+
+  msgSaveFailed: "保存失败",
 };

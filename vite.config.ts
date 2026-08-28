@@ -57,6 +57,11 @@ export default defineConfig(({ mode }) => {
       port: Number(env.VITE_PORT) || 8888,
       open: env.VITE_OPEN === "true",
       proxy: {},
+      // 忽略编辑器原子写残留的临时目录（.en.ts.<pid>.<uuid>.tmpdir），
+      // 否则文件被锁时 watcher 抛 EBUSY 导致 dev server 崩溃
+      watch: {
+        ignored: ["**/.*.tmpdir/**", "**/.tmp/**"],
+      },
     },
     build: {
       outDir: "dist",

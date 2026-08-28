@@ -594,7 +594,8 @@ export default {
     metaUpdated: "更新",
     btnCancel: "取消",
     btnBack: "返回",
-  },
+  
+    colCode: "编号",},
   // ========== 邮件服务 ==========
   email: {
     breadcrumbSdk: "SDK",
@@ -695,7 +696,8 @@ export default {
     devicePlaceholder: "设备唯一标识",
     globalAppIdHint: "0=全平台",
     forever: "永久",
-  },
+  
+    colUserId: "用户ID",},
   // ========== 公共订单 ==========
   order: {
     title: "公共订单",
@@ -808,7 +810,8 @@ export default {
     platformOrder: "平台单号",
     isSuccess: "是否成功",
     placeholderOrderId: "请输入订单号",
-  },
+  
+    status: "状态",},
   // ========== 货币管理 ==========
   currency: {
     title: "货币管理",
@@ -932,7 +935,8 @@ export default {
     batchDeleteSuccess: "批量删除成功",
     stateShow: "显示",
     stateHide: "隐藏",
-  },
+  
+    placeholderName: "请输入通道名称",},
   // ========== Token 在线设备 ==========
   token: {
     title: "在线设备",

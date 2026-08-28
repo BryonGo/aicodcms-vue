@@ -43,7 +43,8 @@ export default {
     addonJobEdit: "编辑任务",
     addonShortlink: "短链管理",
     addonShortio: "Short.io 短链",
-  },
+  
+    cmsArticleAdd: "添加文章",},
 
   statusDraft: "草稿",
   statusDraftHint: "请先填写标题再保存草稿",
@@ -270,7 +271,11 @@ export default {
     tips: "提示",
     updateTime: "更新时间",
     weight: "权重",
-  },
+  
+    saveSuccess: "保存成功",
+    deleteSuccess: "删除成功",
+    pressEscToClose: "按 Esc 关闭",
+    batchDelete: "批量删除",},
   // 模型字段翻译（扁平 key: moduleField_{name} / moduleFieldOpt_{name}_{optKey}）
   moduleField_language: "语言",
   moduleField_region: "地区",
@@ -679,7 +684,10 @@ export default {
     pushApi: "主动推送API",
     domainRequired: "请输入网站域名",
     generateDone: "生成完成",
-  },
+  
+    generateFailed: "生成失败",
+    responsePrefix: "返回前缀",
+    pushFailed: "推送失败",},
 
   // ==================== 短链管理 ====================
   addon_shortlink: {
@@ -986,7 +994,10 @@ export default {
     restored: "已恢复",
     destroyed: "已彻底删除",
     batchedApproved: "批量通过完成",
-  },
+  
+    status: "状态",
+    action: "操作",
+    delete: "删除",},
   // ==================== Form / 表单 ====================
   form: {
     exportCsv: "导出 CSV",
@@ -1029,7 +1040,14 @@ export default {
     created: "已创建",
     confirmDeleteForm: "删除后字段和数据将一并删除，确认？",
     actionSettings: "设置",
-  },
+  
+    time: "时间",
+    confirm: "确认",
+    deleted: "已删除",
+    createTime: "创建时间",
+    action: "操作",
+    delete: "删除",
+    status: "状态",},
   // ==================== Webhook ====================
   webhook: {
     addWebhook: "新增 Webhook",
@@ -1050,7 +1068,16 @@ export default {
     pleaseFillNameUrl: "请填写名称和 URL",
     confirmDelete: "确认删除？",
     editWebhook: "编辑 Webhook",
-  },
+  
+    status: "状态",
+    createTime: "创建时间",
+    action: "操作",
+    delete: "删除",
+    cancel: "取消",
+    saved: "已保存",
+    created: "已创建",
+    confirm: "确认",
+    deleted: "已删除",},
   // ==================== CMS Article / 文章 ====================
   cmsArticle: {
     revisionHistory: "历史版本",
@@ -1079,7 +1106,15 @@ export default {
     inputTagsCsv: "输入标签，用逗号分隔",
     selectStatus: "选择状态",
     confirmExecute: "确认执行",
-  },
+  
+    action: "操作",
+    unknown: "未知",
+    btnRegenerateStatic: "重新生成静态页",
+    cancel: "取消",
+    confirmBatchRegen: "确认批量重新生成所选文章的静态页？",
+    titleBatchRegen: "批量重新生成",
+    msgRegenerating: "正在重新生成，请稍候…",
+    msgRegenerateDone: "重新生成完成",},
   // ==================== CMS Link / 友链 ====================
   menu_cms_link: "友情链接管理",
   menu_cms_link_add: "新增友情链接",
@@ -1194,4 +1229,16 @@ export default {
   layoutColumnsCard: "卡片",
   layoutColumnsHorizontal: "水平",
   layoutColumnsVertical: "垂直",
+
+  editSuccess: "修改成功",
+
+  addSuccess: "添加成功",
+
+  weightUpdated: "权重已更新",
+
+  saveSuccess: "保存成功",
+
+  createSuccess: "创建成功",
+
+  deleteSuccess: "删除成功",
 };

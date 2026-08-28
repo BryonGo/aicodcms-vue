@@ -143,7 +143,8 @@ export default {
     setStatusUnchanged: "设置失败，状态未变更",
     saveHotlinkFail: "保存防盗链规则失败",
     mkdirFail: "创建目录失败: ",
-  },
+  
+    tags: "标签",},
   job: {
     listBreadcrumbHome: "首页",
     listBreadcrumbSystem: "系统管理",
@@ -405,7 +406,8 @@ export default {
     btnEdit: "编辑",
     pageSubtitle: "部门信息管理",
     pageTitle: "组织架构 · 部门管理",
-  },
+  
+    email: "邮箱",},
   // ========== 字典管理 ==========
   dict: {
     breadcrumbHome: "首页",
@@ -460,7 +462,9 @@ export default {
     statusDisabled: "禁用",
     labelStatus: "状态",
     placeholderStatus: "状态",
-  },
+  
+    confirmDeleteBatch: "确认删除选中的岗位？",
+    confirmDeleteSingle: "确认删除该岗位？",},
   // ========== 参数管理 ==========
   param: {
     breadcrumbHome: "首页",
@@ -576,7 +580,8 @@ export default {
     msgClearOk: "清除成功",
     colParam: "请求参数",
     colError: "错误消息",
-  },
+  
+    detailTitle: "日志详情",},
   // ========== 登录日志 ==========
   loginLog: {
     labelTitle: "登录日志",
@@ -625,7 +630,9 @@ export default {
     msgLoadFail: "获取字典数据列表失败",
     editTitle: "编辑字典数据",
     addTitle: "添加字典数据",
-  },
+  
+    breadcrumbCurrent: "字典数据",
+    confirmDeleteMulti: "确认删除选中的数据？",},
   // ========== 模型管理 ==========
   modulesInfoList: {
     pageTitle: "模型管理",
@@ -639,14 +646,17 @@ export default {
     msgCreateOk: "操作成功",
     confirmWarning: "警告",
     placeholderTableName: "仅支持字母和数字",
-  },
+  
+    pageSubtitle: "自定义模型管理",},
   // ========== 模型字段编辑 ==========
   modulesField: {
     breadcrumbPms: "PMS",
     breadcrumbCurrent: "字段管理",
     pageSubtitle: "PMS 模型字段管理",
     labelTranslatable: "可翻译",
-  },
+  
+    expandSearch: "展开搜索",
+    collapseSearch: "收起搜索",},
   modulesFieldEdit: {
     translatableHint: "启用后该字段在多语言编辑时可填入翻译值",
     translatable: "可翻译",
@@ -670,7 +680,8 @@ export default {
     msgNameRequired: "调用名称不能为空",
     msgLabelRequired: "字段名称不能为空",
     tooltipOptions: "选项格式：label:value,label:value,label:value",
-  },
+  
+    notFound: "模型字段不存在",},
   userOnline: {
     forceLogoutBatchConfirm: "你确定要强制退出用户登录？",
     selectForceLogout: "请选择要强制退出登录的用户。",
@@ -758,4 +769,12 @@ export default {
     addTitle: "新建模型信息",
     notFound: "模型不存在或已被删除",
   },
+
+  monitor: {
+    cacheTitle: "缓存管理",
+    serverTitle: "服务器信息",
+    onlineTitle: "在线用户",
+  },
+
+  systemManagementPostAdd: "添加岗位",
 };

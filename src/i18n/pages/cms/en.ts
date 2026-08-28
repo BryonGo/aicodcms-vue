@@ -257,7 +257,10 @@ export default {
     placeholderImage: "Image URL",
     placeholderUrl: "Link URL",
     placeholderType: "Type",
-  },
+  
+    transTitle: "Title translation",
+    transContent: "Content translation",
+    msgTypeRequired: "Please select block type",},
   pageEdit: {
     addTitle: "Add Page",
     editTitle: "Edit Page",
@@ -285,7 +288,8 @@ export default {
     transDescription: "Description",
     transTemplate: "Template",
     transContent: "Content",
-  },
+  
+    notFound: "Page not found",},
   tplList: {
     waiting: "Waiting",
     breadcrumbCms: "Content",
@@ -621,7 +625,11 @@ export default {
     trashEmpty: "Recycle bin is empty",
     placeholderSelectLang: "Select language to edit",
     msgSelectHardDelete: "Select articles to permanently delete",
-  },
+  
+    flagHot: "Hot",
+    flagNew: "New",
+    flagRecommend: "Recommended",
+    flagTop: "Top",},
   blockList: {
     breadcrumbs: { home: "Home", cms: "Content", block: "Blocks" },
     searchPlaceholderName: "Block name",
@@ -708,4 +716,10 @@ export default {
   "cms.defaultLang": "Default",
   "cms.defaultLanguage": "Default Language",
   "cms.flag": "Flag",
+
+  tpl: {
+    waiting: "Waiting",
+  },
+
+  msgSaveFailed: "Save failed",
 };

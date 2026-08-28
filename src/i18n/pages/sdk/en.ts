@@ -593,7 +593,8 @@ export default {
     metaUpdated: "Updated",
     btnCancel: "Cancel",
     btnBack: "Back",
-  },
+  
+    colCode: "Code",},
   // ========== Email Service ==========
   email: {
     breadcrumbSdk: "SDK",
@@ -693,7 +694,8 @@ export default {
     subtitle: "Manage account/device/IP ban records",
     forever: "Permanent",
     colScope: "Scope",
-  },
+  
+    colUserId: "User ID",},
   // ========== Public Order ==========
   order: {
     title: "Public Orders",
@@ -932,7 +934,8 @@ export default {
     batchDeleteSuccess: "Batch Deleted",
     stateShow: "Show",
     stateHide: "Hide",
-  },
+  
+    placeholderName: "Enter channel name",},
   token: {
     title: "Online Devices",
     id: "ID",

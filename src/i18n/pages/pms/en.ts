@@ -144,7 +144,8 @@ export default {
     setStatusUnchanged: "Status unchanged",
     saveHotlinkFail: "Failed to save hotlink rules",
     mkdirFail: "Failed to create directory: ",
-  },
+  
+    tags: "Tags",},
   job: {
     listBreadcrumbHome: "Home",
     listBreadcrumbSystem: "System",
@@ -401,7 +402,8 @@ export default {
     btnEdit: "Edit",
     pageSubtitle: "Department Management",
     pageTitle: "Organization · Dept Management",
-  },
+  
+    email: "Email",},
   dict: {
     breadcrumbHome: "Home",
     breadcrumbSystem: "System",
@@ -453,7 +455,9 @@ export default {
     statusDisabled: "Disabled",
     labelStatus: "Status",
     placeholderStatus: "Status",
-  },
+  
+    confirmDeleteBatch: "Delete selected posts?",
+    confirmDeleteSingle: "Delete this post?",},
   param: {
     breadcrumbHome: "Home",
     breadcrumbSystem: "System",
@@ -565,7 +569,8 @@ export default {
     msgClearOk: "Cleared",
     colParam: "Params",
     colError: "Error",
-  },
+  
+    detailTitle: "Log Detail",},
   loginLog: {
     labelTitle: "Login Logs",
     labelIp: "Login IP",
@@ -612,7 +617,9 @@ export default {
     msgLoadFail: "Failed to load",
     editTitle: "Edit Dict Data",
     addTitle: "Add Dict Data",
-  },
+  
+    breadcrumbCurrent: "Dict Data",
+    confirmDeleteMulti: "Delete selected items?",},
   modulesInfoList: {
     pageTitle: "Module Management",
     breadcrumbCurrent: "Module Management",
@@ -625,13 +632,16 @@ export default {
     msgCreateOk: "Success",
     confirmWarning: "Warning",
     placeholderTableName: "Letters and numbers only",
-  },
+  
+    pageSubtitle: "Custom models",},
   modulesField: {
     breadcrumbPms: "PMS",
     breadcrumbCurrent: "Field Management",
     pageSubtitle: "Module Field Management",
     labelTranslatable: "Translatable",
-  },
+  
+    expandSearch: "Expand search",
+    collapseSearch: "Collapse search",},
   modulesFieldEdit: {
     translatableHint: "Enable translation value input in multilingual editing",
     translatable: "Translatable",
@@ -655,7 +665,8 @@ export default {
     msgNameRequired: "Field name required",
     msgLabelRequired: "Label required",
     tooltipOptions: "Format: label:value,label:value,label:value",
-  },
+  
+    notFound: "Model field not found",},
   userOnline: {
     forceLogoutBatchConfirm: "Force selected users offline?",
     selectForceLogout: "Select users to force logout.",
@@ -743,4 +754,12 @@ export default {
     addTitle: "New Model Info",
     notFound: "Model not found or deleted",
   },
+
+  monitor: {
+    cacheTitle: "Cache",
+    serverTitle: "Server",
+    onlineTitle: "Online Users",
+  },
+
+  systemManagementPostAdd: "Add Post",
 };

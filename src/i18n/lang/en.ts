@@ -42,7 +42,8 @@ export default {
     addonJobEdit: "Edit Job",
     addonShortlink: "Short Links",
     addonShortio: "Short.io Links",
-  },
+  
+    cmsArticleAdd: "Add Article",},
   statusDraft: "Draft",
   statusDraftHint: "Please enter a title before saving as draft",
   statusTitleRequired: "Title is required",
@@ -271,7 +272,11 @@ export default {
     tips: "Tips",
     updateTime: "Updated At",
     weight: "Weight",
-  },
+  
+    saveSuccess: "Saved",
+    deleteSuccess: "Deleted",
+    pressEscToClose: "Press Esc to close",
+    batchDelete: "Batch Delete",},
   // 模型字段翻译（扁平 key: moduleField_{name} / moduleFieldOpt_{name}_{optKey}）
   moduleField_language: "Language",
   moduleField_region: "Region",
@@ -680,7 +685,10 @@ export default {
     pushApi: "Push API",
     domainRequired: "Please enter website domain",
     generateDone: "Generated",
-  },
+  
+    generateFailed: "Generation failed",
+    responsePrefix: "Response prefix",
+    pushFailed: "Push failed",},
 
   // ==================== Short Link ====================
   addon_shortlink: {
@@ -1276,7 +1284,10 @@ export default {
     restored: "Restored",
     destroyed: "Destroyed",
     batchedApproved: "Batch approval completed",
-  },
+  
+    status: "Status",
+    action: "Actions",
+    delete: "Delete",},
   // ==================== Form / 表单 ====================
   form: {
     exportCsv: "Export CSV",
@@ -1319,7 +1330,14 @@ export default {
     created: "Created",
     confirmDeleteForm: "Deleting will also remove fields and data. Confirm?",
     actionSettings: "Settings",
-  },
+  
+    time: "Time",
+    confirm: "Confirm",
+    deleted: "Deleted",
+    createTime: "Created",
+    action: "Actions",
+    delete: "Delete",
+    status: "Status",},
   // ==================== Webhook ====================
   webhook: {
     addWebhook: "Add Webhook",
@@ -1340,7 +1358,16 @@ export default {
     pleaseFillNameUrl: "Please fill in name and URL",
     confirmDelete: "Confirm delete?",
     editWebhook: "Edit Webhook",
-  },
+  
+    status: "Status",
+    createTime: "Created",
+    action: "Actions",
+    delete: "Delete",
+    cancel: "Cancel",
+    saved: "Saved",
+    created: "Created",
+    confirm: "Confirm",
+    deleted: "Deleted",},
   // ==================== CMS Article / 文章 ====================
   cmsArticle: {
     revisionHistory: "Revision History",
@@ -1369,7 +1396,15 @@ export default {
     inputTagsCsv: "Enter tags, comma separated",
     selectStatus: "Select status",
     confirmExecute: "Confirm Execute",
-  },
+  
+    action: "Actions",
+    unknown: "Unknown",
+    btnRegenerateStatic: "Regenerate static pages",
+    cancel: "Cancel",
+    confirmBatchRegen: "Regenerate static pages for selected articles?",
+    titleBatchRegen: "Batch regeneration",
+    msgRegenerating: "Regenerating, please wait…",
+    msgRegenerateDone: "Regeneration complete",},
   // ==================== CMS Link / 友链 ====================
   menu_cms_link: "Links",
   menu_cms_link_add: "Add Link",
@@ -1488,4 +1523,16 @@ export default {
   layoutColumnsCard: "Card",
   layoutColumnsHorizontal: "Horizontal",
   layoutColumnsVertical: "Vertical",
+
+  editSuccess: "Updated",
+
+  addSuccess: "Added",
+
+  weightUpdated: "Weight updated",
+
+  saveSuccess: "Saved",
+
+  createSuccess: "Created",
+
+  deleteSuccess: "Deleted",
 };
