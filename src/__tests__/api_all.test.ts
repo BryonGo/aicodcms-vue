@@ -248,3 +248,37 @@ describe("addon/sitemap", () => {
     );
   });
 });
+
+describe("addon/shortlink", () => {
+  it("list/detail/save/del/enable/set-default/stats", async () => {
+    const mod = await import("/@/api/addon/shortlink");
+    await mod.listShortlinks({});
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/list", method: "get" }),
+    );
+    await mod.getShortlink(1);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/detail", method: "get" }),
+    );
+    await mod.saveShortlink({});
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/save", method: "post" }),
+    );
+    await mod.delShortlinks([1]);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/del", method: "delete" }),
+    );
+    await mod.enableShortlink(1, 1);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/enable", method: "post" }),
+    );
+    await mod.setDefaultShortlink(1, 1);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/set-default", method: "post" }),
+    );
+    await mod.shortlinkStats(1, 7);
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: "/api/v1/addon/shortlink/stats", method: "get" }),
+    );
+  });
+});
