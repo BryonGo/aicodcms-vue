@@ -129,9 +129,11 @@ export const useThemeConfig = defineStore("themeConfig", {
        * 全局网站标题 / 副标题
        */
       // 网站主标题（菜单导航、浏览器当前网页标题）
-      globalTitle: "AICODCMS",
+      globalTitle: String(import.meta.env.VITE_APP_TITLE || "AICODCMS"),
       // 网站副标题（登录页顶部文字）
-      globalViceTitle: "AICODCMS",
+      globalViceTitle: String(
+        import.meta.env.VITE_APP_VICE_TITLE || import.meta.env.VITE_APP_TITLE || "AICODCMS",
+      ),
       // 默认初始语言，可选值"zh-cn|en"
       globalI18n: "zh-cn",
       // 默认全局组件大小，可选值"<large|'default'|small>"，默认 'large'
