@@ -102,7 +102,17 @@
         :subtitle="t('message.dashboard.chart.sortedByCount')"
         :height="320"
       >
-        <div ref="wordcloudRef" style="width: 100%; height: 100%" />
+        <div class="tag-cloud" :aria-label="t('message.dashboard.chart.hotTags')">
+          <span
+            v-for="(word, index) in tagWords"
+            :key="word.name"
+            class="tag-cloud__item"
+            :style="tagWordStyle(word, index)"
+            :title="`${word.name}: ${word.value}`"
+          >
+            {{ word.name }}
+          </span>
+        </div>
       </ChartCard>
     </div>
 
@@ -227,7 +237,6 @@ import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import * as echarts from "echarts";
 // 词云插件（package.json 中已有 echarts-wordcloud）
-import "echarts-wordcloud";
 import { Plus, Refresh } from "@element-plus/icons-vue";
 
 import ProPage from "/@/components/pro/ProPage.vue";
@@ -410,12 +419,11 @@ const serverInfoList = computed(() => {
 const pieRef = ref<HTMLElement | null>(null);
 const barRef = ref<HTMLElement | null>(null);
 const diskRef = ref<HTMLElement | null>(null);
-const wordcloudRef = ref<HTMLElement | null>(null);
+const tagWords = ref<{ name: string; value: number }[]>([]);
 
 let pieChart: echarts.ECharts | null = null;
 let barChart: echarts.ECharts | null = null;
 let diskChart: echarts.ECharts | null = null;
-let wcChart: echarts.ECharts | null = null;
 
 const isDark = computed(() => themeConfig.value.isIsDark);
 const chartTheme = computed(() => (isDark.value ? "dark" : ""));
@@ -547,48 +555,20 @@ const renderDisk = () => {
   });
 };
 const renderWordCloud = (words: { name: string; value: number }[]) => {
-  if (!wordcloudRef.value) return;
-  const el = wordcloudRef.value;
-  if (el.clientWidth === 0 || el.clientHeight === 0) {
-    requestAnimationFrame(() => renderWordCloud(words));
-    return;
-  }
-  wcChart?.dispose();
-  wcChart = echarts.init(el, chartTheme.value);
-  const palette = [
-    "#16BAAA",
-    "#3B82F6",
-    "#8B5CF6",
-    "#F59E0B",
-    "#EC4899",
-    "#10B981",
-    "#0EA5E9",
-    "#EF4444",
-  ];
-  wcChart.setOption({
-    backgroundColor: "transparent",
-    tooltip: { show: true },
-    series: [
-      {
-        type: "wordCloud",
-        shape: "circle",
-        left: "center",
-        top: "center",
-        width: "92%",
-        height: "92%",
-        sizeRange: [12, 36],
-        rotationRange: [-30, 30],
-        rotationStep: 30,
-        gridSize: 8,
-        drawOutOfBound: false,
-        textStyle: {
-          fontWeight: 600,
-          color: () => palette[Math.floor(Math.random() * palette.length)],
-        },
-        data: words,
-      },
-    ],
-  } as any);
+  tagWords.value = [...words].sort((a, b) => b.value - a.value).slice(0, 36);
+};
+
+const tagPalette = ["#16BAAA", "#3B82F6", "#8B5CF6", "#F59E0B", "#EC4899", "#10B981", "#0EA5E9", "#EF4444"];
+const tagWordStyle = (word: { value: number }, index: number) => {
+  const values = tagWords.value.map((item) => item.value);
+  const min = Math.min(...values, word.value);
+  const max = Math.max(...values, word.value);
+  const ratio = max === min ? 0.5 : (word.value - min) / (max - min);
+  return {
+    color: tagPalette[index % tagPalette.length],
+    fontSize: `${13 + Math.round(ratio * 19)}px`,
+    transform: `rotate(${index % 7 === 0 ? -4 : index % 5 === 0 ? 4 : 0}deg)`,
+  };
 };
 
 // ---- 数据加载 ----
@@ -708,7 +688,6 @@ const handleResize = () => {
   pieChart?.resize();
   barChart?.resize();
   diskChart?.resize();
-  wcChart?.resize();
 };
 
 // ============ CDN 状态（统一 CDN 模块） ============
@@ -756,7 +735,6 @@ onUnmounted(() => {
   pieChart?.dispose();
   barChart?.dispose();
   diskChart?.dispose();
-  wcChart?.dispose();
 });
 
 watch(isDark, () => {
@@ -764,17 +742,35 @@ watch(isDark, () => {
     renderPie();
     renderBar();
     renderDisk();
-    // 词云不重新拉数据，重新渲染就行（颜色随机）
-    if (wcChart) {
-      const opt = wcChart.getOption() as any;
-      const data = opt?.series?.[0]?.data || [];
-      renderWordCloud(data);
-    }
   });
 });
 </script>
 
 <style scoped>
+.tag-cloud {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.tag-cloud__item {
+  line-height: 1.1;
+  font-weight: 650;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.tag-cloud__item:hover {
+  opacity: 0.72;
+  transform: scale(1.08) !important;
+}
+
 .cdn-status-bar {
   display: flex;
   align-items: center;

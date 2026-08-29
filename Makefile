@@ -22,6 +22,11 @@ help:
 	@echo "── 依赖 ──"
 	@echo "  install     安装依赖"
 	@echo "  clean       清理 node_modules 和 dist"
+	@echo ""
+	@echo "── Docker ──"
+	@echo "  docker-image  构建 Console 生产镜像"
+	@echo "  docker-verify 检查镜像内容与 Nginx 配置"
+	@echo "  docker-push   推送版本标签及 latest"
 
 # ── 开发 ──
 
@@ -82,3 +87,32 @@ install:
 .PHONY: clean
 clean:
 	npx --yes rimraf node_modules dist
+
+# ── Docker ──
+
+DOCKER_IMAGE    ?= bryongo/aicodcms-console
+DOCKER_TAG      ?= $(shell git log -1 --format="%cd-%h" --date=format:"%Y%m%d%H%M%S" 2>/dev/null || echo "dev")
+DOCKER_PLATFORM ?= linux/amd64
+VITE_API_URL    ?= https://api.thdmid.com/
+
+.PHONY: docker-image
+docker-image:
+	@echo "=== 构建 Console: $(DOCKER_IMAGE):$(DOCKER_TAG) ($(DOCKER_PLATFORM)) ==="
+	@docker buildx build --load --platform $(DOCKER_PLATFORM) \
+		--build-arg VITE_API_URL=$(VITE_API_URL) \
+		--label org.opencontainers.image.revision=$$(git rev-parse HEAD) \
+		-t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
+.PHONY: docker-verify
+docker-verify:
+	@docker image inspect $(DOCKER_IMAGE):$(DOCKER_TAG) --format '{{.Os}}/{{.Architecture}}' | grep -Fx 'linux/amd64'
+	@docker run --rm --entrypoint /bin/sh $(DOCKER_IMAGE):$(DOCKER_TAG) -ec \
+		'test -f /usr/share/nginx/html/admin/index.html; nginx -t'
+	@echo "✓ Console 镜像检查通过"
+
+.PHONY: docker-push
+docker-push: docker-verify
+	@docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_IMAGE):latest
+	@docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
+	@docker push $(DOCKER_IMAGE):latest
+	@echo "✓ Console 已推送: $(DOCKER_TAG) / latest"
