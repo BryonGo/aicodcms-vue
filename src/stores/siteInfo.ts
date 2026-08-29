@@ -1,11 +1,18 @@
 import { defineStore } from "pinia";
 import { Local } from "/@/utils/storage";
 import { getMySites } from "/@/api/pms/siteAdmin";
+import {
+  markSiteInitStarted,
+  isSiteInitStarted,
+  resolveSiteReady,
+  resetSiteReady,
+} from "/@/utils/siteReady";
 
 /**
  * 站群：站点选择器状态
  * 持久化当前站点 code 到 LocalStorage（请求拦截器直接读 Local，避免与 api 层循环依赖）。
  */
+
 export interface SiteSummary {
   id: number;
   code: string;
@@ -30,6 +37,9 @@ export const useSiteInfo = defineStore("siteInfo", {
   },
   actions: {
     async init() {
+      // 幂等：已初始化过直接返回（localStorage 中已有站点码时请求立即可用）
+      if (isSiteInitStarted()) return;
+      markSiteInitStarted();
       try {
         const res: any = await getMySites();
         const sites: SiteSummary[] = res?.data?.sites || [];
@@ -45,6 +55,8 @@ export const useSiteInfo = defineStore("siteInfo", {
         console.warn("[siteInfo] init failed:", e);
       } finally {
         this.loaded = true;
+        // 无论成功失败都放行（无站点码时请求不带 X-Site-Code，交由后端决定）
+        resolveSiteReady();
       }
     },
     setCurrent(code: string) {
@@ -55,6 +67,7 @@ export const useSiteInfo = defineStore("siteInfo", {
       this.sites = [];
       this.currentSiteCode = "";
       this.loaded = false;
+      resetSiteReady();
       Local.remove("currentSiteCode");
     },
   },

@@ -33,7 +33,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { Loading } from "@element-plus/icons-vue";
 import { getStaProgress } from "/@/api/cms/sta";
-import { Session } from "/@/utils/storage";
+import { Session, Local } from "/@/utils/storage";
 
 const { t } = useI18n();
 
@@ -131,6 +131,12 @@ const update = async () => {
   // 未登录（无 token）不轮询：避免登录页对 admin 接口 401 触发"登录已过期"弹窗循环
   if (!Session.get("token")) {
     timer = setTimeout(update, 5000);
+    return;
+  }
+  // 站群：站点码未就绪（登录/刷新后站点初始化尚未完成）时跳过本轮，
+  // 避免非超管用户在守卫放行前发出无 X-Site-Code 的请求被 403。
+  if (!Local.get("currentSiteCode")) {
+    timer = setTimeout(update, 1000);
     return;
   }
   let hasActive = false;

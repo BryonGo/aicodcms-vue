@@ -6,6 +6,7 @@ import { storeToRefs } from "pinia";
 import { useKeepALiveNames } from "/@/stores/keepAliveNames";
 import { useRoutesList } from "/@/stores/routesList";
 import { useThemeConfig } from "/@/stores/themeConfig";
+import { useSiteInfo } from "/@/stores/siteInfo";
 import { Session } from "/@/utils/storage";
 import { staticRoutes } from "/@/router/route";
 import { initFrontEndControlRoutes } from "/@/router/frontEnd";
@@ -122,6 +123,9 @@ router.beforeEach(async (to, from, next) => {
             NProgress.done();
             return;
           }
+          // 站群：进入布局前加载可见站点并设置 currentSiteCode，
+          // 确保页面首个请求就带 X-Site-Code（非超管站群隔离必需）。
+          await useSiteInfo(pinia).init();
           // 动态添加路由：防止非首页刷新时跳转回首页的问题
           // 确保 addRoute() 时动态添加的路由已经被完全加载上去
           next({ ...to, replace: true });
@@ -133,6 +137,7 @@ router.beforeEach(async (to, from, next) => {
             NProgress.done();
             return;
           }
+          await useSiteInfo(pinia).init();
           next({ ...to, replace: true });
         }
       } else {

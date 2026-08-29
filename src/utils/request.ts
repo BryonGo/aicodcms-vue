@@ -81,7 +81,9 @@ service.interceptors.request.use(
     config.headers["Accept-Language"] = currentLang;
     console.log("[Lang] >>> Accept-Language:", currentLang, "| URL:", config.url);
 
-    // 站群：注入当前站点（X-Site-Code），后台接口按站点隔离数据
+    // 站群：注入当前站点（X-Site-Code），后台接口按站点隔离数据。
+    // 站点码由路由守卫在进入布局前 await siteInfo.init() 保证就绪，
+    // 这里直接读 Local（同步），避免拦截器等待造成 init 自身请求死锁。
     const siteCode = Local.get("currentSiteCode");
     if (siteCode) {
       config.headers["X-Site-Code"] = siteCode;

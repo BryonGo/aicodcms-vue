@@ -227,6 +227,7 @@ import { useI18n } from "vue-i18n";
 
 import { storeToRefs } from "pinia";
 import { useThemeConfig } from "/@/stores/themeConfig";
+import { useSiteInfo } from "/@/stores/siteInfo";
 import { initFrontEndControlRoutes } from "/@/router/frontEnd";
 import { initBackEndControlRoutes } from "/@/router/backEnd";
 import { Session } from "/@/utils/storage";
@@ -241,6 +242,7 @@ export default defineComponent({
     const { proxy } = <any>getCurrentInstance();
     const storesThemeConfig = useThemeConfig();
     const { themeConfig } = storeToRefs(storesThemeConfig);
+    const storesSite = useSiteInfo();
     const route = useRoute();
     const router = useRouter();
     const loginForm = ref(null);
@@ -269,7 +271,7 @@ export default defineComponent({
         ],
         verifyCode: [
           {
-            required: true,
+            required: false,
             trigger: "blur",
             message: t("message.account.msgVerifyCodeRequired"),
           },
@@ -337,9 +339,18 @@ export default defineComponent({
       }
       const formWrap = unref(loginForm) as any;
       if (!formWrap) return;
+      // 验证码规则随验证模式动态化：mode 为 none/turnstile 时不校验 verifyCode，
+      // 避免未渲染的验证码字段 required 导致 validate 永不通过、登录请求发不出去。
+      const needVerifyCode = showCaptcha.value;
       formWrap.validate((valid: boolean) => {
-        if (valid) {
-          state.loading.signIn = true;
+        if (!valid) {
+          state.loading.signIn = false;
+          return;
+        }
+        if (!needVerifyCode && state.ruleForm.verifyCode === "") {
+          state.ruleForm.verifyKey = "";
+        }
+        state.loading.signIn = true;
           // Turnstile token（单次有效，失败后需 reset 重新获取）
           let turnstileToken = "";
           try {
@@ -364,9 +375,13 @@ export default defineComponent({
 
               if (!themeConfig.value.isRequestRoutes) {
                 await initFrontEndControlRoutes();
+                // 站群：登录后立即加载当前管理员可见站点并设置 currentSiteCode，
+                // 确保进入页面后首个请求就带 X-Site-Code（避免非超管首屏 403/401）。
+                await storesSite.init();
                 signInSuccess();
               } else {
                 await initBackEndControlRoutes();
+                await storesSite.init();
                 signInSuccess();
               }
             })
@@ -381,7 +396,6 @@ export default defineComponent({
                 /* widget 未渲染时忽略 */
               }
             });
-        }
       });
     };
 
