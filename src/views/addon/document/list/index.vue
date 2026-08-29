@@ -330,7 +330,7 @@ import {
 
 export default defineComponent({
   name: "DocumentList",
-  components: { ProPage, ProSearch, ProToolbar, ProTable, FolderAdd, Plus, RefreshRight },
+  components: { ProPage, ProSearch, ProToolbar, ProTable, GfTiptap, FolderAdd, Plus, RefreshRight },
   setup() {
     const { t } = useI18n();
     const treeProps = { label: "name", children: "children", value: "id" };
