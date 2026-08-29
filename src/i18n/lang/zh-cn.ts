@@ -1178,8 +1178,9 @@ export default {
     refresh: "刷新",
     confirmDeleteCategory: "确认删除该分类？",
     confirmDeleteDocument: "确认删除该文档？",
-    syncSource: "同步本地源",
-    confirmSyncSource: "将扫描 docs/cms-manual 并按本地 Markdown 源更新数据库索引，确认同步？",
+    syncSource: "同步当前站点文档源",
+    confirmSyncSource:
+      "将扫描当前站点的 resource/document/{站点代码}/cms-manual 目录，按本地 Markdown 源更新本站文档索引（不影响其他站点），确认同步？",
     syncResult: "同步结果",
     syncComplete: "同步完成",
     sourceFile: "源文件",

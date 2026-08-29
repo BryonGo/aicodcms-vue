@@ -1469,9 +1469,9 @@ export default {
     refresh: "Refresh",
     confirmDeleteCategory: "Confirm delete this category?",
     confirmDeleteDocument: "Confirm delete this document?",
-    syncSource: "Sync Local Source",
+    syncSource: "Sync Current Site Document Source",
     confirmSyncSource:
-      "Scan docs/cms-manual and update database indexes from local Markdown source files?",
+      "Scan resource/document/{siteCode}/cms-manual of the current site and update this site's document indexes from local Markdown sources (other sites are not affected). Continue?",
     syncResult: "Sync Result",
     syncComplete: "Sync completed",
     sourceFile: "Source File",
