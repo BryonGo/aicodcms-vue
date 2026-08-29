@@ -193,7 +193,21 @@ export default defineComponent({
     if (id) {
       getEditUser(id).then((r: any) => {
         const d = r.data.user;
-        state.ruleForm = d;
+        state.ruleForm = {
+          ...state.ruleForm,
+          user_id: d.id,
+          user_name: d.user_name,
+          nick_name: d.user_nickname,
+          dept_id: d.dept_id,
+          mobile: d.mobile,
+          email: d.user_email,
+          sex: String(d.sex),
+          section_ids: r.data.checked_sections || [],
+          role_ids: r.data.checked_role_ids || [],
+          status: d.user_status,
+          isSuperAdmin: d.is_super_admin,
+          remark: d.remark,
+        };
       });
     }
     const onSubmit = () => {
