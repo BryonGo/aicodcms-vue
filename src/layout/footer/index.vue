@@ -1,8 +1,8 @@
 <template>
   <div class="layout-footer mt15" v-show="isDelayFooter">
     <div class="layout-footer-warp">
-      <div>Copyright © 2021-2023 g-fast.cn All Rights Reserved.</div>
-      <div class="mt5">{{ $t("message.layoutFooterCopyright") }}</div>
+      <div>{{ copyright.en }}</div>
+      <div class="mt5">{{ copyright.zh }}</div>
     </div>
   </div>
 </template>
@@ -10,6 +10,7 @@
 <script lang="ts">
 import { toRefs, reactive, defineComponent } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
+import { copyright } from "/@/config/copyright";
 
 export default defineComponent({
   name: "layoutFooter",
@@ -27,6 +28,7 @@ export default defineComponent({
       }, 0);
     });
     return {
+      copyright,
       ...toRefs(state),
     };
   },

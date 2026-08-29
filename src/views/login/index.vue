@@ -36,7 +36,7 @@
         <Account />
       </div>
       <div class="login-footer">
-        <span>Copyright &copy; {{ currentYear }} AICODCMS. All Rights Reserved.</span>
+        <span>{{ copyright.en }}</span>
       </div>
     </div>
   </div>
@@ -48,6 +48,7 @@ import { storeToRefs } from "pinia";
 import { useThemeConfig } from "/@/stores/themeConfig";
 import logoMini from "/@/assets/logo-mini.svg";
 import { NextLoading } from "/@/utils/loading";
+import { copyright } from "/@/config/copyright";
 import Account from "/@/views/login/component/account.vue";
 
 export default defineComponent({
@@ -71,6 +72,7 @@ export default defineComponent({
 
     return {
       logoMini,
+      copyright,
       getThemeConfig,
       currentYear,
       features,
