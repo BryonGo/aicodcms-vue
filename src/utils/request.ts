@@ -127,6 +127,8 @@ service.interceptors.response.use(
     }
 
     if (code === 401) {
+      // 未登录状态下的匿名引导请求（如默认语言探测 setting/get）不应弹“登录过期”阻塞登录
+      if (!Session.get("token")) return;
       if (is401Alerting) return;
       is401Alerting = true;
       ElMessageBox.alert("登录状态已过期，请重新登录", "提示", { confirmButtonText: "确定" })
@@ -164,6 +166,8 @@ service.interceptors.response.use(
           type: "warning",
         });
       } else if (error.response.status === 401) {
+        // 未登录状态下的匿名引导请求（如默认语言探测 setting/get）不应弹“登录过期”阻塞登录
+        if (!Session.get("token")) return;
         if (is401Alerting) return;
         is401Alerting = true;
         ElMessageBox.alert("登录状态已过期，请重新登录", "提示", { confirmButtonText: "确定" })
