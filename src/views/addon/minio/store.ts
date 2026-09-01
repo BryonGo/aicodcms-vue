@@ -94,7 +94,7 @@ export const useMinioStore = defineStore("minio", () => {
       nextMarker.value = data.next_marker || "";
     } catch (err: any) {
       console.error("[MinIO] 获取文件列表失败:", err);
-      ElMessage.error("获取文件列表失败");
+      toastStoreError(err?.message || err?.msg, "获取文件列表失败");
     } finally {
       loading.value = false;
     }
@@ -212,7 +212,7 @@ export const useMinioStore = defineStore("minio", () => {
       newDirDialogVisible.value = false;
       await fetchFiles();
     } catch (err: any) {
-      ElMessage.error("创建目录失败: " + (err.message || ""));
+      toastStoreError(err?.message || err?.msg, "创建目录失败");
     }
   }
 
@@ -223,8 +223,8 @@ export const useMinioStore = defineStore("minio", () => {
       ElMessage.success("删除成功");
       if (detailFile.value?.key === file.key) detailFile.value = null;
       await fetchFiles();
-    } catch {
-      ElMessage.error("删除失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "删除失败");
     }
   }
 
@@ -252,8 +252,8 @@ export const useMinioStore = defineStore("minio", () => {
       selectedFiles.value = [];
       detailFile.value = null;
       await fetchFiles();
-    } catch {
-      ElMessage.error("批量删除失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "批量删除失败");
     }
   }
 
@@ -272,8 +272,8 @@ export const useMinioStore = defineStore("minio", () => {
       renameDialogVisible.value = false;
       detailFile.value = null;
       await fetchFiles();
-    } catch {
-      ElMessage.error("重命名失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "重命名失败");
     }
   }
 
@@ -284,8 +284,8 @@ export const useMinioStore = defineStore("minio", () => {
       const url = urlObjToStr((res.data || res)["presigned-get-url"]);
       if (url) window.open(url, "_blank");
       else ElMessage.error("获取下载地址失败");
-    } catch {
-      ElMessage.error("获取下载地址失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "获取下载地址失败");
     }
   }
 
@@ -298,8 +298,8 @@ export const useMinioStore = defineStore("minio", () => {
         await navigator.clipboard.writeText(url);
         ElMessage.success("链接已复制");
       }
-    } catch {
-      ElMessage.error("获取预览链接失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "获取预览链接失败");
     }
   }
 
@@ -328,8 +328,8 @@ export const useMinioStore = defineStore("minio", () => {
         previewUrl.value = url;
         previewType.value = file.content_type;
       }
-    } catch {
-      ElMessage.error("获取预览地址失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "获取预览地址失败");
     }
   }
 
@@ -363,8 +363,9 @@ export const useMinioStore = defineStore("minio", () => {
       if (buckets.value.length > 0 && !currentBucket.value) {
         currentBucket.value = data.current || buckets.value[0].name;
       }
-    } catch {
-      console.warn("[MinIO] 获取存储桶列表失败");
+    } catch (err: any) {
+      console.warn("[MinIO] 获取存储桶列表失败:", err);
+      toastStoreError(err?.message || err?.msg, "获取存储桶列表失败");
     }
   }
 
@@ -390,8 +391,8 @@ export const useMinioStore = defineStore("minio", () => {
       await setMinioTags(fileName, newTags, currentProvider.value);
       tags.value = newTags;
       ElMessage.success("标签添加成功");
-    } catch {
-      ElMessage.error("添加标签失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "添加标签失败");
     }
   }
 
@@ -400,8 +401,8 @@ export const useMinioStore = defineStore("minio", () => {
       await deleteMinioTags(fileName, [key], currentProvider.value);
       tags.value = tags.value.filter((t) => t.key !== key);
       ElMessage.success("标签已删除");
-    } catch {
-      ElMessage.error("删除标签失败");
+    } catch (err: any) {
+      toastStoreError(err?.message || err?.msg, "删除标签失败");
     }
   }
 
@@ -431,8 +432,9 @@ export const useMinioStore = defineStore("minio", () => {
           allow_domains: policy.allow_domains ?? [],
         },
       };
-    } catch {
-      console.warn("[MinIO] 获取桶设置失败");
+    } catch (err: any) {
+      console.warn("[MinIO] 获取桶设置失败:", err);
+      toastStoreError(err?.message || err?.msg, "获取桶设置失败");
     } finally {
       settingsLoading.value = false;
     }
@@ -575,4 +577,15 @@ export const useMinioStore = defineStore("minio", () => {
 function displayName(key: string): string {
   const parts = key.split("/").filter(Boolean);
   return parts[parts.length - 1] || key;
+}
+
+// 连续相同错误提示去重：页面初始化时 buckets + files 会先后失败，
+// 避免相同后端消息被弹出两次；3 秒后再次出现同一错误仍会重新提示。
+let lastErrorToast = { text: "", at: 0 };
+function toastStoreError(msg: string | undefined, fallback: string) {
+  const text = msg || fallback;
+  const now = Date.now();
+  if (text === lastErrorToast.text && now - lastErrorToast.at < 3000) return;
+  lastErrorToast = { text, at: now };
+  ElMessage.error(text);
 }

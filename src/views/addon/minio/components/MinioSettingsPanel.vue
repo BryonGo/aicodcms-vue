@@ -507,9 +507,9 @@ export default defineComponent({
       versioningEnabled.value = val;
       try {
         await store.toggleVersioning(val);
-      } catch {
+      } catch (err: any) {
         versioningEnabled.value = !val;
-        ElMessage.error(t("message.pms.minio.msgVersioningFail"));
+        ElMessage.error(err?.message || err?.msg || t("message.pms.minio.msgVersioningFail"));
       }
     }
 
@@ -537,8 +537,8 @@ export default defineComponent({
       savingLifecycle.value = true;
       try {
         await store.saveLifecycleRules(lifecycleRules.value);
-      } catch {
-        ElMessage.error(t("message.common.msgNetworkError"));
+      } catch (err: any) {
+        ElMessage.error(err?.message || err?.msg || t("message.common.msgNetworkError"));
       } finally {
         savingLifecycle.value = false;
       }
@@ -629,8 +629,9 @@ export default defineComponent({
         loadingPublic.value = true;
         await store.setBucketPublic();
         showHotlinkEditor.value = false;
-      } catch {
-        if (loadingPublic.value) ElMessage.error(t("message.pms.minio.setStatusUnchanged"));
+      } catch (err: any) {
+        if (loadingPublic.value)
+          ElMessage.error(err?.message || err?.msg || t("message.pms.minio.setStatusUnchanged"));
       } finally {
         loadingPublic.value = false;
       }
@@ -650,8 +651,9 @@ export default defineComponent({
         loadingPrivate.value = true;
         await store.setBucketPrivate();
         showHotlinkEditor.value = false;
-      } catch {
-        if (loadingPrivate.value) ElMessage.error(t("message.pms.minio.setStatusUnchanged"));
+      } catch (err: any) {
+        if (loadingPrivate.value)
+          ElMessage.error(err?.message || err?.msg || t("message.pms.minio.setStatusUnchanged"));
       } finally {
         loadingPrivate.value = false;
       }
@@ -683,8 +685,8 @@ export default defineComponent({
         loadingHotlink.value = true;
         await store.setBucketHotlink(domains);
         showHotlinkEditor.value = false;
-      } catch {
-        ElMessage.error(t("message.pms.minio.saveHotlinkFail"));
+      } catch (err: any) {
+        ElMessage.error(err?.message || err?.msg || t("message.pms.minio.saveHotlinkFail"));
       } finally {
         hotlinkSaving.value = false;
         loadingHotlink.value = false;
