@@ -26,6 +26,7 @@
     <MinioRenameDialog />
     <MinioPreviewDialog />
     <MinioSettingsPanel />
+    <SiteStoragePanel :visible="store.siteStorageVisible" :provider="store.currentProvider" @update:visible="(v: boolean) => (store.siteStorageVisible = v)" />
   </div>
 </template>
 
@@ -42,6 +43,7 @@ import MinioNewDirDialog from "./components/MinioNewDirDialog.vue";
 import MinioRenameDialog from "./components/MinioRenameDialog.vue";
 import MinioPreviewDialog from "./components/MinioPreviewDialog.vue";
 import MinioSettingsPanel from "./components/MinioSettingsPanel.vue";
+import SiteStoragePanel from "./components/SiteStoragePanel.vue";
 
 export default defineComponent({
   name: "addonMinioFileBrowser",
@@ -56,6 +58,7 @@ export default defineComponent({
     MinioRenameDialog,
     MinioPreviewDialog,
     MinioSettingsPanel,
+    SiteStoragePanel,
   },
   setup() {
     const store = useMinioStore();

@@ -40,6 +40,7 @@ export const useMinioStore = defineStore("minio", () => {
   const renameDialogVisible = ref(false);
   const previewDialogVisible = ref(false);
   const settingsDrawerVisible = ref(false);
+  const siteStorageVisible = ref(false);
 
   // 上传相关
   const uploadQueue = ref<UploadItem[]>([]);
@@ -516,6 +517,7 @@ export const useMinioStore = defineStore("minio", () => {
     renameDialogVisible,
     previewDialogVisible,
     settingsDrawerVisible,
+    siteStorageVisible,
     uploadQueue,
     uploading,
     renameTarget,

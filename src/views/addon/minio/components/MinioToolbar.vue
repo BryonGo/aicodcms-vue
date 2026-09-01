@@ -40,6 +40,9 @@
       <el-button :icon="Setting" @click="store.settingsDrawerVisible = true">{{
         $t("message.pms.minio.bucketSettings")
       }}</el-button>
+      <el-button :icon="Files" @click="store.siteStorageVisible = true">{{
+        $t("message.pms.minio.siteStorage.toolbar")
+      }}</el-button>
     </div>
   </div>
 </template>
@@ -48,7 +51,7 @@
 import { defineComponent, ref, watch } from "vue";
 import { useMinioStore } from "../store";
 import { S3_PROVIDERS } from "/@/api/addon/minio";
-import { Refresh, UploadFilled, FolderAdd, Setting } from "@element-plus/icons-vue";
+import { Refresh, UploadFilled, FolderAdd, Setting, Files } from "@element-plus/icons-vue";
 
 export default defineComponent({
   name: "MinioToolbar",
@@ -61,7 +64,7 @@ export default defineComponent({
       store.switchProvider(val);
     });
 
-    return { store, currentProvider, providers, Refresh, UploadFilled, FolderAdd, Setting };
+    return { store, currentProvider, providers, Refresh, UploadFilled, FolderAdd, Setting, Files };
   },
 });
 </script>
