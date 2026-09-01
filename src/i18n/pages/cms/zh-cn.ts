@@ -353,6 +353,8 @@ export default {
     breadcrumbHome: "首页",
     breadcrumbCms: "内容管理",
     breadcrumbCurrent: "系统设置",
+    currentSiteScope: "当前配置站点",
+    siteUnselected: "未选择",
     addGroup: "添加分组",
     editGroup: "编辑分组",
     addField: "添加字段",

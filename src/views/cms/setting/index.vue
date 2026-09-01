@@ -15,6 +15,14 @@
         <h1 class="set-title">{{ $t("message.cms.setting.breadcrumbCurrent") }}</h1>
         <p class="set-subtitle">{{ $t("message.cms.setting.subtitle") }}</p>
       </div>
+      <div class="site-scope" aria-live="polite">
+        <span class="site-scope-dot"></span>
+        <div>
+          <small>{{ $t("message.cms.setting.currentSiteScope") }}</small>
+          <strong>{{ currentSite?.name || currentSiteCode || $t("message.cms.setting.siteUnselected") }}</strong>
+          <code v-if="currentSiteCode">{{ currentSiteCode }}</code>
+        </div>
+      </div>
     </div>
 
     <!-- 双栏内容区 -->
@@ -96,7 +104,7 @@
                 </el-tooltip>
               </template>
               <DynamicSettingForm
-                :key="'form-' + selectedGroupId + '-' + formRefreshKey"
+                :key="'form-' + currentSiteCode + '-' + selectedGroupId + '-' + formRefreshKey"
                 :group-id="selectedGroupId"
                 :group-name="selectedGroupName"
                 @saved="onFormSaved"
@@ -356,6 +364,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { storeToRefs } from "pinia";
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from "element-plus";
 import { Plus, Delete, Edit, MoreFilled, RefreshRight, HomeFilled } from "@element-plus/icons-vue";
 import DynamicSettingForm from "/@/components/DynamicSettingForm/index.vue";
@@ -367,8 +376,11 @@ import {
   listSettingFieldByGroup,
 } from "/@/api/cms/setting";
 import { addSettingField, editSettingField, delSettingField } from "/@/api/cms/settingField";
+import { useSiteInfo } from "/@/stores/siteInfo";
 
 const { t: $t } = useI18n();
+const siteStore = useSiteInfo();
+const { currentSite, currentSiteCode } = storeToRefs(siteStore);
 
 const FIELD_TYPES = computed(() => [
   { label: $t("message.cms.setting.typeText"), value: "text" },
@@ -743,6 +755,32 @@ onMounted(() => {
   color: var(--cc-color-text-3);
   margin: 0;
 }
+
+.site-scope {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+  padding: 12px 16px;
+  color: var(--cc-color-text-1);
+  background: color-mix(in srgb, var(--el-color-warning) 9%, var(--cc-color-surface));
+  border: 1px solid color-mix(in srgb, var(--el-color-warning) 34%, transparent);
+  border-radius: 14px;
+}
+
+.site-scope-dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  background: var(--el-color-warning);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--el-color-warning) 16%, transparent);
+}
+
+.site-scope div { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; }
+.site-scope small { grid-column: 1 / -1; color: var(--cc-color-text-3); font-size: 11px; letter-spacing: .08em; }
+.site-scope strong { font-size: 14px; font-weight: 650; }
+.site-scope code { color: var(--cc-color-text-3); font-size: 11px; }
 
 /* ==================== 双栏内容区 ==================== */
 .set-body {

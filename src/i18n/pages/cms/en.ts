@@ -343,6 +343,8 @@ export default {
     breadcrumbHome: "Home",
     breadcrumbCms: "Content",
     breadcrumbCurrent: "Settings",
+    currentSiteScope: "Configuration scope",
+    siteUnselected: "No site selected",
     addGroup: "Add Group",
     editGroup: "Edit Group",
     addField: "Add Field",

@@ -8,7 +8,7 @@
     <div class="pms-card-header">
       <div>
         <h1 class="pms-card-title">站点管理</h1>
-        <p class="pms-card-sub">站群：每个站点绑定独立域名、语言与配置</p>
+        <p class="pms-card-sub">站点只负责入口与语言；业务配置请切换站点后前往「系统设置」</p>
       </div>
       <div class="pms-card-actions">
         <el-button size="large" type="success" class="pms-card-add" @click="onOpenAdd">
@@ -73,8 +73,6 @@
       :close-on-click-modal="false"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
-        <el-tabs v-model="dialog.tab">
-          <el-tab-pane label="基本信息" name="basic">
             <el-form-item label="站点码" prop="code">
               <el-input v-model="form.code" placeholder="小写字母数字连字符，如 site2" :disabled="dialog.isEdit" />
             </el-form-item>
@@ -109,83 +107,6 @@
             <el-form-item label="排序">
               <el-input-number v-model="form.sort" :min="0" />
             </el-form-item>
-          </el-tab-pane>
-
-          <el-tab-pane label="站点配置" name="config">
-            <el-divider content-position="left">站点基础</el-divider>
-            <el-form-item label="站点描述">
-              <el-input v-model="form.settings.description" type="textarea" :rows="2" placeholder="站点描述/副标题" />
-            </el-form-item>
-
-            <el-divider content-position="left">MinIO 对象存储</el-divider>
-            <el-form-item label="Bucket">
-              <el-input v-model="form.settings['minio.s3.bucket']" placeholder="minio.s3.bucket" />
-            </el-form-item>
-            <el-form-item label="Endpoint">
-              <el-input v-model="form.settings['minio.s3.endpoint']" placeholder="minio.s3.endpoint" />
-            </el-form-item>
-            <el-form-item label="Region">
-              <el-input v-model="form.settings['minio.s3.region']" placeholder="minio.s3.region（可空）" />
-            </el-form-item>
-            <el-form-item label="CDN URL">
-              <el-input v-model="form.settings['minio.s3.cdn_url']" placeholder="minio.s3.cdn_url（可空）" />
-            </el-form-item>
-            <el-form-item label="AccessKey">
-              <el-input
-                v-model="form.secrets['minio.s3.access_key']"
-                type="password"
-                show-password
-                placeholder="minio.s3.access_key（******** 表示保持不变）"
-              />
-            </el-form-item>
-            <el-form-item label="SecretKey">
-              <el-input
-                v-model="form.secrets['minio.s3.secret_key']"
-                type="password"
-                show-password
-                placeholder="minio.s3.secret_key（******** 表示保持不变）"
-              />
-            </el-form-item>
-
-            <el-divider content-position="left">Cloudflare</el-divider>
-            <el-form-item label="Zone ID">
-              <el-input v-model="form.settings['cloudflare.zone_id']" placeholder="cloudflare.zone_id" />
-            </el-form-item>
-            <el-form-item label="Zone Name">
-              <el-input v-model="form.settings['cloudflare.zone_name']" placeholder="cloudflare.zone_name（域名）" />
-            </el-form-item>
-            <el-form-item label="API Token">
-              <el-input
-                v-model="form.secrets['cloudflare.api_token']"
-                type="password"
-                show-password
-                placeholder="cloudflare.api_token（******** 表示保持不变）"
-              />
-            </el-form-item>
-
-            <el-divider content-position="left">高级配置（key-value）</el-divider>
-            <el-form-item label="公开配置">
-              <div style="width: 100%">
-                <div v-for="(kv, i) in extraSettings" :key="i" class="kv-row">
-                  <el-input v-model="kv.key" placeholder="键，如 tencent.cos.bucket" class="kv-key" />
-                  <el-input v-model="kv.value" placeholder="值" class="kv-value" />
-                  <el-button link type="danger" @click="extraSettings.splice(i, 1)">删除</el-button>
-                </div>
-                <el-button size="small" @click="extraSettings.push({ key: '', value: '' })">+ 添加公开配置</el-button>
-              </div>
-            </el-form-item>
-            <el-form-item label="敏感配置">
-              <div style="width: 100%">
-                <div v-for="(kv, i) in extraSecrets" :key="i" class="kv-row">
-                  <el-input v-model="kv.key" placeholder="键，如 pay.wechat.secret" class="kv-key" />
-                  <el-input v-model="kv.value" type="password" show-password placeholder="值" class="kv-value" />
-                  <el-button link type="danger" @click="extraSecrets.splice(i, 1)">删除</el-button>
-                </div>
-                <el-button size="small" @click="extraSecrets.push({ key: '', value: '' })">+ 添加敏感配置</el-button>
-              </div>
-            </el-form-item>
-          </el-tab-pane>
-        </el-tabs>
       </el-form>
       <template #footer>
         <el-button @click="dialog.visible = false">取消</el-button>
@@ -226,11 +147,8 @@ export default defineComponent({
     const dialog = reactive({
       visible: false,
       isEdit: false,
-      tab: "basic",
       saving: false,
     });
-    const extraSettings = ref<Array<{ key: string; value: string }>>([]);
-    const extraSecrets = ref<Array<{ key: string; value: string }>>([]);
 
     const emptyForm = () => ({
       id: 0,
@@ -242,8 +160,6 @@ export default defineComponent({
       theme: "",
       status: 1,
       sort: 0,
-      settings: {} as Record<string, string>,
-      secrets: {} as Record<string, string>,
     });
     const form = reactive(emptyForm());
 
@@ -269,29 +185,17 @@ export default defineComponent({
       form.theme = row.theme || "";
       form.status = row.status ?? 1;
       form.sort = row.sort ?? 0;
-      form.settings = { ...(row.settings || {}) };
-      form.secrets = { ...(row.secrets || {}) };
-      // 敏感项：后端回显为 ********，作为「保持不变」占位
-      ["minio.s3.access_key", "minio.s3.secret_key", "cloudflare.api_token"].forEach((k) => {
-        if (!form.secrets[k]) form.secrets[k] = "********";
-      });
     };
 
     const onOpenAdd = () => {
       Object.assign(form, emptyForm());
-      extraSettings.value = [];
-      extraSecrets.value = [];
       dialog.isEdit = false;
-      dialog.tab = "basic";
       dialog.visible = true;
     };
 
     const onOpenEdit = (row: any) => {
       fillForm(row);
-      extraSettings.value = [];
-      extraSecrets.value = [];
       dialog.isEdit = true;
-      dialog.tab = "basic";
       dialog.visible = true;
     };
 
@@ -309,15 +213,6 @@ export default defineComponent({
     const onSubmit = () => {
       formRef.value?.validate((valid: boolean) => {
         if (!valid) return;
-        // 合并高级 key-value 到扁平 map
-        const settings = { ...form.settings };
-        const secrets = { ...form.secrets };
-        extraSettings.value.forEach((kv) => {
-          if (kv.key) settings[kv.key] = kv.value;
-        });
-        extraSecrets.value.forEach((kv) => {
-          if (kv.key) secrets[kv.key] = kv.value;
-        });
         const payload = {
           id: form.id,
           code: form.code,
@@ -331,8 +226,6 @@ export default defineComponent({
           theme: form.theme,
           status: form.status,
           sort: form.sort,
-          settings,
-          secrets,
         };
         dialog.saving = true;
         saveSite(payload)
@@ -356,8 +249,6 @@ export default defineComponent({
       form,
       rules,
       langOptions,
-      extraSettings,
-      extraSecrets,
       onOpenAdd,
       onOpenEdit,
       onDel,
@@ -403,18 +294,6 @@ export default defineComponent({
   border: 1px solid var(--cc-color-border-light);
   border-radius: var(--cc-radius-lg);
   padding: var(--cc-space-5) var(--cc-space-6) var(--cc-space-3);
-}
-.kv-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-}
-.kv-key {
-  width: 40%;
-}
-.kv-value {
-  flex: 1;
 }
 .mr5 {
   margin-right: 5px;
