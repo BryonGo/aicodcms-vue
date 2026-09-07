@@ -956,12 +956,15 @@ export default {
       HasFlag: "含某标志",
       FlagClass: "CSS类",
       ChannelId: "栏目ID",
+      ChannelByDiy: "按标识取栏目",
       TagList: "标签数组",
       FlagBits: "标志位",
       IsTop: "是否置顶",
       Recommended: "是否推荐",
       PublishedAt: "发布时间",
       Url0: "文章URL(无参)",
+      Module: "扩展字段",
+      ModuleMap: "扩展字段Map",
     },
     param: {
       title: "参数",
@@ -993,6 +996,7 @@ export default {
       n: "长度",
       v: "数字",
       total: "总记录数",
+      module_key: "扩展字段名",
     },
   },
 

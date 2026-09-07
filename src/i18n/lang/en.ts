@@ -963,6 +963,8 @@ export default {
       Recommended: "Is Recommended",
       PublishedAt: "Published At",
       Url0: "Article URL (no param)",
+      Module: "Module Field",
+      ModuleMap: "Module Field Map",
     },
     param: {
       title: "Parameters",
@@ -994,6 +996,7 @@ export default {
       n: "Length",
       v: "Number",
       total: "Total",
+      module_key: "Module Field Name",
     },
 
     // ===== Hardcoded Chinese key fallback translations =====
