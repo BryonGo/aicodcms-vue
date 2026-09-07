@@ -391,6 +391,29 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           permissions: ["api/v1/addon/pay/channel/list"],
         },
       },
+      // ---- 平台管理：任务排查 / 账本查询 ----
+      {
+        path: "/addon/platform/tasks",
+        name: "addonPlatformTaskList",
+        component: () => import("/@/views/addon/platform/tasks/index.vue"),
+        meta: {
+          title: "message.sdk.platformTasks",
+          is_hide: true,
+          is_keep_alive: true,
+          permissions: ["api/v1/addon/admin/platform/tasks"],
+        },
+      },
+      {
+        path: "/addon/platform/ledger",
+        name: "addonPlatformLedgerList",
+        component: () => import("/@/views/addon/platform/ledger/index.vue"),
+        meta: {
+          title: "message.sdk.platformLedger",
+          is_hide: true,
+          is_keep_alive: true,
+          permissions: ["api/v1/addon/admin/platform/ledger"],
+        },
+      },
       // ---- 货币管理 ----
       {
         path: "/addon/sdk/currency/list",
