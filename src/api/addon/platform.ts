@@ -55,6 +55,42 @@ export interface AdminLedgerRes {
   total: number;
 }
 
+export interface AdminProviderHealthItem {
+  siteId: number;
+  siteCode: string;
+  provider: string;
+  healthy: boolean;
+  detail: string;
+}
+
+export interface AdminProvidersHealthRes {
+  list: AdminProviderHealthItem[];
+}
+
+export interface AdminBillingRateItem {
+  id: number;
+  siteId: number;
+  product: string;
+  dimKey: string;
+  credits: number;
+  providerCostCents: number;
+  revision: number;
+  status: number;
+  createdAt: number;
+}
+
+export interface AdminBillingRatesParams {
+  siteId?: number;
+  product?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminBillingRatesRes {
+  list: AdminBillingRateItem[];
+  total: number;
+}
+
 // ==================== API ====================
 
 /** 任务排查 */
@@ -70,6 +106,23 @@ export function getPlatformTasks(params: AdminTasksParams) {
 export function getPlatformLedger(params: AdminLedgerParams) {
   return request<AdminLedgerRes>({
     url: "/api/v1/addon/admin/platform/ledger",
+    method: "get",
+    params,
+  });
+}
+
+/** 供应商健康检查 */
+export function getPlatformProvidersHealth() {
+  return request<AdminProvidersHealthRes>({
+    url: "/api/v1/addon/admin/platform/providers/health",
+    method: "get",
+  });
+}
+
+/** 报价套餐列表 */
+export function getPlatformBillingRates(params: AdminBillingRatesParams) {
+  return request<AdminBillingRatesRes>({
+    url: "/api/v1/addon/admin/platform/billing-rates",
     method: "get",
     params,
   });

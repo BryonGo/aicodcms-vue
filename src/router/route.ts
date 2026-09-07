@@ -414,6 +414,28 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
           permissions: ["api/v1/addon/admin/platform/ledger"],
         },
       },
+      {
+        path: "/addon/platform/providers",
+        name: "addonPlatformProviders",
+        component: () => import("/@/views/addon/platform/providers/index.vue"),
+        meta: {
+          title: "message.sdk.platformProviders",
+          is_hide: true,
+          is_keep_alive: true,
+          permissions: ["api/v1/addon/admin/platform/providers/health"],
+        },
+      },
+      {
+        path: "/addon/platform/billing-rates",
+        name: "addonPlatformBillingRates",
+        component: () => import("/@/views/addon/platform/billing-rates/index.vue"),
+        meta: {
+          title: "message.sdk.platformRates",
+          is_hide: true,
+          is_keep_alive: true,
+          permissions: ["api/v1/addon/admin/platform/billing-rates"],
+        },
+      },
       // ---- 货币管理 ----
       {
         path: "/addon/sdk/currency/list",
