@@ -72,6 +72,8 @@ interface ModuleFormData {
   id: number | undefined;
   name: string;
   table_name: string;
+  sort: number;
+  status: number;
   created_at: number;
   updated_at: number;
 }
@@ -80,6 +82,8 @@ const formData = reactive<ModuleFormData>({
   id: undefined,
   name: "",
   table_name: "",
+  sort: 0,
+  status: 0,
   created_at: 0,
   updated_at: 0,
 });
@@ -109,6 +113,8 @@ const loadData = async () => {
       formData.id = data.id;
       formData.name = data.name || "";
       formData.table_name = data.table_name || "";
+      formData.sort = data.sort || 0;
+      formData.status = data.status || 0;
       formData.created_at = data.created_at || 0;
       formData.updated_at = data.updated_at || 0;
     }

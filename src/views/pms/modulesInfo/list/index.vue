@@ -183,6 +183,7 @@ import ModulesInfoEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiV1SystemModulesInfoList",
+  components: { ModulesInfoEdit },
   setup() {
     const router = useRouter();
     const { t } = useI18n();
@@ -326,6 +327,7 @@ export default defineComponent({
     };
 
     return {
+      ModulesInfoEdit,
       proxy,
       editRef,
       showAll,

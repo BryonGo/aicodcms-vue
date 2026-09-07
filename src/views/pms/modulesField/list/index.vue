@@ -166,6 +166,7 @@ import FieldEdit from "./component/edit.vue";
 
 export default defineComponent({
   name: "apiV1SystemModulesFieldList",
+  components: { FieldEdit },
   directives: {
     tableDragable: vDragable,
   },
@@ -329,6 +330,7 @@ export default defineComponent({
       return t("message.common.msgUnknown");
     };
     return {
+      FieldEdit,
       proxy,
       editRef,
       showAll,
