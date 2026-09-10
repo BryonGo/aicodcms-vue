@@ -86,7 +86,7 @@
         <el-button v-if="selIds.length" type="danger" plain size="small" @click="onBatchDel">{{
           $t("message.sdk.payChannel.batchDeleteCount", { count: selIds.length })
         }}</el-button
-        ><pagination v-model:page="page" v-model:size="size" :total="total" @change="loadData" />
+        ><pagination v-model:page="page" v-model:limit="size" :total="total" @change="loadData" />
       </div>
     </div>
   </div>

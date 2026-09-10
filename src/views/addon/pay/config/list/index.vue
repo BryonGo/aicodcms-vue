@@ -175,7 +175,7 @@
             {{ $t("message.sdk.payConfig.batchDelete") }} ({{ selectedIds.length }})
           </el-button>
           <span v-else />
-          <pagination v-model:page="page" v-model:size="size" :total="total" @change="loadData" />
+          <pagination v-model:page="page" v-model:limit="size" :total="total" @change="loadData" />
         </div>
       </div>
     </div>
