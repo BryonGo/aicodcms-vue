@@ -25,3 +25,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 微信图片_*.png
+
+# 本地 dev server 输出
+dev-server.log

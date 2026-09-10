@@ -5,35 +5,29 @@
         ><el-icon><HomeFilled /></el-icon> {{ $t("message.sdk.platform.breadcrumbHome") }}</el-breadcrumb-item
       >
       <el-breadcrumb-item>{{ $t("message.sdk.platform.breadcrumbSdk") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ $t("message.sdk.platform.ledgerTitle") }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t("message.sdk.platform.loraTitle") }}</el-breadcrumb-item>
     </el-breadcrumb>
 
     <div class="pf-header">
       <div>
-        <h1 class="pf-title">{{ $t("message.sdk.platform.ledgerTitle") }}</h1>
-        <p class="pf-subtitle">{{ $t("message.sdk.platform.ledgerSubtitle") }}</p>
+        <h1 class="pf-title">{{ $t("message.sdk.platform.loraTitle") }}</h1>
+        <p class="pf-subtitle">{{ $t("message.sdk.platform.loraSubtitle") }}</p>
+      </div>
+      <div class="pf-header-actions">
+        <el-button type="primary" :loading="importing" @click="onImport">
+          {{ $t("message.sdk.platform.btnImportLora") }}
+        </el-button>
       </div>
     </div>
 
     <div class="pf-filter-card">
       <el-form :inline="true" @submit.prevent>
-        <el-form-item :label="$t('message.sdk.platform.filterSite')">
-          <el-input
-            v-model="q.siteId"
-            placeholder="siteId"
-            clearable
-            style="width: 160px"
-            @keyup.enter="onQuery"
-          />
-        </el-form-item>
-        <el-form-item :label="$t('message.sdk.platform.filterAccount')">
-          <el-input
-            v-model="q.accountId"
-            placeholder="accountId"
-            clearable
-            style="width: 160px"
-            @keyup.enter="onQuery"
-          />
+        <el-form-item :label="$t('message.sdk.platform.colSafety')">
+          <el-select v-model="q.safety" style="width: 160px">
+            <el-option :label="$t('message.sdk.platform.safetyAll')" value="" />
+            <el-option :label="$t('message.sdk.platform.safetySafe')" value="safe" />
+            <el-option :label="$t('message.sdk.platform.safetyAdult')" value="adult" />
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onQuery">{{ $t("message.sdk.platform.btnQuery") }}</el-button>
@@ -50,41 +44,36 @@
         class="pf-table"
         :empty-text="$t('message.sdk.platform.noData')"
       >
-        <el-table-column prop="id" :label="$t('message.sdk.platform.colId')" width="80" align="center" />
-        <el-table-column prop="siteId" :label="$t('message.sdk.platform.colSiteId')" width="80" align="center" />
-        <el-table-column prop="accountId" :label="$t('message.sdk.platform.colAccountId')" width="100" align="center" />
-        <el-table-column :label="$t('message.sdk.platform.colOp')" width="120" align="center">
+        <el-table-column prop="id" :label="$t('message.sdk.platform.colId')" width="190" show-overflow-tooltip />
+        <el-table-column prop="name" :label="$t('message.sdk.platform.colName')" min-width="180" show-overflow-tooltip />
+        <el-table-column
+          prop="fileName"
+          :label="$t('message.sdk.platform.colFileName')"
+          min-width="240"
+          show-overflow-tooltip
+        />
+        <el-table-column prop="family" :label="$t('message.sdk.platform.colFamily')" width="120" />
+        <el-table-column :label="$t('message.sdk.platform.colSafety')" width="110" align="center">
           <template #default="{ row }">
-            <el-tag :type="opTagType(row.op)" size="small" effect="plain" round>
-              {{ row.op }}
+            <el-tag :type="row.safety === 'adult' ? 'danger' : 'success'" size="small" effect="plain" round>
+              {{ row.safety === "adult" ? $t("message.sdk.platform.safetyAdult") : $t("message.sdk.platform.safetySafe") }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('message.sdk.platform.colAmount')" width="120" align="right">
+        <el-table-column prop="state" :label="$t('message.sdk.platform.colState')" width="120" />
+        <el-table-column :label="$t('message.sdk.platform.colAction')" width="180" align="center" fixed="right">
           <template #default="{ row }">
-            <span :class="row.amount >= 0 ? 'pf-positive' : 'pf-negative'" class="pf-num">
-              {{ row.amount > 0 ? "+" : "" }}{{ row.amount }}
-            </span>
+            <el-button link type="primary" :disabled="row.safety === 'safe'" @click="onMark(row, 'safe')">
+              {{ $t("message.sdk.platform.btnMarkSafe") }}
+            </el-button>
+            <el-button link type="primary" :disabled="row.safety === 'adult'" @click="onMark(row, 'adult')">
+              {{ $t("message.sdk.platform.btnMarkAdult") }}
+            </el-button>
           </template>
-        </el-table-column>
-        <el-table-column :label="$t('message.sdk.platform.colBalanceAfter')" width="140" align="right">
-          <template #default="{ row }">
-            <span class="pf-mono">{{ row.balanceAfter }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="taskId" :label="$t('message.sdk.platform.colTaskId')" width="100" align="center" />
-        <el-table-column prop="orderId" :label="$t('message.sdk.platform.colOrderId')" width="100" align="center" />
-        <el-table-column :label="$t('message.sdk.platform.colCreatedAt')" width="180">
-          <template #default="{ row }">{{ fmtTime(row.createdAt) }}</template>
         </el-table-column>
       </el-table>
       <div class="pf-footer">
-        <pagination
-          v-model:page="page"
-          v-model:limit="size"
-          :total="total"
-          @change="loadData"
-        />
+        <pagination v-model:page="page" v-model:limit="size" :total="total" @change="loadData" />
       </div>
     </div>
   </div>
@@ -93,55 +82,34 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted, onActivated } from "vue";
 import { HomeFilled } from "@element-plus/icons-vue";
-import { getPlatformLedger, AdminLedgerItem } from "/@/api/addon/platform";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { useI18n } from "vue-i18n";
+import { getPlatformLoras, importPlatformLoras, setPlatformLoraSafety, AdminLoraItem } from "/@/api/addon/platform";
 
 export default defineComponent({
-  name: "addonPlatformLedgerList",
+  name: "addonPlatformLora",
   components: { HomeFilled },
   setup() {
-    const tableData = ref<AdminLedgerItem[]>([]);
+    const { t } = useI18n();
+    const tableData = ref<AdminLoraItem[]>([]);
     const loading = ref(false);
+    const importing = ref(false);
     const page = ref(1);
-    const size = ref(20);
+    const size = ref(50);
     const total = ref(0);
-    const q = reactive<{ siteId?: number; accountId?: number }>({
-      siteId: undefined,
-      accountId: undefined,
-    });
-
-    const opTagType = (op: string) => {
-      switch (op) {
-        case "grant":
-          return "success";
-        case "reserve":
-          return "warning";
-        case "capture":
-        case "refund":
-        case "release":
-          return "info";
-        case "expire":
-        case "adjust":
-        default:
-          return "";
-      }
-    };
-
-    const fmtTime = (ts: number) => {
-      if (!ts) return "-";
-      return new Date(ts * 1000).toLocaleString();
-    };
+    // safety 为 "" 表示不过滤（全部）
+    const q = reactive<{ safety: string }>({ safety: "" });
 
     const loadData = async () => {
       loading.value = true;
       try {
-        const res: any = await getPlatformLedger({
-          siteId: q.siteId,
-          accountId: q.accountId,
+        const res: any = await getPlatformLoras({
+          safety: q.safety,
           page: page.value,
           pageSize: size.value,
         });
         const d = res.data || res;
-        tableData.value = d.list || [];
+        tableData.value = d.items || [];
         total.value = d.total || 0;
       } finally {
         loading.value = false;
@@ -153,10 +121,44 @@ export default defineComponent({
       loadData();
     };
     const onReset = () => {
-      q.siteId = undefined;
-      q.accountId = undefined;
+      q.safety = "";
       page.value = 1;
       loadData();
+    };
+
+    // 从站点 ComfyUI 一键导入全部 LoRA：落库并按 NSFW 黑名单自动标记成人。
+    const onImport = async () => {
+      try {
+        await ElMessageBox.confirm(t("message.sdk.platform.importConfirm"), t("message.common.confirmTitle"), {
+          type: "warning",
+        });
+      } catch {
+        return; // 用户取消
+      }
+      importing.value = true;
+      try {
+        const res: any = await importPlatformLoras();
+        const d = res.data || res;
+        ElMessage.success(
+          t("message.sdk.platform.importDone", {
+            total: d.total || 0,
+            imported: d.imported || 0,
+            updated: d.updated || 0,
+            skipped: d.skipped || 0,
+            adult: d.markedAdult || 0,
+          })
+        );
+        await loadData();
+      } finally {
+        importing.value = false;
+      }
+    };
+
+    // 人工调整安全标记（safe / adult）
+    const onMark = async (row: AdminLoraItem, safety: "safe" | "adult") => {
+      await setPlatformLoraSafety({ id: row.id, safety });
+      ElMessage.success(t("message.sdk.platform.switchOk"));
+      await loadData();
     };
 
     onMounted(() => loadData());
@@ -165,15 +167,16 @@ export default defineComponent({
     return {
       tableData,
       loading,
+      importing,
       page,
       size,
       total,
       q,
-      opTagType,
-      fmtTime,
       loadData,
       onQuery,
       onReset,
+      onImport,
+      onMark,
     };
   },
 });
@@ -189,16 +192,6 @@ export default defineComponent({
   font-weight: 600;
   color: var(--cc-color-text-2);
 }
-.pf-num {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-weight: 600;
-}
-.pf-positive {
-  color: var(--el-color-success);
-}
-.pf-negative {
-  color: var(--el-color-danger);
-}
 .pf-header {
   display: flex;
   justify-content: space-between;
@@ -212,6 +205,11 @@ export default defineComponent({
   border: 1px solid var(--cc-color-border-light);
   border-radius: var(--cc-radius-xl);
   box-shadow: var(--cc-shadow-sm);
+}
+.pf-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cc-space-2);
 }
 .pf-title {
   font-family: var(--cc-font-sans);

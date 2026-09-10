@@ -100,7 +100,7 @@
       <div class="pf-footer">
         <pagination
           v-model:page="page"
-          v-model:size="size"
+          v-model:limit="size"
           :total="total"
           @change="loadData"
         />
