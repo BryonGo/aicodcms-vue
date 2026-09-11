@@ -28,3 +28,7 @@ pnpm-debug.log*
 
 # 本地 dev server 输出
 dev-server.log
+
+# 本地 dev server 日志（转发输出，不入库）
+dev-server-err.log
+dev-server.log
