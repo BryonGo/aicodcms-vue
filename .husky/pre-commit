@@ -34,15 +34,25 @@ fi
 echo "✅ 敏感信息扫描通过"
 
 # ---- 2. 前端构建验证 ----
-echo "🔨 验证前端构建 (bun run build)..."
-if ! bun run build 2>/tmp/gosdkvue_build.log; then
-  echo "❌ bun run build 失败："
-  cat /tmp/gosdkvue_build.log
+#
+# 优先 bun（本仓库默认工具链），但**本机上 ~/.local/share/vite-plus/bin/bun 只是
+# vp 的 symlink shim**，vp 检测到递归会拒绝执行（"no 'bun' found in PATH
+# (excluding shims)"）→ 钩子永远失败，只能 git commit --no-verify 绕过，而那会把
+# 上面的凭据扫描一起跳过，安全网等于失效。因此显式回退 npm：`npm run build`
+# 调的是同一个 vp build，验证等效。
+BUILD_LOG=/tmp/gosdkvue_build.log
+echo "🔨 验证前端构建..."
+if command -v bun >/dev/null 2>&1 && [ ! -L "$(command -v bun)" ] && bun run build 2>"$BUILD_LOG"; then
+  echo "✅ bun run build 通过"
+elif npm run build 2>"$BUILD_LOG"; then
+  echo "✅ npm run build 通过"
+else
+  echo "❌ 前端构建失败："
+  cat "$BUILD_LOG"
   echo ""
   echo "🛑 提交被拦截：构建未通过。修复后再提交。"
   exit 1
 fi
-echo "✅ bun run build 通过"
 
 # ---- 3. 原有类型检查 ----
 node scripts/type-check-staged.mjs
