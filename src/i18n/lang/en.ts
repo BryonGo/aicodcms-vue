@@ -1,6 +1,7 @@
 export default {
   router: {
     home: "Home",
+    loading: "Loading",
     login: "Login",
     system: "System",
     systemMenu: "System Menu",

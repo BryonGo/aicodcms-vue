@@ -70,7 +70,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         name: "cmsArticleAdd",
         component: () => import("/@/views/cms/article/list/add.vue"),
         meta: {
-          title: "message.router.user.cmsArticleAdd",
+          title: "message.router.cmsArticleAdd",
           is_hide: true,
           is_keep_alive: true,
           permissions: ["api/v1/admin/article/add"],
@@ -452,7 +452,8 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         path: "/addon/sdk/email",
         name: "addonSdkEmail",
         component: () => import("/@/views/addon/sdk/email/index.vue"),
-        meta: { title: "message.sdk.email", is_hide: true, is_keep_alive: true },
+        // sdk.email 是邮件服务的**文案对象**（不是字符串），标题要取它的 title
+        meta: { title: "message.sdk.email.title", is_hide: true, is_keep_alive: true },
       },
     ],
   },

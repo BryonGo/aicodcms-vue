@@ -2,6 +2,7 @@
 export default {
   router: {
     home: "首页",
+    loading: "加载中",
     login: "登录",
     system: "系统管理",
     systemMenu: "系统菜单",
