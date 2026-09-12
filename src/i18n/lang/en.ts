@@ -513,6 +513,8 @@ export default {
       typeAll: "All types",
       filterFamily: "Family / workflow",
       familyAll: "All families",
+      filterEngine: "Engine",
+      engineAll: "All engines",
       colCover: "Icon",
       overrideYes: "Rewritten",
       btnDisable: "Disable",
@@ -534,7 +536,7 @@ export default {
       batchFilteredHint:
         "Filtering batch affects every model matching the current filter, including rows on other pages.",
       batchNeedCond:
-        "A filtered batch needs at least one condition: kind / type / family / keyword",
+        "A filtered batch needs at least one condition: kind / type / family / engine / keyword",
       batchNeedScope: "Select the models to operate on first",
       batchResult: "Updated {n}",
       batchResultSkipped:

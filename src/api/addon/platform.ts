@@ -156,6 +156,8 @@ export interface AdminModelSwitchListParams {
   kind?: string;
   type?: string;
   family?: string;
+  /** 引擎（comfy 等），空=不限 */
+  engine?: string;
   query?: string;
   page?: number;
   pageSize?: number;
@@ -169,6 +171,7 @@ export interface AdminModelSwitchListRes {
 export interface AdminModelSwitchFacetsRes {
   types: string[];
   families: string[];
+  engines: string[];
 }
 
 export interface AdminModelSwitchSetParams {
@@ -179,7 +182,7 @@ export interface AdminModelSwitchSetParams {
 }
 
 /**
- * 批量启停入参：ids 精确指定；不给 ids 时按 kind+type/family/query 条件批量。
+ * 批量启停入参：ids 精确指定；不给 ids 时按 kind+type/family/engine/query 条件批量。
  * 条件批量必须带足筛选条件，后端会拒绝「只有 kind」的无条件批量。
  */
 export interface AdminModelSwitchBatchParams {
@@ -187,6 +190,7 @@ export interface AdminModelSwitchBatchParams {
   ids?: string[];
   type?: string;
   family?: string;
+  engine?: string;
   query?: string;
   enabled: boolean;
   reason?: string;

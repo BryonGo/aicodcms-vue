@@ -78,6 +78,21 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.filterEngine')">
+          <el-select
+            v-model="q.engine"
+            clearable
+            style="width: 140px"
+            :placeholder="$t('message.sdk.platform.engineAll')"
+          >
+            <el-option
+              v-for="e in facets.engines"
+              :key="e"
+              :label="e"
+              :value="e"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colName')">
           <el-input
             v-model="q.query"
@@ -416,16 +431,23 @@ export default defineComponent({
       kind: string;
       type: string;
       family: string;
+      engine: string;
       query: string;
     }>({
       kind: "",
       type: "",
       family: "",
+      engine: "",
       query: "",
     });
-    const facets = reactive<{ types: string[]; families: string[] }>({
+    const facets = reactive<{
+      types: string[];
+      families: string[];
+      engines: string[];
+    }>({
       types: [],
       families: [],
+      engines: [],
     });
     const batchScope = ref<"selected" | "filtered">("selected");
 
@@ -464,9 +486,11 @@ export default defineComponent({
         const d = res.data || res;
         facets.types = d.types || [];
         facets.families = d.families || [];
+        facets.engines = d.engines || [];
       } catch {
         facets.types = [];
         facets.families = [];
+        facets.engines = [];
       }
     };
 
@@ -477,6 +501,7 @@ export default defineComponent({
           kind: q.kind,
           type: q.type,
           family: q.family,
+          engine: q.engine,
           query: q.query,
           page: page.value,
           pageSize: size.value,
@@ -499,9 +524,10 @@ export default defineComponent({
       loadData();
     };
     const onFilterKindChange = () => {
-      // 类别变了，type/family 的可选项也变；旧值可能不再存在，直接清空避免查出空列表。
+      // 类别变了，type/family/engine 的可选项也变；旧值可能不再存在，直接清空避免查出空列表。
       q.type = "";
       q.family = "";
+      q.engine = "";
       selection.value = [];
       tableRef.value?.clearSelection();
       page.value = 1;
@@ -511,6 +537,7 @@ export default defineComponent({
       q.kind = "";
       q.type = "";
       q.family = "";
+      q.engine = "";
       q.query = "";
       batchScope.value = "selected";
       selection.value = [];
@@ -593,13 +620,14 @@ export default defineComponent({
         const kinds = [...new Set(selection.value.map((r) => r.kind))];
         if (kinds.length === 1) payload.kind = kinds[0];
       } else {
-        if (!q.kind && !q.type && !q.family && !q.query) {
+        if (!q.kind && !q.type && !q.family && !q.engine && !q.query) {
           ElMessage.warning(t("message.sdk.platform.batchNeedCond"));
           return;
         }
         if (q.kind) payload.kind = q.kind;
         payload.type = q.type;
         payload.family = q.family;
+        payload.engine = q.engine;
         payload.query = q.query;
       }
       const count =

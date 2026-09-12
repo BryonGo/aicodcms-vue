@@ -507,6 +507,8 @@ export default {
       typeAll: "全部类型",
       filterFamily: "族 / 工作流",
       familyAll: "全部族",
+      filterEngine: "引擎",
+      engineAll: "全部引擎",
       colCover: "图标",
       overrideYes: "已改写",
       btnDisable: "停用",
@@ -526,7 +528,7 @@ export default {
       batchDisableReason: "批量停用原因",
       batchFilteredHint:
         "按筛选批量会命中当前筛选下的全部模型（含未显示在当页的）。",
-      batchNeedCond: "按筛选批量至少需要一个条件：类别 / 类型 / 族 / 关键词",
+      batchNeedCond: "按筛选批量至少需要一个条件：类别 / 类型 / 族 / 引擎 / 关键词",
       batchNeedScope: "请先勾选要操作的模型",
       batchResult: "已更新 {n} 条",
       batchResultSkipped: "已更新 {n} 条，跳过 {m} 条（不在可管理清单）",
