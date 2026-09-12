@@ -43,8 +43,9 @@ export default {
     addonJobEdit: "编辑任务",
     addonShortlink: "短链管理",
     addonShortio: "Short.io 短链",
-  
-    cmsArticleAdd: "添加文章",},
+
+    cmsArticleAdd: "添加文章",
+  },
 
   statusDraft: "草稿",
   statusDraftHint: "请先填写标题再保存草稿",
@@ -148,7 +149,8 @@ export default {
     sixClassic: "经典",
     sixTransverse: "横向",
     sixColumns: "分栏",
-    tipText: "点击下方按钮，复制布局配置去 `src/stores/themeConfig.ts` 中修改。",
+    tipText:
+      "点击下方按钮，复制布局配置去 `src/stores/themeConfig.ts` 中修改。",
     copyText: "一键复制配置",
     resetText: "一键恢复默认",
     copyTextSuccess: "复制成功！",
@@ -271,11 +273,12 @@ export default {
     tips: "提示",
     updateTime: "更新时间",
     weight: "权重",
-  
+
     saveSuccess: "保存成功",
     deleteSuccess: "删除成功",
     pressEscToClose: "按 Esc 关闭",
-    batchDelete: "批量删除",},
+    batchDelete: "批量删除",
+  },
   // 模型字段翻译（扁平 key: moduleField_{name} / moduleFieldOpt_{name}_{optKey}）
   moduleField_language: "语言",
   moduleField_region: "地区",
@@ -451,11 +454,14 @@ export default {
       statusAll: "全部状态",
       productAll: "全部产品",
       modelSwitchTitle: "模型开关",
-      modelSwitchSubtitle: "上/下线底模、LoRA、视频与云端模型；停用后前台不可见、创建任务被拒",
+      modelSwitchSubtitle:
+        "上/下线底模、LoRA、视频与云端模型；停用后前台不可见、创建任务被拒",
       videoOptionTitle: "视频生成选项",
-      videoOptionSubtitle: "成人 LoRA 开关与当前 i2v 工作流关键参数（只读项便于与参考工作流核对）",
+      videoOptionSubtitle:
+        "成人 LoRA 开关与当前 i2v 工作流关键参数（只读项便于与参考工作流核对）",
       loraTitle: "LoRA 目录",
-      loraSubtitle: "从站点 ComfyUI 一键导入 LoRA，并按 NSFW 黑名单标记 / 人工调整",
+      loraSubtitle:
+        "从站点 ComfyUI 一键导入 LoRA，并按 NSFW 黑名单标记 / 人工调整",
       usersTitle: "用户与积分",
       usersSubtitle: "用户列表与详情、积分/余额调整（留审计）、钱包流水",
       tagsTitle: "标签管理",
@@ -480,7 +486,8 @@ export default {
       batchFrom: "起始秒",
       batchTo: "结束秒",
       batchCredits: "每秒积分",
-      batchHint: "将为该画幅的每一秒写入 i2v:<画幅>:<秒> 报价行；已存在的秒数会被覆盖为同一价格（revision+1）。",
+      batchHint:
+        "将为该画幅的每一秒写入 i2v:<画幅>:<秒> 报价行；已存在的秒数会被覆盖为同一价格（revision+1）。",
       batchRun: "开始生成",
       batchDone: "已写入 {n} 条",
       writeOk: "写入成功",
@@ -495,13 +502,48 @@ export default {
       kindImage: "图片",
       kindVideo: "视频",
       kindCloud: "云端",
+      filterType: "类型",
+      typeAll: "全部类型",
+      filterFamily: "族 / 工作流",
+      familyAll: "全部族",
+      colCover: "图标",
+      overrideYes: "已改写",
       btnDisable: "停用",
       btnEnable: "启用",
+      btnEditMeta: "编辑信息",
       disableReason: "停用原因",
       disableReasonRequired: "停用必须填写原因",
       switchOk: "已更新",
+      batchSelected: "已勾选 {n} 条",
+      batchScope: "批量范围",
+      batchScopeSelected: "已勾选",
+      batchScopeFiltered: "当前筛选全部",
+      batchEnable: "批量启用",
+      batchDisable: "批量停用",
+      batchEnableConfirm: "确认启用 {n} 个模型？启用后前台立即可见。",
+      batchDisableTitle: "批量停用",
+      batchDisableReason: "批量停用原因",
+      batchFilteredHint:
+        "按筛选批量会命中当前筛选下的全部模型（含未显示在当页的）。",
+      batchNeedCond: "按筛选批量至少需要一个条件：类型 / 族 / 关键词",
+      batchNeedScope: "请先勾选模型，或改用「当前筛选全部」",
+      batchResult: "已更新 {n} 条",
+      batchResultSkipped: "已更新 {n} 条，跳过 {m} 条（不在可管理清单）",
+      metaTitle: "编辑模型信息",
+      metaHint:
+        "留空即使用静态定义。只影响前台展示，不改模型 ID、工作流与计价。",
+      metaFieldTitle: "展示名",
+      metaFieldSummary: "一句话简介",
+      metaFieldCover: "图标 / 封面 URL",
+      metaDefault: "默认：{v}",
+      metaEmpty: "（无）",
+      metaSaved: "模型信息已更新",
+      metaReset: "恢复默认",
+      metaResetConfirm: "确认清除该模型的展示信息改写，恢复静态定义？",
+      metaResetOk: "已恢复默认展示信息",
       voMystic: "成人 LoRA（MysticXXX MMH3-V4）",
-      voMysticHint: "参考工作流里的第二个 LoRA。默认开启，用于 LoRA 效果对照测试；关闭后不拼该节点。",
+      voMysticHint:
+        "参考工作流里的第二个 LoRA。默认开启，用于 LoRA 效果对照测试；关闭后不拼该节点。",
       voBaseLora: "基础加速 LoRA",
       voNsfwLora: "成人 LoRA",
       voSteps: "采样步数",
@@ -512,7 +554,8 @@ export default {
       voSaved: "已保存",
       voConfirm: "确认修改成人 LoRA 开关？该改动影响之后创建的所有视频任务。",
       btnImportLora: "从 ComfyUI 一键导入",
-      importConfirm: "将从站点配置的 ComfyUI 拉取全部 LoRA 并落库，按 NSFW 黑名单自动标记。继续？",
+      importConfirm:
+        "将从站点配置的 ComfyUI 拉取全部 LoRA 并落库，按 NSFW 黑名单自动标记。继续？",
       colFileName: "文件名",
       colSafety: "安全标记",
       colState: "状态",
@@ -521,7 +564,8 @@ export default {
       safetyAdult: "成人",
       btnMarkSafe: "标记安全",
       btnMarkAdult: "标记成人",
-      importDone: "导入完成：共 {total}，新增 {imported}，更新 {updated}，跳过 {skipped}，标记成人 {adult}",
+      importDone:
+        "导入完成：共 {total}，新增 {imported}，更新 {updated}，跳过 {skipped}，标记成人 {adult}",
       colDisplayName: "昵称",
       colLastSeen: "最近活跃",
       colHolds: "预占",
@@ -563,9 +607,11 @@ export default {
     attrClipboard:
       "感谢优秀的 `vue-clipboard3`，项目地址：https://github.com/JamieCurnow/vue-clipboard3",
     countup: "数字滚动演示",
-    attrCountup: "感谢优秀的 `countup.js`，项目地址：https://github.com/inorganik/countUp.js",
+    attrCountup:
+      "感谢优秀的 `countup.js`，项目地址：https://github.com/inorganik/countUp.js",
     cropper: "cropper 图片裁剪",
-    attrCropper: "感谢优秀的 `cropperjs`，项目地址：https://github.com/fengyuanchen/cropperjs",
+    attrCropper:
+      "感谢优秀的 `cropperjs`，项目地址：https://github.com/fengyuanchen/cropperjs",
     gridLayout: "vue-grid-layout 拖拽布局演示",
     attrGridLayout:
       "感谢优秀的 `vue-grid-layout`，项目地址：https://github.com/jbaysolutions/vue-grid-layout",
@@ -573,9 +619,11 @@ export default {
     attrPrintJs:
       "感谢优秀的 `print-js`，项目地址：https://github.com/crabbly/Print.js。请在打印弹窗 `更多设置` 中开启 `背景图形`。",
     qrcode: "qrcodejs2 二维码生成",
-    attrQrcode: "感谢优秀的 `qrcodejs2`，项目地址：https://github.com/davidshimjs/qrcodejs",
+    attrQrcode:
+      "感谢优秀的 `qrcodejs2`，项目地址：https://github.com/davidshimjs/qrcodejs",
     splitpanes: "splitpanes 窗格拆分器",
-    attrSplitpanes: "感谢优秀的 `splitpanes`，项目地址：https://github.com/antoniandre/splitpanes",
+    attrSplitpanes:
+      "感谢优秀的 `splitpanes`，项目地址：https://github.com/antoniandre/splitpanes",
     tagsViewDemo: "tagsView 当前页演示",
     tagsViewNotice:
       "已删除非当前页 tagsView 演示，后续有时间可以再加回来！，tagsview 支持多标签（参数不同）、单标签共用（参数不同）",
@@ -642,14 +690,16 @@ export default {
     lifecycleRules: "生命周期规则",
     encryption: "加密",
     bucketPolicy: "桶策略",
-    versioningDesc: "允许在同一个存储桶中保留对象的多个版本，防止意外删除和覆盖。",
+    versioningDesc:
+      "允许在同一个存储桶中保留对象的多个版本，防止意外删除和覆盖。",
     enableVersioning: "启用版本控制",
     lifecycleDesc: "自动管理对象的生命周期，例如自动删除过期文件。",
     prefixMatch: "前缀匹配",
     prefixPlaceholder: "如 logs/",
     expireDays: "过期天数",
     serverSideEncryption: "服务端加密",
-    sseDesc: "SSE-S3 使用 AES-256 保护存储桶中的静态数据。开启后新上传文件自动加密。",
+    sseDesc:
+      "SSE-S3 使用 AES-256 保护存储桶中的静态数据。开启后新上传文件自动加密。",
     sseDisabled:
       "MinIO 服务端未配置 KMS，SSE-S3 加密不可用。如需启用，请在 MinIO 服务端配置 KES 密钥服务。",
     enableSSE: "SSE-S3 AES-256 加密",
@@ -740,7 +790,7 @@ export default {
     statsTotal: "共 {count} 个文件",
     uploadSuccess: "{count} 个文件上传成功",
     uploadPartial: "{success} 个成功，{fail} 个失败",
-    confirmSingleDelete: '确认删除「{name}」？',
+    confirmSingleDelete: "确认删除「{name}」？",
     confirmBatchDelete: "确认删除 {count} 个文件？",
   },
 
@@ -845,16 +895,18 @@ export default {
     pushApi: "主动推送API",
     domainRequired: "请输入网站域名",
     generateDone: "生成完成",
-  
+
     generateFailed: "生成失败",
     responsePrefix: "返回前缀",
-    pushFailed: "推送失败",},
+    pushFailed: "推送失败",
+  },
 
   // ==================== 短链管理 ====================
   addon_shortlink: {
     title: "短链管理",
     plugin: "插件",
-    subtitle: "站点级短链：短码 → 目标地址 302/301 跳转；支持主 CTA、过期时间与点击统计（数据按右上角所选站点隔离）",
+    subtitle:
+      "站点级短链：短码 → 目标地址 302/301 跳转；支持主 CTA、过期时间与点击统计（数据按右上角所选站点隔离）",
     add: "新增短链",
     addTitle: "新增短链",
     editTitle: "编辑短链",
@@ -916,7 +968,8 @@ export default {
   addon_shortio: {
     title: "Short.io 短链",
     plugin: "插件",
-    subtitle: "short.io 托管的短链管理：短码 → 目标地址跳转，含过期时间与点击统计（账户级，非站点维度）",
+    subtitle:
+      "short.io 托管的短链管理：短码 → 目标地址跳转，含过期时间与点击统计（账户级，非站点维度）",
     add: "新增短链",
     addTitle: "新增短链",
     editTitle: "编辑短链",
@@ -941,7 +994,8 @@ export default {
     stats: "统计",
     statsTitle: "点击统计",
     setCta: "设为CTA",
-    setCtaConfirm: "把「{code}」设为当前站点主 CTA？\n{url}\n（站点所有 CTA 按钮立即指向该短链，无需改模板）",
+    setCtaConfirm:
+      "把「{code}」设为当前站点主 CTA？\n{url}\n（站点所有 CTA 按钮立即指向该短链，无需改模板）",
     setCtaOk: "已设为当前站点主 CTA",
     del: "删除",
     delConfirm: "确认删除短链「{code}」？",
@@ -1159,10 +1213,11 @@ export default {
     restored: "已恢复",
     destroyed: "已彻底删除",
     batchedApproved: "批量通过完成",
-  
+
     status: "状态",
     action: "操作",
-    delete: "删除",},
+    delete: "删除",
+  },
   // ==================== Form / 表单 ====================
   form: {
     exportCsv: "导出 CSV",
@@ -1205,14 +1260,15 @@ export default {
     created: "已创建",
     confirmDeleteForm: "删除后字段和数据将一并删除，确认？",
     actionSettings: "设置",
-  
+
     time: "时间",
     confirm: "确认",
     deleted: "已删除",
     createTime: "创建时间",
     action: "操作",
     delete: "删除",
-    status: "状态",},
+    status: "状态",
+  },
   // ==================== Webhook ====================
   webhook: {
     addWebhook: "新增 Webhook",
@@ -1233,7 +1289,7 @@ export default {
     pleaseFillNameUrl: "请填写名称和 URL",
     confirmDelete: "确认删除？",
     editWebhook: "编辑 Webhook",
-  
+
     status: "状态",
     createTime: "创建时间",
     action: "操作",
@@ -1242,7 +1298,8 @@ export default {
     saved: "已保存",
     created: "已创建",
     confirm: "确认",
-    deleted: "已删除",},
+    deleted: "已删除",
+  },
   // ==================== CMS Article / 文章 ====================
   cmsArticle: {
     revisionHistory: "历史版本",
@@ -1271,7 +1328,7 @@ export default {
     inputTagsCsv: "输入标签，用逗号分隔",
     selectStatus: "选择状态",
     confirmExecute: "确认执行",
-  
+
     action: "操作",
     unknown: "未知",
     btnRegenerateStatic: "重新生成静态页",
@@ -1279,7 +1336,8 @@ export default {
     confirmBatchRegen: "确认批量重新生成所选文章的静态页？",
     titleBatchRegen: "批量重新生成",
     msgRegenerating: "正在重新生成，请稍候…",
-    msgRegenerateDone: "重新生成完成",},
+    msgRegenerateDone: "重新生成完成",
+  },
   // ==================== CMS Link / 友链 ====================
   menu_cms_link: "友情链接管理",
   menu_cms_link_add: "新增友情链接",
@@ -1349,8 +1407,10 @@ export default {
     syncResult: "同步结果",
     syncComplete: "同步完成",
     sourceFile: "源文件",
-    sourceFileHint: "留空按语言和 Slug 自动生成，例如 zh-CN/getting-started/overview.md",
-    sourceHint: "正文来自本地 Markdown 源文件；保存会写回 .md 文件，数据库只更新结构和文件元数据。",
+    sourceFileHint:
+      "留空按语言和 Slug 自动生成，例如 zh-CN/getting-started/overview.md",
+    sourceHint:
+      "正文来自本地 Markdown 源文件；保存会写回 .md 文件，数据库只更新结构和文件元数据。",
     sourceHash: "文件哈希",
     sourceMtime: "文件修改时间",
     syncedAt: "同步时间",

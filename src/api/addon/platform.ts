@@ -139,11 +139,23 @@ export interface AdminModelSwitchItem {
   engine: string;
   enabled: boolean;
   reason: string;
+  /** 生效简介（后台覆盖优先，未覆盖回落静态定义） */
+  summary: string;
+  /** 生效图标/封面 */
+  cover: string;
+  /** 静态定义名称（用于「已改写」标记与恢复默认回显） */
+  defaultName: string;
+  defaultSummary: string;
+  defaultCover: string;
+  /** 展示信息是否已被后台改写 */
+  hasOverride: boolean;
   updatedAt: number;
 }
 
 export interface AdminModelSwitchListParams {
   kind?: string;
+  type?: string;
+  family?: string;
   query?: string;
   page?: number;
   pageSize?: number;
@@ -154,11 +166,47 @@ export interface AdminModelSwitchListRes {
   total: number;
 }
 
+export interface AdminModelSwitchFacetsRes {
+  types: string[];
+  families: string[];
+}
+
 export interface AdminModelSwitchSetParams {
   kind: string;
   modelId: string;
   enabled: boolean;
   reason?: string;
+}
+
+/**
+ * 批量启停入参：ids 精确指定；不给 ids 时按 kind+type/family/query 条件批量。
+ * 条件批量必须带足筛选条件，后端会拒绝「只有 kind」的无条件批量。
+ */
+export interface AdminModelSwitchBatchParams {
+  kind: string;
+  ids?: string[];
+  type?: string;
+  family?: string;
+  query?: string;
+  enabled: boolean;
+  reason?: string;
+}
+
+export interface AdminModelSwitchBatchRes {
+  updated: number;
+  skipped: number;
+  ids: string[];
+}
+
+export interface AdminModelMetaSetParams {
+  kind: string;
+  modelId: string;
+  /** 展示名；空串 = 恢复静态定义 */
+  title: string;
+  /** 一句话简介；空串 = 恢复静态定义 */
+  summary: string;
+  /** 图标/封面 URL；空串 = 恢复静态定义 */
+  cover: string;
 }
 
 /** 模型开关列表（含未设置记录的模型，enabled 默认 true） */
@@ -167,6 +215,47 @@ export function getPlatformModelSwitches(params: AdminModelSwitchListParams) {
     url: "/api/v1/addon/admin/platform/model/switch/list",
     method: "get",
     params,
+  });
+}
+
+/** 筛选下拉可选项（type / family 由后端清单推导，避免前端硬编码） */
+export function getPlatformModelSwitchFacets(kind?: string) {
+  return request<AdminModelSwitchFacetsRes>({
+    url: "/api/v1/addon/admin/platform/model/switch/facets",
+    method: "get",
+    params: { kind },
+  });
+}
+
+/** 批量启停（勾选若干条 ids，或按当前筛选条件整体启停） */
+export function batchSetPlatformModelSwitches(
+  data: AdminModelSwitchBatchParams,
+) {
+  return request<AdminModelSwitchBatchRes>({
+    url: "/api/v1/addon/admin/platform/model/switch/batch",
+    method: "post",
+    data,
+  });
+}
+
+/** 设置模型展示信息（名称/简介/图标；空串=恢复静态定义） */
+export function setPlatformModelMeta(data: AdminModelMetaSetParams) {
+  return request<AdminModelSwitchItem>({
+    url: "/api/v1/addon/admin/platform/model/meta",
+    method: "post",
+    data,
+  });
+}
+
+/** 恢复默认展示信息（删除覆盖记录） */
+export function resetPlatformModelMeta(data: {
+  kind: string;
+  modelId: string;
+}) {
+  return request<AdminModelSwitchItem>({
+    url: "/api/v1/addon/admin/platform/model/meta/reset",
+    method: "post",
+    data,
   });
 }
 
@@ -281,7 +370,10 @@ export function importPlatformLoras() {
 }
 
 /** 人工调整 LoRA 安全标记 */
-export function setPlatformLoraSafety(data: { id: string; safety: "safe" | "adult" }) {
+export function setPlatformLoraSafety(data: {
+  id: string;
+  safety: "safe" | "adult";
+}) {
   return request<{ ok: boolean }>({
     url: "/api/v1/addon/admin/platform/lora/safety",
     method: "post",
@@ -368,7 +460,12 @@ export function getPlatformUser(id: string) {
 }
 
 /** 余额调整（credit=积分 / balance=余额分），必填原因，留审计 */
-export function adjustPlatformUser(data: { id: string; asset: "credit" | "balance"; amount: number; reason: string }) {
+export function adjustPlatformUser(data: {
+  id: string;
+  asset: "credit" | "balance";
+  amount: number;
+  reason: string;
+}) {
   return request<AdminUserDetail>({
     url: "/api/v1/addon/admin/platform/user/adjust",
     method: "post",
@@ -377,7 +474,11 @@ export function adjustPlatformUser(data: { id: string; asset: "credit" | "balanc
 }
 
 /** 用户暂停/恢复 */
-export function actPlatformUser(data: { id: string; action: "suspend" | "restore"; reason: string }) {
+export function actPlatformUser(data: {
+  id: string;
+  action: "suspend" | "restore";
+  reason: string;
+}) {
   return request<AdminUserDetail>({
     url: "/api/v1/addon/admin/platform/user/action",
     method: "post",
@@ -386,7 +487,12 @@ export function actPlatformUser(data: { id: string; action: "suspend" | "restore
 }
 
 /** 用户钱包流水 */
-export function getPlatformUserLedger(params: { id: string; asset?: string; page?: number; pageSize?: number }) {
+export function getPlatformUserLedger(params: {
+  id: string;
+  asset?: string;
+  page?: number;
+  pageSize?: number;
+}) {
   return request<AdminUserLedgerRes>({
     url: "/api/v1/addon/admin/platform/user/ledger/list",
     method: "get",
@@ -430,7 +536,11 @@ export function getPlatformTags(params: AdminTagListParams) {
 }
 
 /** 创建标签 */
-export function createPlatformTag(data: { name: string; aliases?: string[]; priority?: number }) {
+export function createPlatformTag(data: {
+  name: string;
+  aliases?: string[];
+  priority?: number;
+}) {
   return request<AdminTag>({
     url: "/api/v1/addon/admin/platform/tag/create",
     method: "post",

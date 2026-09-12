@@ -19,7 +19,8 @@ export default {
     cmsLinkEdit: "Edit Link",
     pmsModulesInfoAdd: "Add Model",
     pmsModulesInfoEdit: "Edit Model",
-    pmsModulesInfoGenModelConfirm: "Generating the model will back up and delete original table data. Continue?",
+    pmsModulesInfoGenModelConfirm:
+      "Generating the model will back up and delete original table data. Continue?",
     pmsModulesFieldAdd: "Add Field",
     pmsModulesFieldEdit: "Edit Field",
     pmsDictAdd: "Add Dict",
@@ -42,8 +43,9 @@ export default {
     addonJobEdit: "Edit Job",
     addonShortlink: "Short Links",
     addonShortio: "Short.io Links",
-  
-    cmsArticleAdd: "Add Article",},
+
+    cmsArticleAdd: "Add Article",
+  },
   statusDraft: "Draft",
   statusDraftHint: "Please enter a title before saving as draft",
   statusTitleRequired: "Title is required",
@@ -92,7 +94,8 @@ export default {
   },
   notFound: {
     foundTitle: "Wrong address input, please re-enter the address~",
-    foundMsg: "You can check the web address first, and then re-enter or give us feedback.",
+    foundMsg:
+      "You can check the web address first, and then re-enter or give us feedback.",
     foundBtn: "Back to home page",
   },
   noAccess: {
@@ -272,11 +275,12 @@ export default {
     tips: "Tips",
     updateTime: "Updated At",
     weight: "Weight",
-  
+
     saveSuccess: "Saved",
     deleteSuccess: "Deleted",
     pressEscToClose: "Press Esc to close",
-    batchDelete: "Batch Delete",},
+    batchDelete: "Batch Delete",
+  },
   // 模型字段翻译（扁平 key: moduleField_{name} / moduleFieldOpt_{name}_{optKey}）
   moduleField_language: "Language",
   moduleField_region: "Region",
@@ -411,11 +415,13 @@ export default {
       tasksTitle: "Task Overview",
       tasksSubtitle: "Inspect task status, progress and credit consumption",
       ledgerTitle: "Ledger",
-      ledgerSubtitle: "Inspect credit ledger entries (grant/reserve/capture/refund)",
+      ledgerSubtitle:
+        "Inspect credit ledger entries (grant/reserve/capture/refund)",
       providersTitle: "Provider Health",
       providersSubtitle: "Check ComfyUI provider online status per site",
       ratesTitle: "Billing Rates",
-      ratesSubtitle: "Inspect credit pricing and provider cost per site/product",
+      ratesSubtitle:
+        "Inspect credit pricing and provider cost per site/product",
       colId: "ID",
       colSiteId: "Site",
       colSiteCode: "Site Code",
@@ -452,20 +458,25 @@ export default {
       statusAll: "All Status",
       productAll: "All Products",
       modelSwitchTitle: "Model Switches",
-      modelSwitchSubtitle: "Enable/disable base models, LoRAs, video and cloud models; disabled ones disappear from the product and are rejected at task creation",
+      modelSwitchSubtitle:
+        "Enable/disable base models, LoRAs, video and cloud models; disabled ones disappear from the product and are rejected at task creation",
       videoOptionTitle: "Video Options",
-      videoOptionSubtitle: "Adult-LoRA switch plus current i2v workflow parameters (read-only, for cross-checking against the reference workflow)",
+      videoOptionSubtitle:
+        "Adult-LoRA switch plus current i2v workflow parameters (read-only, for cross-checking against the reference workflow)",
       loraTitle: "LoRA Catalog",
-      loraSubtitle: "Import LoRAs from the site ComfyUI and mark them via the NSFW blacklist or by hand",
+      loraSubtitle:
+        "Import LoRAs from the site ComfyUI and mark them via the NSFW blacklist or by hand",
       usersTitle: "Users & Credits",
-      usersSubtitle: "User list and detail, credit/balance adjustment (audited), wallet ledger",
+      usersSubtitle:
+        "User list and detail, credit/balance adjustment (audited), wallet ledger",
       tagsTitle: "Tags",
       tagsSubtitle: "Create and maintain community tags",
       btnAddRate: "Add / Reprice",
       btnBatchDuration: "Batch duration rates",
       rateDialogTitle: "Write Rate",
       rateBatchTitle: "Batch Duration Rates",
-      rateHintWrite: "Same dimension with a new price: the old row is retired and revision increments; an identical price is a no-op.",
+      rateHintWrite:
+        "Same dimension with a new price: the old row is retired and revision increments; an identical price is a no-op.",
       fieldSiteId: "Site ID",
       fieldProduct: "Product",
       fieldDimKey: "Dimension Key",
@@ -481,7 +492,8 @@ export default {
       batchFrom: "From (s)",
       batchTo: "To (s)",
       batchCredits: "Credits per entry",
-      batchHint: "Writes one i2v:<ratio>:<seconds> row per second; existing seconds are repriced (revision+1).",
+      batchHint:
+        "Writes one i2v:<ratio>:<seconds> row per second; existing seconds are repriced (revision+1).",
       batchRun: "Generate",
       batchDone: "Wrote {n} rows",
       writeOk: "Saved",
@@ -496,13 +508,53 @@ export default {
       kindImage: "Image",
       kindVideo: "Video",
       kindCloud: "Cloud",
+      filterType: "Type",
+      typeAll: "All types",
+      filterFamily: "Family / workflow",
+      familyAll: "All families",
+      colCover: "Icon",
+      overrideYes: "Rewritten",
       btnDisable: "Disable",
       btnEnable: "Enable",
+      btnEditMeta: "Edit info",
       disableReason: "Reason",
       disableReasonRequired: "A reason is required to disable",
       switchOk: "Updated",
+      batchSelected: "{n} selected",
+      batchScope: "Batch scope",
+      batchScopeSelected: "Selected rows",
+      batchScopeFiltered: "All matching the filter",
+      batchEnable: "Enable batch",
+      batchDisable: "Disable batch",
+      batchEnableConfirm:
+        "Enable {n} models? They become visible on the frontend immediately.",
+      batchDisableTitle: "Batch disable",
+      batchDisableReason: "Batch disable reason",
+      batchFilteredHint:
+        "Filtering batch affects every model matching the current filter, including rows on other pages.",
+      batchNeedCond:
+        "A filtered batch needs at least one condition: type / family / keyword",
+      batchNeedScope:
+        "Select some models first, or switch to “All matching the filter”",
+      batchResult: "Updated {n}",
+      batchResultSkipped:
+        "Updated {n}, skipped {m} (not in the manageable list)",
+      metaTitle: "Edit model info",
+      metaHint:
+        "Leave blank to use the static definition. Display only: model ID, workflow and pricing are untouched.",
+      metaFieldTitle: "Display name",
+      metaFieldSummary: "One-line summary",
+      metaFieldCover: "Icon / cover URL",
+      metaDefault: "Default: {v}",
+      metaEmpty: "(none)",
+      metaSaved: "Model info updated",
+      metaReset: "Restore default",
+      metaResetConfirm:
+        "Clear the display info override for this model and restore the static definition?",
+      metaResetOk: "Display info restored",
       voMystic: "Adult LoRA (MysticXXX MMH3-V4)",
-      voMysticHint: "The second LoRA in the reference workflow. On by default for LoRA A/B testing; when off the node is not emitted.",
+      voMysticHint:
+        "The second LoRA in the reference workflow. On by default for LoRA A/B testing; when off the node is not emitted.",
       voBaseLora: "Base speed LoRA",
       voNsfwLora: "Adult LoRA",
       voSteps: "Steps",
@@ -511,9 +563,11 @@ export default {
       voSecondsRange: "Duration range (s)",
       voSave: "Save",
       voSaved: "Saved",
-      voConfirm: "Change the adult-LoRA switch? It affects every video task created afterwards.",
+      voConfirm:
+        "Change the adult-LoRA switch? It affects every video task created afterwards.",
       btnImportLora: "Import from ComfyUI",
-      importConfirm: "Pull every LoRA from the site ComfyUI into the catalog and auto-mark them via the NSFW blacklist. Continue?",
+      importConfirm:
+        "Pull every LoRA from the site ComfyUI into the catalog and auto-mark them via the NSFW blacklist. Continue?",
       colFileName: "File Name",
       colSafety: "Safety",
       colState: "State",
@@ -522,7 +576,8 @@ export default {
       safetyAdult: "Adult",
       btnMarkSafe: "Mark Safe",
       btnMarkAdult: "Mark Adult",
-      importDone: "Import done: total {total}, imported {imported}, updated {updated}, skipped {skipped}, marked adult {adult}",
+      importDone:
+        "Import done: total {total}, imported {imported}, updated {updated}, skipped {skipped}, marked adult {adult}",
       colDisplayName: "Display Name",
       colLastSeen: "Last Seen",
       colHolds: "Holds",
@@ -561,20 +616,26 @@ export default {
   // ==================== Demo Pages ====================
   fun: {
     clipboard: "Clipboard Demo",
-    attrClipboard: "Thanks to `vue-clipboard3`, https://github.com/JamieCurnow/vue-clipboard3",
+    attrClipboard:
+      "Thanks to `vue-clipboard3`, https://github.com/JamieCurnow/vue-clipboard3",
     countup: "CountUp Demo",
-    attrCountup: "Thanks to `countup.js`, https://github.com/inorganik/countUp.js",
+    attrCountup:
+      "Thanks to `countup.js`, https://github.com/inorganik/countUp.js",
     cropper: "Cropper Image Crop",
-    attrCropper: "Thanks to `cropperjs`, https://github.com/fengyuanchen/cropperjs",
+    attrCropper:
+      "Thanks to `cropperjs`, https://github.com/fengyuanchen/cropperjs",
     gridLayout: "Grid Layout Demo",
-    attrGridLayout: "Thanks to `vue-grid-layout`, https://github.com/jbaysolutions/vue-grid-layout",
+    attrGridLayout:
+      "Thanks to `vue-grid-layout`, https://github.com/jbaysolutions/vue-grid-layout",
     printJs: "Print Demo",
     attrPrintJs:
       "Thanks to `print-js`, https://github.com/crabbly/Print.js. Enable `Background graphics` in print dialog.",
     qrcode: "QRCode Generation",
-    attrQrcode: "Thanks to `qrcodejs2`, https://github.com/davidshimjs/qrcodejs",
+    attrQrcode:
+      "Thanks to `qrcodejs2`, https://github.com/davidshimjs/qrcodejs",
     splitpanes: "Splitpanes Pane Splitter",
-    attrSplitpanes: "Thanks to `splitpanes`, https://github.com/antoniandre/splitpanes",
+    attrSplitpanes:
+      "Thanks to `splitpanes`, https://github.com/antoniandre/splitpanes",
     tagsViewDemo: "TagsView Demo",
     tagsViewNotice:
       "The non-current page tagsView demo has been removed. TagsView supports multi-tab (different params) and single-tab sharing (different params).",
@@ -645,7 +706,8 @@ export default {
     versioningDesc:
       "Keep multiple versions of objects in the same bucket to prevent accidental deletion and overwrites.",
     enableVersioning: "Enable Versioning",
-    lifecycleDesc: "Automatically manage object lifecycle, e.g. auto-delete expired files.",
+    lifecycleDesc:
+      "Automatically manage object lifecycle, e.g. auto-delete expired files.",
     prefixMatch: "Prefix Match",
     prefixPlaceholder: "e.g. logs/",
     expireDays: "Expiration Days",
@@ -821,7 +883,8 @@ export default {
     addWebhook: "Add",
     deleteWebhook: "Delete",
     confirmDeleteWebhook: "Delete this webhook config?",
-    webhookEmpty: "No webhook configured — SendCloud won't push delivery events",
+    webhookEmpty:
+      "No webhook configured — SendCloud won't push delivery events",
     deliverUnknown: "Unknown",
     deliverDelivered: "Delivered",
     deliverBounce: "Soft Bounce",
@@ -846,16 +909,18 @@ export default {
     pushApi: "Push API",
     domainRequired: "Please enter website domain",
     generateDone: "Generated",
-  
+
     generateFailed: "Generation failed",
     responsePrefix: "Response prefix",
-    pushFailed: "Push failed",},
+    pushFailed: "Push failed",
+  },
 
   // ==================== Short Link ====================
   addon_shortlink: {
     title: "Short Links",
     plugin: "Addons",
-    subtitle: "Site-scoped short links: code → target URL with 302/301 redirect; main CTA, expiry and click stats (data scoped by the site selected in the top-right)",
+    subtitle:
+      "Site-scoped short links: code → target URL with 302/301 redirect; main CTA, expiry and click stats (data scoped by the site selected in the top-right)",
     add: "Add Short Link",
     addTitle: "Add Short Link",
     editTitle: "Edit Short Link",
@@ -875,7 +940,7 @@ export default {
     setDefault: "Set default",
     setDefaultConfirm: "set as the current site main CTA",
     cancelCtaConfirm: "cancel the main CTA",
-    setDefaultAsk: "Confirm {action} for \"{code}\"?",
+    setDefaultAsk: 'Confirm {action} for "{code}"?',
     setDefaultOk: "Set as main CTA",
     cancelCtaOk: "Cancelled",
     expireAt: "Expires at",
@@ -887,7 +952,7 @@ export default {
     stats: "Stats",
     statsTitle: "Click Stats",
     del: "Delete",
-    delConfirm: "Delete short link \"{code}\"?",
+    delConfirm: 'Delete short link "{code}"?',
     delOk: "Deleted",
     tip: "Notice",
     save: "Save",
@@ -917,7 +982,8 @@ export default {
   addon_shortio: {
     title: "Short.io Links",
     plugin: "Addons",
-    subtitle: "Short.io-hosted short link management: code → target URL redirect with expiry and click stats (account-level, not site-scoped)",
+    subtitle:
+      "Short.io-hosted short link management: code → target URL redirect with expiry and click stats (account-level, not site-scoped)",
     add: "Add Short Link",
     addTitle: "Add Short Link",
     editTitle: "Edit Short Link",
@@ -942,10 +1008,11 @@ export default {
     stats: "Stats",
     statsTitle: "Click Stats",
     setCta: "Set CTA",
-    setCtaConfirm: "Set \"{code}\" as the current site main CTA?\n{url}\n(All CTA buttons on the site point to this link immediately, no template change needed)",
+    setCtaConfirm:
+      'Set "{code}" as the current site main CTA?\n{url}\n(All CTA buttons on the site point to this link immediately, no template change needed)',
     setCtaOk: "Set as the current site main CTA",
     del: "Delete",
-    delConfirm: "Delete short link \"{code}\"?",
+    delConfirm: 'Delete short link "{code}"?',
     delOk: "Deleted",
     tip: "Notice",
     save: "Save",
@@ -957,11 +1024,12 @@ export default {
     urlPlaceholder: "https://example.com/page (http/https only)",
     urlRequired: "Please enter target URL",
     urlRuleMsg: "http/https links only",
-    enableConfirm: "Enable short link \"{code}\"?",
-    disableConfirm: "Disable short link \"{code}\"?",
+    enableConfirm: 'Enable short link "{code}"?',
+    disableConfirm: 'Disable short link "{code}"?',
     enableOk: "Enabled",
     disableOk: "Disabled",
-    archivedHint: "Archived links no longer appear in the list (restore them in the short.io dashboard)",
+    archivedHint:
+      "Archived links no longer appear in the list (restore them in the short.io dashboard)",
     copyOk: "Copied: {url}",
     copyFail: "Copy failed, please copy manually",
     totalClicks: "Total clicks",
@@ -1145,7 +1213,8 @@ export default {
     "允许在同一个存储桶中保留对象的多个版本，防止意外删除和覆盖。":
       "Keep multiple object versions in one bucket to prevent accidental deletion.",
     "免费注册获取 API Key：": "Free registration for API Key:",
-    "免费版每月 250 次请求 | API 文档：": "Free tier: 250 req/month | API docs:",
+    "免费版每月 250 次请求 | API 文档：":
+      "Free tier: 250 req/month | API docs:",
     公司或办公地址: "Company/Office Address",
     公开读: "Public Read",
     内容模板: "Content Template",
@@ -1171,7 +1240,8 @@ export default {
     发货: "Fulfill",
     取消选择: "Deselect",
     可翻译: "Translatable",
-    启用后该字段在多语言编辑时可填入翻译值: "Enable to allow translation input for this field.",
+    启用后该字段在多语言编辑时可填入翻译值:
+      "Enable to allow translation input for this field.",
     启用版本控制: "Enable Versioning",
     响应内容: "Response Content",
     商品: "Product",
@@ -1205,7 +1275,8 @@ export default {
     "尚未配置 API Key，请粘贴 apilayer API Key":
       "API Key not configured. Paste your apilayer API Key.",
     尺寸: "Dimensions",
-    "已创建 → 已提交 → 已完成 / 失败。": "Created → Submitted → Completed / Failed.",
+    "已创建 → 已提交 → 已完成 / 失败。":
+      "Created → Submitted → Completed / Failed.",
     已过期: "Expired",
     "已配置 API Key:": "API Key configured:",
     平台: "Platform",
@@ -1219,7 +1290,8 @@ export default {
     微信号: "WeChat ID",
     总充值金额: "Total Recharge",
     或点击下方按钮选择: "Or click the button below to select",
-    "或点击选择文件，支持多文件上传": "Or click to select files (multi-file supported)",
+    "或点击选择文件，支持多文件上传":
+      "Or click to select files (multi-file supported)",
     所属模块: "Module",
     扩展名: "Extension",
     批量删除: "Batch Delete",
@@ -1303,7 +1375,8 @@ export default {
     游戏范围: "Game Scope",
     游戏角色: "Game Character",
     点击上传: "Click to Upload",
-    "点击图片切换到下一张 · 键盘 ← → 导航": "Click image to switch, keyboard ← → to navigate",
+    "点击图片切换到下一张 · 键盘 ← → 导航":
+      "Click image to switch, keyboard ← → to navigate",
     父路径: "Parent Path",
     版本控制: "Version Control",
     "状态说明：": "Status:",
@@ -1329,7 +1402,8 @@ export default {
     符号: "Symbol",
     等待中: "Pending",
     "策略 JSON": "Policy JSON",
-    "管理所有 SDK 注册用户与登录记录": "Manage all SDK registered users & login records",
+    "管理所有 SDK 注册用户与登录记录":
+      "Manage all SDK registered users & login records",
     管理所有上传的文件资源: "Manage all uploaded file resources",
     "粘贴你的 apilayer API Key": "Paste your apilayer API Key",
     系统: "System",
@@ -1361,7 +1435,8 @@ export default {
     设备记录: "Device Records",
     "访问 URL": "Access URL",
     该文件类型暂不支持预览: "Preview not supported for this file type",
-    请传入模型ID或启用模型选择器: "Please provide a Model ID or enable the model selector",
+    请传入模型ID或启用模型选择器:
+      "Please provide a Model ID or enable the model selector",
     账号: "Account",
     账号类型: "Account Type",
     购买Token: "Buy Token",
@@ -1448,10 +1523,11 @@ export default {
     restored: "Restored",
     destroyed: "Destroyed",
     batchedApproved: "Batch approval completed",
-  
+
     status: "Status",
     action: "Actions",
-    delete: "Delete",},
+    delete: "Delete",
+  },
   // ==================== Form / 表单 ====================
   form: {
     exportCsv: "Export CSV",
@@ -1494,14 +1570,15 @@ export default {
     created: "Created",
     confirmDeleteForm: "Deleting will also remove fields and data. Confirm?",
     actionSettings: "Settings",
-  
+
     time: "Time",
     confirm: "Confirm",
     deleted: "Deleted",
     createTime: "Created",
     action: "Actions",
     delete: "Delete",
-    status: "Status",},
+    status: "Status",
+  },
   // ==================== Webhook ====================
   webhook: {
     addWebhook: "Add Webhook",
@@ -1522,7 +1599,7 @@ export default {
     pleaseFillNameUrl: "Please fill in name and URL",
     confirmDelete: "Confirm delete?",
     editWebhook: "Edit Webhook",
-  
+
     status: "Status",
     createTime: "Created",
     action: "Actions",
@@ -1531,7 +1608,8 @@ export default {
     saved: "Saved",
     created: "Created",
     confirm: "Confirm",
-    deleted: "Deleted",},
+    deleted: "Deleted",
+  },
   // ==================== CMS Article / 文章 ====================
   cmsArticle: {
     revisionHistory: "Revision History",
@@ -1549,7 +1627,8 @@ export default {
     published: "Published",
     draft: "Draft",
     scheduled: "Scheduled",
-    confirmRestore: "Restore this version? Current content will be saved as snapshot",
+    confirmRestore:
+      "Restore this version? Current content will be saved as snapshot",
     confirmRestoreTitle: "Confirm Restore",
     restoredToRevision: "Restored to revision",
     batchSuccess: "Batch operation completed",
@@ -1560,7 +1639,7 @@ export default {
     inputTagsCsv: "Enter tags, comma separated",
     selectStatus: "Select status",
     confirmExecute: "Confirm Execute",
-  
+
     action: "Actions",
     unknown: "Unknown",
     btnRegenerateStatic: "Regenerate static pages",
@@ -1568,7 +1647,8 @@ export default {
     confirmBatchRegen: "Regenerate static pages for selected articles?",
     titleBatchRegen: "Batch regeneration",
     msgRegenerating: "Regenerating, please wait…",
-    msgRegenerateDone: "Regeneration complete",},
+    msgRegenerateDone: "Regeneration complete",
+  },
   // ==================== CMS Link / 友链 ====================
   menu_cms_link: "Links",
   menu_cms_link_add: "Add Link",
@@ -1595,7 +1675,8 @@ export default {
   // ==================== Addon Document / Documents ====================
   document: {
     title: "Documents",
-    subtitle: "Manage document trees, local Markdown source files, and multilingual publishing",
+    subtitle:
+      "Manage document trees, local Markdown source files, and multilingual publishing",
     category: "Category",
     addCategory: "Add Category",
     editCategory: "Edit Category",
@@ -1678,7 +1759,8 @@ export default {
   },
 
   // ==================== Layout Extras ====================
-  layoutFooterCopyright: "Yunnan Qixun Technology Co., Ltd. All Rights Reserved.",
+  layoutFooterCopyright:
+    "Yunnan Qixun Technology Co., Ltd. All Rights Reserved.",
   layoutPrimaryColorRequired: "Primary color is required",
   layoutTagsStyle1: "Style 1",
   layoutTagsStyle4: "Style 4",
