@@ -525,8 +525,8 @@ export default {
       batchDisableReason: "批量停用原因",
       batchFilteredHint:
         "按筛选批量会命中当前筛选下的全部模型（含未显示在当页的）。",
-      batchNeedCond: "按筛选批量至少需要一个条件：类型 / 族 / 关键词",
-      batchNeedScope: "请先勾选模型，或改用「当前筛选全部」",
+      batchNeedCond: "按筛选批量至少需要一个条件：类别 / 类型 / 族 / 关键词",
+      batchNeedScope: "请先勾选要操作的模型",
       batchResult: "已更新 {n} 条",
       batchResultSkipped: "已更新 {n} 条，跳过 {m} 条（不在可管理清单）",
       metaTitle: "编辑模型信息",

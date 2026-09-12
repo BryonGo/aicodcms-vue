@@ -273,74 +273,81 @@
       </div>
     </div>
 
-    <el-dialog
+    <ProDrawer
       v-model="metaVisible"
       :title="$t('message.sdk.platform.metaTitle')"
-      width="560px"
+      :subtitle="$t('message.sdk.platform.metaHint')"
+      size="md"
+      :destroy-on-close="true"
     >
-      <el-form label-width="120px">
+      <el-form label-position="top">
         <el-form-item :label="$t('message.sdk.platform.colModelId')">
           <span class="pf-mono">{{ metaForm.modelId }}</span>
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.metaFieldTitle')">
-          <el-input
-            v-model="metaForm.title"
-            maxlength="64"
-            show-word-limit
-            clearable
-          />
-          <div class="pf-default-hint">
-            {{
-              $t("message.sdk.platform.metaDefault", {
-                v: metaRow?.defaultName || metaEmptyText,
-              })
-            }}
+          <div class="pf-field">
+            <el-input
+              v-model="metaForm.title"
+              maxlength="64"
+              show-word-limit
+              clearable
+            />
+            <p class="pf-default-hint">
+              {{
+                $t("message.sdk.platform.metaDefault", {
+                  v: metaRow?.defaultName || metaEmptyText,
+                })
+              }}
+            </p>
           </div>
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.metaFieldSummary')">
-          <el-input
-            v-model="metaForm.summary"
-            type="textarea"
-            :rows="3"
-            maxlength="200"
-            show-word-limit
-          />
-          <div class="pf-default-hint">
-            {{
-              $t("message.sdk.platform.metaDefault", {
-                v: metaRow?.defaultSummary || metaEmptyText,
-              })
-            }}
+          <div class="pf-field">
+            <el-input
+              v-model="metaForm.summary"
+              type="textarea"
+              :rows="3"
+              maxlength="200"
+              show-word-limit
+            />
+            <p class="pf-default-hint">
+              {{
+                $t("message.sdk.platform.metaDefault", {
+                  v: metaRow?.defaultSummary || metaEmptyText,
+                })
+              }}
+            </p>
           </div>
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.metaFieldCover')">
-          <el-input
-            v-model="metaForm.cover"
-            clearable
-            placeholder="/mock/models/xxx.png"
-          />
-          <div class="pf-default-hint">
-            {{
-              $t("message.sdk.platform.metaDefault", {
-                v: metaRow?.defaultCover || metaEmptyText,
-              })
-            }}
+          <div class="pf-field">
+            <el-input
+              v-model="metaForm.cover"
+              clearable
+              placeholder="/mock/models/xxx.png"
+            />
+            <p class="pf-default-hint">
+              {{
+                $t("message.sdk.platform.metaDefault", {
+                  v: metaRow?.defaultCover || metaEmptyText,
+                })
+              }}
+            </p>
           </div>
         </el-form-item>
       </el-form>
-      <p class="pf-dialog-hint">{{ $t("message.sdk.platform.metaHint") }}</p>
       <template #footer>
         <el-button :disabled="!metaRow?.hasOverride" @click="onResetMeta">
           {{ $t("message.sdk.platform.metaReset") }}
         </el-button>
-        <el-button @click="metaVisible = false">{{
-          $t("message.sdk.platform.btnCancel")
-        }}</el-button>
+        <el-button @click="metaVisible = false">
+          {{ $t("message.common.btnCancel") }}
+        </el-button>
         <el-button type="primary" :loading="metaSaving" @click="onSaveMeta">
-          {{ $t("message.sdk.platform.voSave") }}
+          {{ $t("message.common.btnSave") }}
         </el-button>
       </template>
-    </el-dialog>
+    </ProDrawer>
   </div>
 </template>
 
@@ -350,6 +357,7 @@ import { HomeFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useI18n } from "vue-i18n";
 import type { TableInstance } from "element-plus";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
 import {
   getPlatformModelSwitches,
   getPlatformModelSwitchFacets,
@@ -362,7 +370,7 @@ import {
 
 export default defineComponent({
   name: "addonPlatformModelSwitch",
-  components: { HomeFilled },
+  components: { HomeFilled, ProDrawer },
   setup() {
     const { t } = useI18n();
     const tableRef = ref<TableInstance>();
@@ -527,24 +535,29 @@ export default defineComponent({
         .catch(() => {});
     };
 
-    /** 批量启停：范围=已勾选走 ids，范围=当前筛选走同一套筛选条件（后端按同一 match 挑选）。 */
+    /**
+     * 批量启停。
+     *
+     * 范围=已勾选：只发 ids。勾选行同属一个类别时顺带带上 kind；跨类别或「全部类别」视图
+     * 不带 kind —— 后端会按 id 反查类别（早先在「全部类别」下直接 return，导致按钮点了没反应）。
+     * 范围=当前筛选：回传与列表同一套筛选条件，后端按同一 match 挑选。
+     */
     const onBatch = (enabled: boolean) => {
-      if (!q.kind) {
-        ElMessage.warning(t("message.sdk.platform.batchNeedScope"));
-        return;
-      }
-      const payload: any = { kind: q.kind, enabled };
+      const payload: any = { enabled };
       if (batchScope.value === "selected") {
         if (!selection.value.length) {
           ElMessage.warning(t("message.sdk.platform.batchNeedScope"));
           return;
         }
         payload.ids = selection.value.map((r) => r.modelId);
+        const kinds = [...new Set(selection.value.map((r) => r.kind))];
+        if (kinds.length === 1) payload.kind = kinds[0];
       } else {
-        if (!q.type && !q.family && !q.query) {
+        if (!q.kind && !q.type && !q.family && !q.query) {
           ElMessage.warning(t("message.sdk.platform.batchNeedCond"));
           return;
         }
+        if (q.kind) payload.kind = q.kind;
         payload.type = q.type;
         payload.family = q.family;
         payload.query = q.query;
@@ -795,8 +808,20 @@ export default defineComponent({
   background: var(--cc-color-surface-hover);
   border-bottom: 1px solid var(--cc-color-border-light);
 }
+/*
+ * 固定列（Element Plus 的 sticky 右列）必须有**不透明**底色：
+ * 半透明悬停色会让横向滚动到下面的单元格透出来，看起来像「停用旁边多出一个启用」。
+ * 做法：底色先铺一层 surface（不透明），再把主色当 background-image 叠上去。
+ */
+.pf-table :deep(.el-table__cell.el-table-fixed-column--right) {
+  background-color: var(--cc-color-surface);
+}
 .pf-table :deep(.el-table__row:hover > td.el-table__cell) {
-  background: var(--cc-color-primary-softer);
+  background-color: var(--cc-color-surface);
+  background-image: linear-gradient(
+    var(--cc-color-primary-softer),
+    var(--cc-color-primary-softer)
+  );
 }
 .pf-footer {
   display: flex;
@@ -804,6 +829,16 @@ export default defineComponent({
   align-items: center;
   gap: var(--cc-space-3);
   padding-top: var(--cc-space-3);
+}
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+.pf-field :deep(.el-textarea__inner) {
+  width: 100%;
 }
 .pf-default-hint {
   font-size: var(--cc-font-12);

@@ -533,9 +533,8 @@ export default {
       batchFilteredHint:
         "Filtering batch affects every model matching the current filter, including rows on other pages.",
       batchNeedCond:
-        "A filtered batch needs at least one condition: type / family / keyword",
-      batchNeedScope:
-        "Select some models first, or switch to “All matching the filter”",
+        "A filtered batch needs at least one condition: kind / type / family / keyword",
+      batchNeedScope: "Select the models to operate on first",
       batchResult: "Updated {n}",
       batchResultSkipped:
         "Updated {n}, skipped {m} (not in the manageable list)",
