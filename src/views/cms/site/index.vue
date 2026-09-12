@@ -8,7 +8,7 @@
     <div class="pms-card-header">
       <div>
         <h1 class="pms-card-title">站点管理</h1>
-        <p class="pms-card-sub">站点只负责入口与语言；业务配置请切换站点后前往「系统设置」</p>
+        <p class="pms-card-sub">站点负责入口、语言与前台模式（纯 API）；其余业务配置请切换站点后前往「系统设置」</p>
       </div>
       <div class="pms-card-actions">
         <el-button size="large" type="success" class="pms-card-add" @click="onOpenAdd">
@@ -45,6 +45,17 @@
           </template>
         </el-table-column>
         <el-table-column prop="sort" label="排序" width="70" align="center" />
+        <el-table-column label="前台模式" width="100" align="center">
+          <template #default="scope">
+            <el-tag
+              :type="scope.row.frontend_mode === 'api_only' ? 'warning' : 'success'"
+              size="small"
+              effect="plain"
+            >
+              {{ scope.row.frontend_mode === "api_only" ? "纯 API" : "完整前台" }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="scope">
             <el-button link size="small" type="primary" @click="onOpenEdit(scope.row)">
@@ -100,6 +111,15 @@
             </el-form-item>
             <el-form-item label="主题">
               <el-input v-model="form.theme" placeholder="主题名，留空回退默认主题" />
+            </el-form-item>
+            <el-form-item label="前台模式">
+              <el-select v-model="form.frontend_mode" style="width: 100%">
+                <el-option label="完整前台" value="full" />
+                <el-option label="纯 API" value="api_only" />
+              </el-select>
+              <div class="pms-form-tip">
+                纯 API：本站前台页面（含 robots.txt / sitemap）一律 404，只保留 /api/ 接口与静态资源
+              </div>
             </el-form-item>
             <el-form-item label="状态">
               <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
@@ -160,6 +180,7 @@ export default defineComponent({
       theme: "",
       status: 1,
       sort: 0,
+      frontend_mode: "full",
     });
     const form = reactive(emptyForm());
 
@@ -185,6 +206,8 @@ export default defineComponent({
       form.theme = row.theme || "";
       form.status = row.status ?? 1;
       form.sort = row.sort ?? 0;
+      // 前台模式来自 cms_site_config.config（后端在列表里补出），未配置时按 full 展示
+      form.frontend_mode = row.frontend_mode === "api_only" ? "api_only" : "full";
     };
 
     const onOpenAdd = () => {
@@ -226,6 +249,8 @@ export default defineComponent({
           theme: form.theme,
           status: form.status,
           sort: form.sort,
+          // 写进站点配置 site.frontend.mode，与「系统设置 → 基础设置 → 前台模式」同一个键
+          frontend_mode: form.frontend_mode,
         };
         dialog.saving = true;
         saveSite(payload)
@@ -297,5 +322,11 @@ export default defineComponent({
 }
 .mr5 {
   margin-right: 5px;
+}
+.pms-form-tip {
+  font-size: var(--cc-font-12);
+  color: var(--cc-color-text-3);
+  line-height: 1.5;
+  margin-top: 2px;
 }
 </style>
