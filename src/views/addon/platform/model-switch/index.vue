@@ -321,11 +321,34 @@
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.metaFieldCover')">
           <div class="pf-field">
-            <el-input
-              v-model="metaForm.cover"
-              clearable
-              placeholder="/mock/models/xxx.png"
-            />
+            <div class="pf-cover-edit">
+              <img
+                v-if="metaForm.cover"
+                :src="coverPreview"
+                class="pf-cover-preview"
+                alt="icon"
+              />
+              <div v-else class="pf-cover-empty">
+                {{ $t("message.sdk.platform.coverEmpty") }}
+              </div>
+              <div class="pf-cover-actions">
+                <ProUpload
+                  v-model="metaForm.cover"
+                  :action="coverUploadAction"
+                  mode="file"
+                  accept="image/*"
+                  :limit="1"
+                  response-url-key="data.path"
+                  :button-text="$t('message.sdk.platform.coverUpload')"
+                  :tip="$t('message.sdk.platform.coverTip')"
+                />
+                <el-input
+                  v-model="metaForm.cover"
+                  clearable
+                  :placeholder="$t('message.sdk.platform.coverUrlHint')"
+                />
+              </div>
+            </div>
             <p class="pf-default-hint">
               {{
                 $t("message.sdk.platform.metaDefault", {
@@ -352,12 +375,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, onActivated } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onActivated,
+} from "vue";
 import { HomeFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useI18n } from "vue-i18n";
 import type { TableInstance } from "element-plus";
 import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import ProUpload from "/@/components/pro/ProUpload.vue";
+import { buildApiUrl, getUpFileUrl } from "/@/utils/aicodcod";
 import {
   getPlatformModelSwitches,
   getPlatformModelSwitchFacets,
@@ -370,7 +402,7 @@ import {
 
 export default defineComponent({
   name: "addonPlatformModelSwitch",
-  components: { HomeFilled, ProDrawer },
+  components: { HomeFilled, ProDrawer, ProUpload },
   setup() {
     const { t } = useI18n();
     const tableRef = ref<TableInstance>();
@@ -417,6 +449,14 @@ export default defineComponent({
 
     const fmtTime = (ts: number) =>
       ts ? new Date(ts * 1000).toLocaleString() : "-";
+
+    // 图标上传：走站点对象存储（与其它模块同一个上传接口，ProUpload 会自动带上 Authorization）
+    const coverUploadAction = buildApiUrl("/api/v1/addon/upload");
+    // 预览用**生效值**：已改写用改写值，没改写就显示模型自带的图标（这样运营看得见现状再决定要不要换）。
+    // 注意 metaForm.cover 只在「真的要改写」时才有值，避免把默认值抄成覆盖。
+    const coverPreview = computed(() =>
+      getUpFileUrl(metaForm.cover || metaRow.value?.cover || ""),
+    );
 
     const loadFacets = async () => {
       try {
@@ -677,6 +717,8 @@ export default defineComponent({
       metaRow,
       metaForm,
       metaEmptyText,
+      coverUploadAction,
+      coverPreview,
       fmtTime,
       loadData,
       onQuery,
@@ -839,6 +881,43 @@ export default defineComponent({
 }
 .pf-field :deep(.el-textarea__inner) {
   width: 100%;
+}
+.pf-cover-edit {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+}
+.pf-cover-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--cc-radius-md);
+  object-fit: cover;
+  border: 1px solid var(--cc-color-border-light);
+  flex: none;
+  background: var(--cc-color-surface-hover);
+}
+.pf-cover-empty {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--cc-radius-md);
+  border: 1px dashed var(--cc-color-border);
+  color: var(--cc-color-text-3);
+  font-size: var(--cc-font-12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  flex: none;
+  line-height: 1.4;
+}
+.pf-cover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 .pf-default-hint {
   font-size: var(--cc-font-12);
