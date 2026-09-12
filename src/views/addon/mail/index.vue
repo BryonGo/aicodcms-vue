@@ -8,20 +8,30 @@
       <div class="mail-account">
         <div class="mail-account-title">
           {{ $t("message.addon_mail.balanceTitle") }}
-          <el-tag size="small" effect="plain" type="info">{{ userInfo.account_type }}</el-tag>
+          <el-tag size="small" effect="plain" type="info">{{
+            userInfo.account_type
+          }}</el-tag>
         </div>
         <div class="mail-account-metrics">
           <div class="mail-account-item">
             <span class="label">{{ $t("message.addon_mail.balance") }}</span>
-            <span class="value" :class="{ warn: userInfo.balance < 10 }">¥{{ userInfo.balance.toFixed(2) }}</span>
+            <span class="value" :class="{ warn: userInfo.balance < 10 }"
+              >¥{{ userInfo.balance.toFixed(2) }}</span
+            >
           </div>
           <div class="mail-account-item">
-            <span class="label">{{ $t("message.addon_mail.avaliableBalance") }}</span>
-            <span class="value">{{ userInfo.avaliable_balance.toFixed(2) }}</span>
+            <span class="label">{{
+              $t("message.addon_mail.avaliableBalance")
+            }}</span>
+            <span class="value">{{
+              userInfo.avaliable_balance.toFixed(2)
+            }}</span>
           </div>
           <div class="mail-account-item">
             <span class="label">{{ $t("message.addon_mail.quota") }}</span>
-            <span class="value">{{ userInfo.today_used_quota }} / {{ userInfo.quota }}</span>
+            <span class="value"
+              >{{ userInfo.today_used_quota }} / {{ userInfo.quota }}</span
+            >
           </div>
           <div class="mail-account-item">
             <span class="label">{{ $t("message.addon_mail.reputation") }}</span>
@@ -42,7 +52,9 @@
           <span class="value">{{ stats.total.total }}</span>
         </div>
         <div class="mail-stats-total-item">
-          <span class="label">{{ $t("message.addon_mail.statsDelivered") }}</span>
+          <span class="label">{{
+            $t("message.addon_mail.statsDelivered")
+          }}</span>
           <span class="value good">{{ stats.total.delivered }}</span>
         </div>
         <div class="mail-stats-total-item">
@@ -89,7 +101,8 @@
     />
 
     <ProToolbar v-model:size="tableSize" @refresh="loadList()">
-      <template #actions>
+      <!-- ProToolbar 只支持 left / 默认 / right 三个插槽；写 #actions 会被静默丢弃（按钮不渲染） -->
+      <template #right>
         <el-button type="primary" :icon="Promotion" @click="openSendDialog">
           {{ $t("message.addon_mail.btnSendTest") }}
         </el-button>
@@ -108,7 +121,12 @@
       :page-size="pageSize"
       @pagination="onPageChange"
     >
-      <el-table-column prop="id" :label="$t('message.common.colId')" width="80" align="center" />
+      <el-table-column
+        prop="id"
+        :label="$t('message.common.colId')"
+        width="80"
+        align="center"
+      />
       <el-table-column
         :label="$t('message.addon_mail.colRecipient')"
         min-width="170"
@@ -131,9 +149,17 @@
           <el-tag size="small" effect="plain">{{ row.driver }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('message.addon_mail.colStatus')" width="90" align="center">
+      <el-table-column
+        :label="$t('message.addon_mail.colStatus')"
+        width="90"
+        align="center"
+      >
         <template #default="{ row }">
-          <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small" effect="plain">
+          <el-tag
+            :type="row.status === 1 ? 'success' : 'danger'"
+            size="small"
+            effect="plain"
+          >
             {{
               row.status === 1
                 ? $t("message.addon_mail.statusSuccess")
@@ -142,9 +168,17 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('message.addon_mail.colDeliver')" width="100" align="center">
+      <el-table-column
+        :label="$t('message.addon_mail.colDeliver')"
+        width="100"
+        align="center"
+      >
         <template #default="{ row }">
-          <el-tag :type="deliverTagType(row.deliver_status)" size="small" effect="plain">
+          <el-tag
+            :type="deliverTagType(row.deliver_status)"
+            size="small"
+            effect="plain"
+          >
             {{ deliverStatusText(row.deliver_status) }}
           </el-tag>
         </template>
@@ -155,7 +189,11 @@
         prop="error_msg"
         show-overflow-tooltip
       />
-      <el-table-column :label="$t('message.addon_mail.colTime')" width="170" align="center">
+      <el-table-column
+        :label="$t('message.addon_mail.colTime')"
+        width="170"
+        align="center"
+      >
         <template #default="{ row }">
           <span class="mail-time">{{ formatTime(row.created_at) }}</span>
         </template>
@@ -181,15 +219,18 @@
     </ProTable>
 
     <!-- 发送测试邮件对话框 -->
-    <el-dialog
+    <ProDrawer
       v-model="sendDialogVisible"
       :title="$t('message.addon_mail.sendTestTitle')"
-      width="520px"
+      size="md"
       destroy-on-close
     >
       <el-form :model="sendForm" label-width="110px">
         <el-form-item :label="$t('message.addon_mail.sendTestTo')">
-          <el-input v-model="sendForm.to" :placeholder="$t('message.addon_mail.sendTestToPlaceholder')" />
+          <el-input
+            v-model="sendForm.to"
+            :placeholder="$t('message.addon_mail.sendTestToPlaceholder')"
+          />
         </el-form-item>
         <el-form-item :label="$t('message.addon_mail.sendTestSubject')">
           <el-input v-model="sendForm.subject" />
@@ -211,13 +252,13 @@
           {{ $t("message.common.confirm") }}
         </el-button>
       </template>
-    </el-dialog>
+    </ProDrawer>
 
     <!-- Webhook 配置对话框 -->
-    <el-dialog
+    <ProDrawer
       v-model="webhookDialogVisible"
       :title="$t('message.addon_mail.webhookTitle')"
-      width="680px"
+      size="lg"
       destroy-on-close
       @open="loadWebhooks"
     >
@@ -240,14 +281,26 @@
           :label="$t('message.addon_mail.categoryName')"
           width="120"
         />
-        <el-table-column :label="$t('message.addon_mail.events')" min-width="180">
+        <el-table-column
+          :label="$t('message.addon_mail.events')"
+          min-width="180"
+        >
           <template #default="{ row }">
             <span>{{ eventText(row.event_type_map) }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('message.common.colOperation')" width="90" align="center">
+        <el-table-column
+          :label="$t('message.common.colOperation')"
+          width="90"
+          align="center"
+        >
           <template #default="{ row }">
-            <el-button type="danger" link size="small" @click="handleDeleteWebhook(row)">
+            <el-button
+              type="danger"
+              link
+              size="small"
+              @click="handleDeleteWebhook(row)"
+            >
               {{ $t("message.addon_mail.deleteWebhook") }}
             </el-button>
           </template>
@@ -266,18 +319,25 @@
           <el-input v-model="webhookForm.category_name" placeholder="all" />
         </el-form-item>
         <el-form-item :label="$t('message.addon_mail.events')">
-          <el-input v-model="webhookForm.events" :placeholder="$t('message.addon_mail.eventsExample')" />
+          <el-input
+            v-model="webhookForm.events"
+            :placeholder="$t('message.addon_mail.eventsExample')"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="webhookDialogVisible = false">
           {{ $t("message.common.cancel") }}
         </el-button>
-        <el-button type="primary" :loading="webhookSaving" @click="handleAddWebhook">
+        <el-button
+          type="primary"
+          :loading="webhookSaving"
+          @click="handleAddWebhook"
+        >
           {{ $t("message.addon_mail.addWebhook") }}
         </el-button>
       </template>
-    </el-dialog>
+    </ProDrawer>
   </ProPage>
 </template>
 
@@ -287,9 +347,12 @@ import { useI18n } from "vue-i18n";
 import { RefreshRight, Promotion, Setting } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import ProPage from "/@/components/pro/ProPage.vue";
-import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
+import ProSearch, {
+  type ProSearchField,
+} from "/@/components/pro/ProSearch.vue";
 import ProToolbar from "/@/components/pro/ProToolbar.vue";
 import ProTable from "/@/components/pro/ProTable.vue";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
 import {
   getMailLogList,
   resendMail,
@@ -375,7 +438,10 @@ const loadStats = async () => {
 // 柱状图高度：按 7 天最大值归一化到 60px
 const barHeight = (v: number) => {
   if (!stats.value) return "0px";
-  const max = Math.max(...stats.value.daily.map((d) => Math.max(d.delivered, d.failed)), 1);
+  const max = Math.max(
+    ...stats.value.daily.map((d) => Math.max(d.delivered, d.failed)),
+    1,
+  );
   return `${Math.round((v / max) * 60)}px`;
 };
 
@@ -538,7 +604,13 @@ const loadList = async (p?: number) => {
   }
 };
 
-const onPageChange = ({ page: nextPage, limit }: { page: number; limit: number }) => {
+const onPageChange = ({
+  page: nextPage,
+  limit,
+}: {
+  page: number;
+  limit: number;
+}) => {
   page.value = nextPage;
   pageSize.value = limit;
   loadList();

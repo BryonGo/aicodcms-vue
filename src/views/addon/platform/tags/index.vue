@@ -2,10 +2,15 @@
   <div class="pf-page">
     <el-breadcrumb separator="→">
       <el-breadcrumb-item :to="{ path: '/' }"
-        ><el-icon><HomeFilled /></el-icon> {{ $t("message.sdk.platform.breadcrumbHome") }}</el-breadcrumb-item
+        ><el-icon><HomeFilled /></el-icon>
+        {{ $t("message.sdk.platform.breadcrumbHome") }}</el-breadcrumb-item
       >
-      <el-breadcrumb-item>{{ $t("message.sdk.platform.breadcrumbSdk") }}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ $t("message.sdk.platform.tagsTitle") }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{
+        $t("message.sdk.platform.breadcrumbSdk")
+      }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{
+        $t("message.sdk.platform.tagsTitle")
+      }}</el-breadcrumb-item>
     </el-breadcrumb>
 
     <div class="pf-header">
@@ -14,7 +19,9 @@
         <p class="pf-subtitle">{{ $t("message.sdk.platform.tagsSubtitle") }}</p>
       </div>
       <div class="pf-header-actions">
-        <el-button type="primary" @click="openDialog()">{{ $t("message.sdk.platform.btnCreateTag") }}</el-button>
+        <el-button type="primary" @click="openDialog()">{{
+          $t("message.sdk.platform.btnCreateTag")
+        }}</el-button>
       </div>
     </div>
 
@@ -30,8 +37,12 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onQuery">{{ $t("message.sdk.platform.btnQuery") }}</el-button>
-          <el-button @click="onReset">{{ $t("message.sdk.platform.btnReset") }}</el-button>
+          <el-button type="primary" @click="onQuery">{{
+            $t("message.sdk.platform.btnQuery")
+          }}</el-button>
+          <el-button @click="onReset">{{
+            $t("message.sdk.platform.btnReset")
+          }}</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -44,24 +55,72 @@
         class="pf-table"
         :empty-text="$t('message.sdk.platform.noData')"
       >
-        <el-table-column prop="key" :label="$t('message.sdk.platform.colKey')" width="160" show-overflow-tooltip />
-        <el-table-column prop="name" :label="$t('message.sdk.platform.colName')" min-width="160" show-overflow-tooltip />
-        <el-table-column :label="$t('message.sdk.platform.colAliases')" min-width="200" show-overflow-tooltip>
-          <template #default="{ row }">{{ (row.aliases || []).join(", ") }}</template>
+        <el-table-column
+          prop="key"
+          :label="$t('message.sdk.platform.colKey')"
+          width="160"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="name"
+          :label="$t('message.sdk.platform.colName')"
+          min-width="160"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          :label="$t('message.sdk.platform.colAliases')"
+          min-width="200"
+          show-overflow-tooltip
+        >
+          <template #default="{ row }">{{
+            (row.aliases || []).join(", ")
+          }}</template>
         </el-table-column>
-        <el-table-column :label="$t('message.sdk.platform.colActive')" width="100" align="center">
+        <el-table-column
+          :label="$t('message.sdk.platform.colActive')"
+          width="100"
+          align="center"
+        >
           <template #default="{ row }">
-            <el-tag :type="row.active ? 'success' : 'info'" size="small" effect="plain" round>
-              {{ row.active ? $t("message.sdk.platform.enabled") : $t("message.sdk.platform.disabled") }}
+            <el-tag
+              :type="row.active ? 'success' : 'info'"
+              size="small"
+              effect="plain"
+              round
+            >
+              {{
+                row.active
+                  ? $t("message.sdk.platform.enabled")
+                  : $t("message.sdk.platform.disabled")
+              }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="priority" :label="$t('message.sdk.platform.colPriority')" width="100" align="center" />
-        <el-table-column prop="posts" :label="$t('message.sdk.platform.colPosts')" width="100" align="right">
-          <template #default="{ row }"><span class="pf-mono">{{ row.posts }}</span></template>
+        <el-table-column
+          prop="priority"
+          :label="$t('message.sdk.platform.colPriority')"
+          width="100"
+          align="center"
+        />
+        <el-table-column
+          prop="posts"
+          :label="$t('message.sdk.platform.colPosts')"
+          width="100"
+          align="right"
+        >
+          <template #default="{ row }"
+            ><span class="pf-mono">{{ row.posts }}</span></template
+          >
         </el-table-column>
-        <el-table-column prop="works" :label="$t('message.sdk.platform.colWorks')" width="100" align="right">
-          <template #default="{ row }"><span class="pf-mono">{{ row.works }}</span></template>
+        <el-table-column
+          prop="works"
+          :label="$t('message.sdk.platform.colWorks')"
+          width="100"
+          align="right"
+        >
+          <template #default="{ row }"
+            ><span class="pf-mono">{{ row.works }}</span></template
+          >
         </el-table-column>
         <el-table-column
           prop="updatedAt"
@@ -69,22 +128,34 @@
           width="180"
           show-overflow-tooltip
         />
-        <el-table-column :label="$t('message.sdk.platform.colAction')" width="90" align="center" fixed="right">
+        <el-table-column
+          :label="$t('message.sdk.platform.colAction')"
+          width="90"
+          align="center"
+          fixed="right"
+        >
           <template #default="{ row }">
-            <el-button link type="primary" @click="openDialog(row)">{{ $t("message.common.btnEdit") }}</el-button>
+            <el-button link type="primary" @click="openDialog(row)">{{
+              $t("message.common.btnEdit")
+            }}</el-button>
           </template>
         </el-table-column>
       </el-table>
       <div class="pf-footer">
-        <pagination v-model:page="page" v-model:limit="size" :total="total" @change="loadData" />
+        <pagination
+          v-model:page="page"
+          v-model:limit="size"
+          :total="total"
+          @change="loadData"
+        />
       </div>
     </div>
 
     <!-- 新建 / 编辑标签 -->
-    <el-dialog
+    <ProDrawer
       v-model="dialog.visible"
       :title="$t('message.sdk.platform.tagDialogTitle')"
-      width="520px"
+      size="md"
       :close-on-click-modal="false"
     >
       <el-form :model="dialog.form" label-width="140px">
@@ -92,22 +163,40 @@
           <el-input v-model="dialog.form.name" clearable style="width: 220px" />
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.fieldTagAliases')">
-          <el-input v-model="dialog.form.aliases" placeholder="a, b, c" clearable style="width: 320px" />
+          <el-input
+            v-model="dialog.form.aliases"
+            placeholder="a, b, c"
+            clearable
+            style="width: 320px"
+          />
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.fieldTagPriority')">
-          <el-input-number v-model="dialog.form.priority" controls-position="right" style="width: 160px" />
+          <el-input-number
+            v-model="dialog.form.priority"
+            controls-position="right"
+            style="width: 160px"
+          />
         </el-form-item>
-        <el-form-item v-if="dialog.id" :label="$t('message.sdk.platform.fieldTagActive')">
+        <el-form-item
+          v-if="dialog.id"
+          :label="$t('message.sdk.platform.fieldTagActive')"
+        >
           <el-switch v-model="dialog.form.active" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialog.visible = false">{{ $t("message.sdk.platform.btnReset") }}</el-button>
-        <el-button type="primary" :loading="dialog.saving" @click="submitDialog">
-          {{ $t("message.sdk.platform.saveOk") }}
+        <el-button @click="dialog.visible = false">{{
+          $t("message.common.btnCancel")
+        }}</el-button>
+        <el-button
+          type="primary"
+          :loading="dialog.saving"
+          @click="submitDialog"
+        >
+          {{ $t("message.common.btnSave") }}
         </el-button>
       </template>
-    </el-dialog>
+    </ProDrawer>
   </div>
 </template>
 
@@ -116,11 +205,17 @@ import { defineComponent, ref, reactive, onMounted, onActivated } from "vue";
 import { HomeFilled } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useI18n } from "vue-i18n";
-import { getPlatformTags, createPlatformTag, updatePlatformTag, AdminTag } from "/@/api/addon/platform";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
+import {
+  getPlatformTags,
+  createPlatformTag,
+  updatePlatformTag,
+  AdminTag,
+} from "/@/api/addon/platform";
 
 export default defineComponent({
   name: "addonPlatformTags",
-  components: { HomeFilled },
+  components: { HomeFilled, ProDrawer },
   setup() {
     const { t } = useI18n();
     const tableData = ref<AdminTag[]>([]);
@@ -204,7 +299,11 @@ export default defineComponent({
             active: dialog.form.active,
           });
         } else {
-          await createPlatformTag({ name, aliases, priority: dialog.form.priority });
+          await createPlatformTag({
+            name,
+            aliases,
+            priority: dialog.form.priority,
+          });
         }
         ElMessage.success(t("message.sdk.platform.saveOk"));
         dialog.visible = false;
@@ -241,7 +340,9 @@ export default defineComponent({
   margin: 0 auto;
 }
 .pf-mono {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-weight: 600;
   color: var(--cc-color-text-2);
 }
@@ -253,7 +354,11 @@ export default defineComponent({
   margin: var(--cc-space-5) 0;
   padding: var(--cc-space-6) var(--cc-space-7);
   background:
-    radial-gradient(circle at 8% 0%, var(--cc-color-primary-softer), transparent 32%),
+    radial-gradient(
+      circle at 8% 0%,
+      var(--cc-color-primary-softer),
+      transparent 32%
+    ),
     var(--cc-color-surface);
   border: 1px solid var(--cc-color-border-light);
   border-radius: var(--cc-radius-xl);
