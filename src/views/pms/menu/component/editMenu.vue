@@ -8,170 +8,199 @@
       size="large"
       v-loading="loading"
     >
-          <div class="pms-card-grid">
-            <!-- 上级菜单：el-tree 单选 -->
-            <el-form-item :label="$t('message.pms.menu.colParentMenu')" class="pms-card-full">
-              <div class="menu-tree-wrapper">
-                <el-input
-                  v-model="parentMenuLabel"
-                  :placeholder="$t('message.pms.menu.placeholderSelectParent')"
-                  readonly
-                  suffix-icon="Search"
-                  @click="treeVisible = !treeVisible"
-                  class="menu-tree-trigger"
-                />
-                <div v-if="treeVisible" class="menu-tree-dropdown">
-                  <el-tree
-                    ref="treeRef"
-                    :data="menuTreeData"
-                    :props="{ value: 'id', label: 'title', children: 'children' }"
-                    node-key="id"
-                    highlight-current
-                    :expand-on-click-node="false"
-                    @node-click="onTreeSelect"
-                    default-expand-all
-                    class="menu-tree-body"
-                  />
-                  <div class="menu-tree-footer">
-                    <el-button size="small" type="primary" link @click="onClearParent">{{
-                      $t("message.pms.menu.clearSelection")
-                    }}</el-button>
-                    <el-button size="small" @click="treeVisible = false">{{
-                      $t("message.common.close")
-                    }}</el-button>
-                  </div>
-                </div>
+      <div class="pms-card-grid">
+        <!-- 上级菜单：el-tree 单选 -->
+        <el-form-item
+          :label="$t('message.pms.menu.colParentMenu')"
+          class="pms-card-full"
+        >
+          <div class="menu-tree-wrapper">
+            <el-input
+              v-model="parentMenuLabel"
+              :placeholder="$t('message.pms.menu.placeholderSelectParent')"
+              readonly
+              suffix-icon="Search"
+              @click="treeVisible = !treeVisible"
+              class="menu-tree-trigger"
+            />
+            <div v-if="treeVisible" class="menu-tree-dropdown">
+              <el-tree
+                ref="treeRef"
+                :data="menuTreeData"
+                :props="{
+                  value: 'id',
+                  label: (data: any) => menuLabel(t, data.title),
+                  children: 'children',
+                }"
+                node-key="id"
+                highlight-current
+                :expand-on-click-node="false"
+                @node-click="onTreeSelect"
+                default-expand-all
+                class="menu-tree-body"
+              />
+              <div class="menu-tree-footer">
+                <el-button
+                  size="small"
+                  type="primary"
+                  link
+                  @click="onClearParent"
+                  >{{ $t("message.pms.menu.clearSelection") }}</el-button
+                >
+                <el-button size="small" @click="treeVisible = false">{{
+                  $t("message.common.close")
+                }}</el-button>
               </div>
-            </el-form-item>
-
-            <!-- 菜单类型 -->
-            <el-form-item :label="$t('message.common.type')" prop="menu_type"
-              ><el-radio-group v-model="ruleForm.menu_type"
-                ><el-radio value="M">{{ $t("message.pms.menu.typeDir") }}</el-radio
-                ><el-radio value="C">{{ $t("message.pms.menu.typeMenu") }}</el-radio
-                ><el-radio value="F">{{
-                  $t("message.pms.menu.typeButton")
-                }}</el-radio></el-radio-group
-              ></el-form-item
-            >
-            <!-- 图标：目录和菜单 -->
-            <el-form-item v-if="ruleForm.menu_type != 'F'" :label="$t('message.pms.menu.menuIcon')"
-              ><IconSelector v-model="ruleForm.icon"
-            /></el-form-item>
-
-            <!-- 菜单名称 -->
-            <el-form-item :label="$t('message.common.colName')" prop="menu_name"
-              ><el-input v-model="ruleForm.menu_name"
-            /></el-form-item>
-
-            <!-- 路由名称（目录）-->
-            <el-form-item v-if="ruleForm.menu_type == 'M'" :label="$t('message.pms.menu.routeName')"
-              ><el-input
-                v-model="ruleForm.name"
-                :placeholder="$t('message.pms.menu.routeNameExample')"
-            /></el-form-item>
-
-            <!-- 权限标识（菜单+按钮）-->
-            <el-form-item
-              v-if="ruleForm.menu_type != 'M'"
-              :label="$t('message.pms.menu.permId')"
-              prop="name"
-            >
-              <el-input v-model="ruleForm.name" :placeholder="$t('message.pms.menu.permExample')" />
-            </el-form-item>
-
-            <!-- 路由路径（目录+菜单）-->
-            <el-form-item
-              v-if="ruleForm.menu_type != 'F'"
-              :label="$t('message.pms.menu.colRoutePath')"
-              prop="path"
-              ><el-input v-model="ruleForm.path"
-            /></el-form-item>
-            <!-- 重定向（目录+菜单）-->
-            <el-form-item v-if="ruleForm.menu_type != 'F'" :label="$t('message.pms.menu.redirect')"
-              ><el-input v-model="ruleForm.redirect"
-            /></el-form-item>
-            <!-- 组件路径（目录+菜单）-->
-            <el-form-item
-              v-if="ruleForm.menu_type != 'F'"
-              :label="$t('message.pms.menu.componentPath')"
-              ><el-input v-model="ruleForm.component"
-            /></el-form-item>
-
-            <!-- 外链/内嵌（目录）-->
-            <el-form-item
-              v-if="ruleForm.menu_type == 'M'"
-              :label="$t('message.pms.menu.linkUrlLabel')"
-              ><el-input v-model="ruleForm.link_url"
-            /></el-form-item>
-
-            <!-- 排序 -->
-            <el-form-item :label="$t('message.common.colSort')" prop="menu_sort"
-              ><el-input-number v-model="ruleForm.menu_sort" :min="0" style="width: 100%"
-            /></el-form-item>
-            <!-- 可见 -->
-            <el-form-item :label="$t('message.common.statusShow')"
-              ><el-switch
-                v-model="ruleForm.is_hide"
-                :active-value="0"
-                :inactive-value="1"
-                :active-text="$t('message.common.statusShow')"
-                :inactive-text="$t('message.common.statusHide')"
-            /></el-form-item>
-            <!-- 缓存 -->
-            <el-form-item :label="$t('message.pms.menu.cacheLabel')"
-              ><el-switch
-                v-model="ruleForm.is_keep_alive"
-                :active-value="0"
-                :inactive-value="1"
-                :active-text="$t('message.common.yes')"
-                :inactive-text="$t('message.common.no')"
-            /></el-form-item>
-            <!-- 外链开关（目录）-->
-            <el-form-item v-if="ruleForm.menu_type == 'M'" :label="$t('message.pms.menu.colIsLink')"
-              ><el-switch
-                v-model="ruleForm.is_link"
-                :active-value="0"
-                :inactive-value="1"
-                :active-text="$t('message.common.yes')"
-                :inactive-text="$t('message.common.no')"
-            /></el-form-item>
-            <!-- 内嵌开关（目录）-->
-            <el-form-item
-              v-if="ruleForm.menu_type == 'M'"
-              :label="$t('message.pms.menu.iframeLabel')"
-              ><el-switch
-                v-model="ruleForm.is_iframe"
-                :active-value="0"
-                :inactive-value="1"
-                :active-text="$t('message.common.yes')"
-                :inactive-text="$t('message.common.no')"
-            /></el-form-item>
-            <!-- 固钉（目录+菜单）-->
-            <el-form-item
-              v-if="ruleForm.menu_type != 'F'"
-              :label="$t('message.pms.menu.fixedLabel')"
-              ><el-switch
-                v-model="ruleForm.is_affix"
-                :active-value="0"
-                :inactive-value="1"
-                :active-text="$t('message.common.yes')"
-                :inactive-text="$t('message.common.no')"
-            /></el-form-item>
+            </div>
           </div>
-          <div class="menu-form-actions">
-            <el-button size="large" @click="$emit('close')">{{ $t("message.common.cancel") }}</el-button
-            ><el-button
-              type="primary"
-              size="large"
-              :loading="submitting"
-              @click="onSubmit"
-              class="menu-submit-btn"
-              >{{ submitting ? $t("message.common.saving") : $t("message.common.save") }}</el-button
-            >
-          </div>
-        </el-form>
-    </div>
+        </el-form-item>
+
+        <!-- 菜单类型 -->
+        <el-form-item :label="$t('message.common.type')" prop="menu_type"
+          ><el-radio-group v-model="ruleForm.menu_type"
+            ><el-radio value="M">{{ $t("message.pms.menu.typeDir") }}</el-radio
+            ><el-radio value="C">{{ $t("message.pms.menu.typeMenu") }}</el-radio
+            ><el-radio value="F">{{
+              $t("message.pms.menu.typeButton")
+            }}</el-radio></el-radio-group
+          ></el-form-item
+        >
+        <!-- 图标：目录和菜单 -->
+        <el-form-item
+          v-if="ruleForm.menu_type != 'F'"
+          :label="$t('message.pms.menu.menuIcon')"
+          ><IconSelector v-model="ruleForm.icon"
+        /></el-form-item>
+
+        <!-- 菜单名称 -->
+        <el-form-item :label="$t('message.common.colName')" prop="menu_name"
+          ><el-input v-model="ruleForm.menu_name"
+        /></el-form-item>
+
+        <!-- 路由名称（目录）-->
+        <el-form-item
+          v-if="ruleForm.menu_type == 'M'"
+          :label="$t('message.pms.menu.routeName')"
+          ><el-input
+            v-model="ruleForm.name"
+            :placeholder="$t('message.pms.menu.routeNameExample')"
+        /></el-form-item>
+
+        <!-- 权限标识（菜单+按钮）-->
+        <el-form-item
+          v-if="ruleForm.menu_type != 'M'"
+          :label="$t('message.pms.menu.permId')"
+          prop="name"
+        >
+          <el-input
+            v-model="ruleForm.name"
+            :placeholder="$t('message.pms.menu.permExample')"
+          />
+        </el-form-item>
+
+        <!-- 路由路径（目录+菜单）-->
+        <el-form-item
+          v-if="ruleForm.menu_type != 'F'"
+          :label="$t('message.pms.menu.colRoutePath')"
+          prop="path"
+          ><el-input v-model="ruleForm.path"
+        /></el-form-item>
+        <!-- 重定向（目录+菜单）-->
+        <el-form-item
+          v-if="ruleForm.menu_type != 'F'"
+          :label="$t('message.pms.menu.redirect')"
+          ><el-input v-model="ruleForm.redirect"
+        /></el-form-item>
+        <!-- 组件路径（目录+菜单）-->
+        <el-form-item
+          v-if="ruleForm.menu_type != 'F'"
+          :label="$t('message.pms.menu.componentPath')"
+          ><el-input v-model="ruleForm.component"
+        /></el-form-item>
+
+        <!-- 外链/内嵌（目录）-->
+        <el-form-item
+          v-if="ruleForm.menu_type == 'M'"
+          :label="$t('message.pms.menu.linkUrlLabel')"
+          ><el-input v-model="ruleForm.link_url"
+        /></el-form-item>
+
+        <!-- 排序 -->
+        <el-form-item :label="$t('message.common.colSort')" prop="menu_sort"
+          ><el-input-number
+            v-model="ruleForm.menu_sort"
+            :min="0"
+            style="width: 100%"
+        /></el-form-item>
+        <!-- 可见 -->
+        <el-form-item :label="$t('message.common.statusShow')"
+          ><el-switch
+            v-model="ruleForm.is_hide"
+            :active-value="0"
+            :inactive-value="1"
+            :active-text="$t('message.common.statusShow')"
+            :inactive-text="$t('message.common.statusHide')"
+        /></el-form-item>
+        <!-- 缓存 -->
+        <el-form-item :label="$t('message.pms.menu.cacheLabel')"
+          ><el-switch
+            v-model="ruleForm.is_keep_alive"
+            :active-value="0"
+            :inactive-value="1"
+            :active-text="$t('message.common.yes')"
+            :inactive-text="$t('message.common.no')"
+        /></el-form-item>
+        <!-- 外链开关（目录）-->
+        <el-form-item
+          v-if="ruleForm.menu_type == 'M'"
+          :label="$t('message.pms.menu.colIsLink')"
+          ><el-switch
+            v-model="ruleForm.is_link"
+            :active-value="0"
+            :inactive-value="1"
+            :active-text="$t('message.common.yes')"
+            :inactive-text="$t('message.common.no')"
+        /></el-form-item>
+        <!-- 内嵌开关（目录）-->
+        <el-form-item
+          v-if="ruleForm.menu_type == 'M'"
+          :label="$t('message.pms.menu.iframeLabel')"
+          ><el-switch
+            v-model="ruleForm.is_iframe"
+            :active-value="0"
+            :inactive-value="1"
+            :active-text="$t('message.common.yes')"
+            :inactive-text="$t('message.common.no')"
+        /></el-form-item>
+        <!-- 固钉（目录+菜单）-->
+        <el-form-item
+          v-if="ruleForm.menu_type != 'F'"
+          :label="$t('message.pms.menu.fixedLabel')"
+          ><el-switch
+            v-model="ruleForm.is_affix"
+            :active-value="0"
+            :inactive-value="1"
+            :active-text="$t('message.common.yes')"
+            :inactive-text="$t('message.common.no')"
+        /></el-form-item>
+      </div>
+      <div class="menu-form-actions">
+        <el-button size="large" @click="$emit('close')">{{
+          $t("message.common.cancel")
+        }}</el-button
+        ><el-button
+          type="primary"
+          size="large"
+          :loading="submitting"
+          @click="onSubmit"
+          class="menu-submit-btn"
+          >{{
+            submitting ? $t("message.common.saving") : $t("message.common.save")
+          }}</el-button
+        >
+      </div>
+    </el-form>
+  </div>
 </template>
 <script lang="ts">
 import {
@@ -183,17 +212,27 @@ import {
   getCurrentInstance,
   nextTick,
 } from "vue";
-import { getMenuParams, addMenu, getMenuInfo, updateMenu } from "/@/api/pms/menu";
+import {
+  getMenuParams,
+  addMenu,
+  getMenuInfo,
+  updateMenu,
+} from "/@/api/pms/menu";
 import { ElMessage } from "element-plus";
 import IconSelector from "/@/components/iconSelector/index.vue";
+import { menuLabel } from "/@/utils/menuLabel";
 import { useI18n } from "vue-i18n";
 
-// 递归查找节点标题
-function findNodeTitle(tree: any[], id: number): string {
+// 递归查找节点标题（title 可能是 i18n key，统一转成可读文案）
+function findNodeTitle(
+  tree: any[],
+  id: number,
+  t: (k: string) => string,
+): string {
   for (const node of tree) {
-    if (node.id === id) return node.title;
+    if (node.id === id) return menuLabel(t, node.title);
     if (node.children?.length) {
-      const found = findNodeTitle(node.children, id);
+      const found = findNodeTitle(node.children, id, t);
       if (found) return found;
     }
   }
@@ -240,7 +279,11 @@ export default defineComponent({
       },
       rules: {
         menu_name: [
-          { required: true, message: t("message.pms.menu.msgNameRequired"), trigger: "blur" },
+          {
+            required: true,
+            message: t("message.pms.menu.msgNameRequired"),
+            trigger: "blur",
+          },
         ],
       },
     });
@@ -257,7 +300,11 @@ export default defineComponent({
         if (props.parentId) {
           state.ruleForm.parent_id = props.parentId;
           nextTick(() => {
-            parentMenuLabel.value = findNodeTitle(menuTreeData.value, props.parentId);
+            parentMenuLabel.value = findNodeTitle(
+              menuTreeData.value,
+              props.parentId,
+              t,
+            );
             treeRef.value?.setCurrentKey(props.parentId);
           });
         }
@@ -267,7 +314,11 @@ export default defineComponent({
             .then((r: any) => {
               const rule = r.data.rule;
               if (rule) {
-                const menuTypeMap: Record<number, string> = { 0: "M", 1: "C", 2: "F" };
+                const menuTypeMap: Record<number, string> = {
+                  0: "M",
+                  1: "C",
+                  2: "F",
+                };
                 state.ruleForm = {
                   id: rule.id,
                   parent_id: rule.pid,
@@ -290,7 +341,7 @@ export default defineComponent({
                 // 回显上级菜单名称
                 nextTick(() => {
                   parentMenuLabel.value = rule.pid
-                    ? findNodeTitle(menuTreeData.value, rule.pid)
+                    ? findNodeTitle(menuTreeData.value, rule.pid, t)
                     : "";
                   if (rule.pid) {
                     treeRef.value?.setCurrentKey(rule.pid);
@@ -305,7 +356,7 @@ export default defineComponent({
     // 树节点选择
     const onTreeSelect = (node: any) => {
       state.ruleForm.parent_id = node.id;
-      parentMenuLabel.value = node.title;
+      parentMenuLabel.value = menuLabel(t, node.title);
       treeVisible.value = false;
     };
     // 清除上级菜单
@@ -323,10 +374,17 @@ export default defineComponent({
       w.validate((v: boolean) => {
         if (!v) return;
         submitting.value = true;
-        const payload = { ...state.ruleForm, menu_type: typeToNum[state.ruleForm.menu_type] ?? 0 };
+        const payload = {
+          ...state.ruleForm,
+          menu_type: typeToNum[state.ruleForm.menu_type] ?? 0,
+        };
         (state.ruleForm.id ? updateMenu(payload) : addMenu(payload))
           .then(() => {
-            ElMessage.success(state.ruleForm.id ? t("message.common.msgEditOk") : t("message.common.msgAddOk"));
+            ElMessage.success(
+              state.ruleForm.id
+                ? t("message.common.msgEditOk")
+                : t("message.common.msgAddOk"),
+            );
             ctx.emit("saved");
           })
           .finally(() => (submitting.value = false));
@@ -339,6 +397,8 @@ export default defineComponent({
       treeVisible,
       menuTreeData,
       parentMenuLabel,
+      t,
+      menuLabel,
       onTreeSelect,
       onClearParent,
       submitting,
@@ -368,7 +428,9 @@ export default defineComponent({
   border-radius: 8px;
   border: 1px solid #d0d5dd;
   box-shadow: none;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .menu-drawer-form :deep(.el-input__wrapper:hover) {

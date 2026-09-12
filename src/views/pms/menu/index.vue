@@ -2,7 +2,9 @@
   <ProPage
     :title="$t('message.pms.menu.breadcrumbCurrent')"
     :subtitle="
-      $t('message.pms.systemManagement') + ' / ' + $t('message.pms.menu.breadcrumbCurrent')
+      $t('message.pms.systemManagement') +
+      ' / ' +
+      $t('message.pms.menu.breadcrumbCurrent')
     "
   >
     <template #actions>
@@ -65,7 +67,10 @@
         >
           <template #default="{ row }">
             <SvgIcon :name="row.icon" />
-            <span class="ml10">{{ row.title }}</span>
+            <span class="ml10">{{ menuLabel(t, row.title) }}</span>
+            <span v-if="isI18nKey(t, row.title)" class="menu-i18n-key">{{
+              row.title
+            }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -88,21 +93,41 @@
         >
           <template #default="{ row }">{{ row.name }}</template>
         </el-table-column>
-        <el-table-column :label="$t('message.pms.menu.menuSort')" width="80" align="center">
+        <el-table-column
+          :label="$t('message.pms.menu.menuSort')"
+          width="80"
+          align="center"
+        >
           <template #default="{ row }">
             <el-tag
               size="small"
               effect="light"
-              :type="row.menu_type === 0 ? 'info' : row.menu_type === 1 ? 'success' : 'warning'"
+              :type="
+                row.menu_type === 0
+                  ? 'info'
+                  : row.menu_type === 1
+                    ? 'success'
+                    : 'warning'
+              "
             >
               {{ row.weigh }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('message.pms.menu.colMenuType')" width="100" align="center">
+        <el-table-column
+          :label="$t('message.pms.menu.colMenuType')"
+          width="100"
+          align="center"
+        >
           <template #default="{ row }">
             <el-tag
-              :type="row.menu_type === 0 ? 'danger' : row.menu_type === 1 ? 'success' : 'warning'"
+              :type="
+                row.menu_type === 0
+                  ? 'danger'
+                  : row.menu_type === 1
+                    ? 'success'
+                    : 'warning'
+              "
               effect="light"
               size="small"
             >
@@ -123,7 +148,11 @@
           width="100"
           align="center"
         />
-        <el-table-column :label="$t('message.common.colOperation')" width="240" fixed="right">
+        <el-table-column
+          :label="$t('message.common.colOperation')"
+          width="240"
+          fixed="right"
+        >
           <template #default="{ row }">
             <el-button
               v-if="row.menu_type !== 2"
@@ -160,13 +189,23 @@
   </ProPage>
 
   <el-drawer
-    :title="editId ? $t('message.router.pmsMenuEdit') : $t('message.router.pmsMenuAdd')"
+    :title="
+      editId
+        ? $t('message.router.pmsMenuEdit')
+        : $t('message.router.pmsMenuAdd')
+    "
     v-model="drawerVisible"
     size="700px"
     destroy-on-close
     direction="rtl"
   >
-    <EditMenu v-if="drawerVisible" :edit-id="editId" :parent-id="parentId" @saved="onDrawerSaved" @close="drawerVisible = false" />
+    <EditMenu
+      v-if="drawerVisible"
+      :edit-id="editId"
+      :parent-id="parentId"
+      @saved="onDrawerSaved"
+      @close="drawerVisible = false"
+    />
   </el-drawer>
 </template>
 
@@ -184,11 +223,16 @@ import {
   nextTick,
 } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
-import { Plus as PlusIcon, Search as SearchIcon, Rank } from "@element-plus/icons-vue";
+import {
+  Plus as PlusIcon,
+  Search as SearchIcon,
+  Rank,
+} from "@element-plus/icons-vue";
 import Sortable from "sortablejs";
 
 import ProPage from "/@/components/pro/ProPage.vue";
 import { delMenu, getMenuList, menuSort } from "/@/api/pms/menu";
+import { isI18nKey, menuLabel } from "/@/utils/menuLabel";
 import { useI18n } from "vue-i18n";
 import EditMenu from "./component/editMenu.vue";
 
@@ -237,8 +281,11 @@ export default defineComponent({
     };
     const onTabelRowDel = (row: any) => {
       ElMessageBox.confirm(
-        proxy.$t("message.pms.menu.confirmDelete", { name: row.title }),
-        proxy.$t("message.common.confirmDeleteTitle") || proxy.$t("message.common.confirmTitle"),
+        proxy.$t("message.pms.menu.confirmDelete", {
+          name: menuLabel(proxy.$t as any, row.title),
+        }),
+        proxy.$t("message.common.confirmDeleteTitle") ||
+          proxy.$t("message.common.confirmTitle"),
         {
           confirmButtonText: proxy.$t("message.common.confirm"),
           cancelButtonText: proxy.$t("message.common.cancel"),
@@ -264,7 +311,12 @@ export default defineComponent({
       const result: any[] = [];
       const walk = (nodes: any[]) => {
         nodes.forEach((node) => {
-          result.push({ id: node.id, pid: node.pid, weigh: node.weigh, menu_type: node.menu_type });
+          result.push({
+            id: node.id,
+            pid: node.pid,
+            weigh: node.weigh,
+            menu_type: node.menu_type,
+          });
           if (node.children?.length) walk(node.children);
         });
       };
@@ -287,7 +339,8 @@ export default defineComponent({
           const rows = el.querySelectorAll(".el-table__row");
           const visibleRows: Element[] = [];
           rows.forEach((row: Element) => {
-            if ((row as HTMLElement).offsetParent !== null) visibleRows.push(row);
+            if ((row as HTMLElement).offsetParent !== null)
+              visibleRows.push(row);
           });
           const newOrder: number[] = visibleRows
             .map((row: Element) => Number(row.getAttribute("data-row-key")))
@@ -369,8 +422,14 @@ export default defineComponent({
     const handleQuery = () => menuList();
     const menuList = () => {
       getMenuList(state.queryParams).then((res) => {
-        rawMenuList = flattenTree(proxy.handleTree(res.data.rules ?? [], "id", "pid"));
-        state.menuTableData = proxy.handleTree(res.data.rules ?? [], "id", "pid");
+        rawMenuList = flattenTree(
+          proxy.handleTree(res.data.rules ?? [], "id", "pid"),
+        );
+        state.menuTableData = proxy.handleTree(
+          res.data.rules ?? [],
+          "id",
+          "pid",
+        );
       });
     };
 
@@ -388,6 +447,9 @@ export default defineComponent({
       handleQuery,
       ...toRefs(state),
       sys_show_hide,
+      t,
+      menuLabel,
+      isI18nKey,
       acType,
       PlusIcon,
       SearchIcon,
@@ -397,6 +459,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.menu-i18n-key {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--cc-color-text-3);
+  opacity: 0.75;
+}
 .search-bar {
   background: var(--cc-color-surface);
   border: 1px solid var(--cc-color-border-light);
