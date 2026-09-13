@@ -445,6 +445,10 @@ export default {
     platform: {
       colToolCover: "封面图",
       colToolBadge: "角标",
+      colToolTags: "标签",
+      colIsCard: "单独成卡",
+      isCardHint:
+        "开：在「全部效果」里自己占一张卡（口交 / 深喉 / 大字型 这类确实是不同的效果）；关：只作为所属工具的选项出现（全脱 / 上半身 / 下半身 就是同一件事的三个选项，各自成卡会让列表看着全是重名）。",
       hougongToolTitle: "创作工具",
       hougongToolSubtitle:
       "后宫自己的创作工具与模板（与「模型开关」无关）：工具是能力单元，模板是它下面的具体玩法。停用工具时其模板一并失效，前台入口立刻消失。",

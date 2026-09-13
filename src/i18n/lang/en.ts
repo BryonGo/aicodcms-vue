@@ -414,6 +414,10 @@ export default {
     platform: {
       colToolCover: "Cover image",
       colToolBadge: "Badge",
+      colToolTags: "Tags",
+      colIsCard: "Own card",
+      isCardHint:
+        "On: gets its own card on All Effects (blowjob / deepthroat / spread-eagle really are different effects). Off: only appears as an option of its parent tool (full / top / bottom are three choices of one action; separate cards make the list look like duplicates).",
       colToolInput: "Input form",
       colActions: "Actions",
       colCategory: "Category",

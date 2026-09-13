@@ -220,6 +220,13 @@
         <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
           <el-input v-model="toolForm.badge" maxlength="8" show-word-limit placeholder="热门 / 新品 / 精选（留空不显示）" />
         </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolTags')">
+          <el-input
+            v-model="toolForm.tags"
+            maxlength="255"
+            placeholder="脱衣,全脱,上半身,下半身（逗号分隔；效果列表的标签行按它筛）"
+          />
+        </el-form-item>
         <el-form-item label="engine / workflow">
           <el-input v-model="toolForm.engine" placeholder="comfy" style="width: 40%" />
           <el-input
@@ -295,6 +302,14 @@
           min-width="180"
           show-overflow-tooltip
         />
+        <el-table-column :label="$t('message.sdk.platform.colIsCard')" width="110" align="center">
+          <template #default="{ row }">
+            <el-switch
+              :model-value="row.isCard !== 0"
+              @change="(v: boolean) => onToggleCard(row, v)"
+            />
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('message.sdk.platform.colSwitch')" width="80" align="center">
           <template #default="{ row }">
             <el-switch
@@ -348,6 +363,33 @@
               :rows="2"
               placeholder='{"denoise":0.55}'
             />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colToolCover')">
+            <el-input
+              v-model="tplForm.cover"
+              placeholder="https://…/cover.webp（留空=用所属工具的封面）"
+            />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
+            <el-input
+              v-model="tplForm.badge"
+              maxlength="8"
+              show-word-limit
+              placeholder="热门 / 新品 / 精选（留空不显示）"
+            />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colToolTags')">
+            <el-input
+              v-model="tplForm.tags"
+              maxlength="255"
+              placeholder="口交,深喉（逗号分隔；效果列表的标签行按它筛）"
+            />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colIsCard')">
+            <el-switch v-model="tplForm.isCard" :active-value="1" :inactive-value="0" />
+            <span style="margin-left: 12px; color: var(--el-text-color-secondary); font-size: 12px">
+              {{ $t("message.sdk.platform.isCardHint") }}
+            </span>
           </el-form-item>
           <el-form-item label="sort / status">
             <el-input-number v-model="tplForm.sort" :min="0" />
@@ -433,6 +475,8 @@ const emptyTool = () => ({
   // 前台会用图标 + 渐变兜底，不会出现空框。
   cover: "",
   badge: "",
+  // 标签：效果列表的标签行按它筛（"全部 / 热门 / 脱衣 / 全脱 / 护士装…"）。
+  tags: "",
   engine: "comfy",
   workflow: "",
   promptPreset: "",
@@ -468,6 +512,11 @@ const emptyTpl = () => ({
   summary: "",
   prompt: "",
   negativePrompt: "",
+  cover: "",
+  badge: "",
+  tags: "",
+  // 默认单独成卡：新加的玩法先按"一个效果"出现，要合并成父工具的选项再关掉。
+  isCard: 1,
   sort: 0,
   status: 1,
 });
@@ -520,6 +569,9 @@ function openTool(row?: HougongTool) {
   loraText.value = "";
   paramsText.value = "";
   if (row) {
+    // 回填必须把**所有**表单字段带上：后台接口是整体覆盖语义，
+    // 少回填一个字段，运营改个名字就会把封面/角标/输入形态一起清掉
+    // （实测踩到：改过名字的工具，封面图与"输入形态"被悄悄重置成默认值）。
     Object.assign(toolForm, {
       id: row.id,
       code: row.code,
@@ -527,6 +579,10 @@ function openTool(row?: HougongTool) {
       category: row.category,
       summary: row.summary,
       icon: row.icon,
+      cover: row.cover || "",
+      badge: row.badge || "",
+      tags: row.tags || "",
+      input: row.input || "image",
       engine: row.engine,
       workflow: row.workflow,
       promptPreset: row.promptPreset || "",
@@ -556,6 +612,7 @@ async function saveTool() {
     icon: toolForm.icon,
     cover: toolForm.cover.trim(),
     badge: toolForm.badge.trim(),
+    tags: toolForm.tags.trim(),
     engine: toolForm.engine,
     workflow: toolForm.workflow,
     promptPreset: toolForm.promptPreset,
@@ -650,6 +707,10 @@ function openTpl(row?: HougongToolTemplate) {
       summary: row.summary,
       prompt: row.prompt || "",
       negativePrompt: row.negativePrompt || "",
+      cover: row.cover || "",
+      badge: row.badge || "",
+      tags: row.tags || "",
+      isCard: row.isCard === 0 ? 0 : 1,
       sort: row.sort,
       status: row.status,
     });
@@ -669,6 +730,10 @@ async function saveTpl() {
     prompt: tplForm.prompt,
     negativePrompt: tplForm.negativePrompt,
     params,
+    cover: tplForm.cover.trim(),
+    badge: tplForm.badge.trim(),
+    tags: tplForm.tags.trim(),
+    isCard: tplForm.isCard,
     sort: tplForm.sort,
     status: tplForm.status,
   };
@@ -699,6 +764,39 @@ async function onToggleTpl(row: HougongToolTemplate, enabled: boolean) {
   try {
     await setHougongTemplateStatus(activeTool.value.id, [row.id], enabled);
     row.status = enabled ? 1 : 0;
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+    await loadTemplates();
+  }
+}
+
+/**
+ * 切换「单独成卡」。
+ *
+ * 这里没有单独的后端接口：它就是模板的一个字段，走整条编辑接口 ——
+ * 只要**不回填**其余字段（后台接口是整体覆盖语义），用 row 里已有的值原样提交即可，
+ * 所以下面每个字段都显式带上，避免"只改开关却把提示词清空"。
+ */
+async function onToggleCard(row: HougongToolTemplate, isCard: boolean) {
+  if (!activeTool.value) return;
+  const next = isCard ? 1 : 0;
+  try {
+    await updateHougongTemplate(activeTool.value.id, row.id, {
+      code: row.code,
+      name: row.name,
+      summary: row.summary,
+      prompt: row.prompt || "",
+      negativePrompt: row.negativePrompt || "",
+      params: row.params || {},
+      cover: row.cover || "",
+      badge: row.badge || "",
+      tags: row.tags || "",
+      isCard: next,
+      sort: row.sort,
+      status: row.status,
+    });
+    row.isCard = next;
     ElMessage.success(t("message.sdk.platform.saveOk"));
   } catch (e: any) {
     ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));

@@ -30,8 +30,15 @@ export interface HougongTool {
   cover: string;
   /** 角标文案（热门/新品/精选…）；留空不显示。 */
   badge: string;
+  /**
+   * 标签（逗号分隔）：效果列表标签行按它筛，搜索也吃它。
+   * 例：脱衣工具填「脱衣,全脱,上半身,下半身」。
+   */
+  tags: string;
   engine: string;
   workflow: string;
+  /** 输入形态：决定前台渲染哪个面板（text/image/image_pair/image_mask/video_pair/character）。 */
+  input: string;
   promptPreset?: string;
   negativePreset?: string;
   loraCodes?: string[];
@@ -52,6 +59,18 @@ export interface HougongToolTemplate {
   prompt?: string;
   negativePrompt?: string;
   params?: ToolParams;
+  /** 封面图 URL（该玩法自己一张卡的缩略图）；留空=用所属工具的封面。 */
+  cover: string;
+  /** 角标文案（热门/新品/精选…）；留空不显示（不继承工具角标）。 */
+  badge: string;
+  /** 标签（逗号分隔），见 HougongTool.tags。 */
+  tags: string;
+  /**
+   * 是否在「全部效果」里单独成一张卡。
+   * 1 = 自己一张卡（口交 / 深喉 / 大字型 —— 确实是不同的效果）；
+   * 0 = 只是父工具的一个选项（全脱 / 上半身 / 下半身），只在工具页作为玩法切换出现。
+   */
+  isCard: number;
   sort: number;
   status: number;
   createdAt: number;
@@ -76,6 +95,8 @@ export interface ToolInput {
   cover: string;
   /** 角标文案（热门/新品/精选…）；留空不显示。 */
   badge: string;
+  /** 标签（逗号分隔）。 */
+  tags: string;
   engine: string;
   workflow: string;
   promptPreset: string;
@@ -93,6 +114,14 @@ export interface TemplateInput {
   prompt: string;
   negativePrompt: string;
   params: ToolParams;
+  /** 封面图 URL（留空=用所属工具的封面）。 */
+  cover: string;
+  /** 角标文案（留空不显示）。 */
+  badge: string;
+  /** 标签（逗号分隔）。 */
+  tags: string;
+  /** 1 = 单独成卡；0 = 只是父工具的一个选项。 */
+  isCard: number;
   sort: number;
   status: number;
 }
