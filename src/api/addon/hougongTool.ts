@@ -64,6 +64,8 @@ export interface ToolInput {
   code: string;
   name: string;
   category: string;
+  /** 输入形态：决定前台渲染哪个面板（text/image/image_pair/image_mask/video_pair/character）。 */
+  input: string;
   summary: string;
   icon: string;
   engine: string;

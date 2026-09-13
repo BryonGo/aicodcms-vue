@@ -412,6 +412,9 @@ export default {
     platformProviders: "Provider Health",
     platformRates: "Billing Rates",
     platform: {
+      colToolInput: "Input form",
+      colActions: "Actions",
+      colCategory: "Category",
       breadcrumbHome: "Home",
       hougongToolTitle: "Creation Tools",
       hougongToolSubtitle:

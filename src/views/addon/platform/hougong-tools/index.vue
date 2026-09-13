@@ -66,11 +66,11 @@
           >
             <el-option :label="$t('message.sdk.platform.statusAll')" value="" />
             <el-option
-              :label="$t('message.sdk.platform.enabled')"
+              :label="$t('message.common.enabled')"
               :value="1"
             />
             <el-option
-              :label="$t('message.sdk.platform.disabled')"
+              :label="$t('message.common.disabled')"
               :value="0"
             />
           </el-select>
@@ -89,7 +89,7 @@
             $t("message.sdk.platform.btnQuery")
           }}</el-button>
           <el-button @click="onReset">{{
-            $t("message.sdk.platform.btnReset")
+            $t("message.common.btnReset")
           }}</el-button>
         </el-form-item>
       </el-form>
@@ -101,7 +101,7 @@
         border
         v-loading="loading"
         class="pf-table"
-        :empty-text="$t('message.sdk.platform.noData')"
+        :empty-text="$t('message.common.noData')"
         @selection-change="onSelectionChange"
       >
         <el-table-column type="selection" width="46" />
@@ -161,13 +161,13 @@
         >
           <template #default="{ row }">
             <el-button link type="primary" @click="openTool(row)">{{
-              $t("message.sdk.platform.btnEdit")
+              $t("message.common.btnEdit")
             }}</el-button>
             <el-button link type="primary" @click="openTemplates(row)">{{
               $t("message.sdk.platform.btnTemplates")
             }}</el-button>
             <el-button link type="danger" @click="onDeleteTool(row)">{{
-              $t("message.sdk.platform.btnDelete")
+              $t("message.common.btnDelete")
             }}</el-button>
           </template>
         </el-table-column>
@@ -179,7 +179,7 @@
       v-model="toolDialog"
       :title="
         toolForm.id
-          ? $t('message.sdk.platform.btnEditTool')
+          ? $t('message.common.btnEditTool')
           : $t('message.sdk.platform.btnCreateTool')
       "
       width="720px"
@@ -196,6 +196,16 @@
             <el-option label="image" value="image" />
             <el-option label="video" value="video" />
             <el-option label="enhance" value="enhance" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolInput')">
+          <el-select v-model="toolForm.input" style="width: 100%">
+            <el-option
+              v-for="opt in INPUT_OPTIONS"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colSummary')">
@@ -236,7 +246,7 @@
             v-model="paramsText"
             type="textarea"
             :rows="2"
-            placeholder='{"scale":2} / {"denoise":0.6}'
+            :placeholder="PARAMS_PLACEHOLDER"
           />
         </el-form-item>
         <el-form-item label="sort / status">
@@ -251,10 +261,10 @@
       </el-form>
       <template #footer>
         <el-button @click="toolDialog = false">{{
-          $t("message.sdk.platform.btnCancel")
+          $t("message.common.btnCancel")
         }}</el-button>
         <el-button type="primary" :loading="saving" @click="saveTool">{{
-          $t("message.sdk.platform.btnSave")
+          $t("message.common.btnSave")
         }}</el-button>
       </template>
     </el-dialog>
@@ -290,10 +300,10 @@
         <el-table-column :label="$t('message.sdk.platform.colActions')" width="130">
           <template #default="{ row }">
             <el-button link type="primary" @click="openTpl(row)">{{
-              $t("message.sdk.platform.btnEdit")
+              $t("message.common.btnEdit")
             }}</el-button>
             <el-button link type="danger" @click="onDeleteTpl(row)">{{
-              $t("message.sdk.platform.btnDelete")
+              $t("message.common.btnDelete")
             }}</el-button>
           </template>
         </el-table-column>
@@ -303,7 +313,7 @@
         v-model="tplDialog"
         :title="
           tplForm.id
-            ? $t('message.sdk.platform.btnEditTemplate')
+            ? $t('message.common.btnEditTemplate')
             : $t('message.sdk.platform.btnCreateTemplate')
         "
         width="560px"
@@ -345,10 +355,10 @@
         </el-form>
         <template #footer>
           <el-button @click="tplDialog = false">{{
-            $t("message.sdk.platform.btnCancel")
+            $t("message.common.btnCancel")
           }}</el-button>
           <el-button type="primary" :loading="saving" @click="saveTpl">{{
-            $t("message.sdk.platform.btnSave")
+            $t("message.common.btnSave")
           }}</el-button>
         </template>
       </el-dialog>
@@ -392,11 +402,25 @@ const q = reactive<{ category: string; status: number | ""; query: string }>({
 });
 
 /** 工具表单：纯前端结构，提交前把 lora/params 文本转成后端字段 */
+/** 输入形态选项：值即后端的 input，标签写清"前台会长出什么面板"。 */
+const INPUT_OPTIONS = [
+  { value: "text", label: "text · 只有提示词（文生图 / 文生视频）" },
+  { value: "image", label: "image · 单图（放大 / 脱衣 / 换背景 / 图生视频…）" },
+  { value: "image_pair", label: "image_pair · 双图：目标图 + 人脸图（换脸）" },
+  { value: "image_mask", label: "image_mask · 图 + 涂抹蒙版（局部重绘）" },
+  { value: "video_pair", label: "video_pair · 视频 + 人脸图（视频换脸）" },
+  { value: "character", label: "character · 角色选择 + 提示词（角色延展）" },
+];
+
 const emptyTool = () => ({
   id: 0,
   code: "",
   name: "",
   category: "image",
+  // 输入形态必须能选：它决定前台渲染哪个面板（单图/双图/蒙版/视频+人脸/角色），
+  // 缺了它运营建出来的工具会落到默认 text —— 上传图的面板根本不出现，
+  // 而工具在后台看起来一切正常。
+  input: "image",
   summary: "",
   icon: "",
   engine: "comfy",
@@ -406,6 +430,17 @@ const emptyTool = () => ({
   sort: 0,
   status: 1,
 });
+/**
+ * params 的两类字段都要能看见：共用字段（denoise/steps/cfg/checkpoint/modelId…）
+ * 与**工作流专属字段**（脱衣的 garmentRegion/samThreshold、视频的 length/resolution…）。
+ * 后者由对应 workflow builder 解释，平台只透传 —— 运营在后台看不到线索就只能猜，
+ * 而"猜错的参数"从结果上通常只表现为"效果不好"。详见 docs/HOUGONG-TOOLS.md。
+ */
+const PARAMS_PLACEHOLDER = `共用：{"denoise":0.6,"steps":28,"checkpoint":"xxx.safetensors"}
+脱衣/服饰：{"bodyRegion":{"x":0.12,"y":0.13,"w":0.76,"h":0.83},"samThreshold":0.93}
+视频：{"length":124,"steps":6,"durationSeconds":5}
+云端模型：{"modelId":"<catalog id>","resolution":"720p"}`;
+
 const toolDialog = ref(false);
 const toolForm = reactive(emptyTool());
 const loraText = ref("");
@@ -506,6 +541,7 @@ async function saveTool() {
     code: toolForm.code.trim(),
     name: toolForm.name.trim(),
     category: toolForm.category,
+    input: toolForm.input,
     summary: toolForm.summary,
     icon: toolForm.icon,
     engine: toolForm.engine,
