@@ -26,6 +26,10 @@ export interface HougongTool {
   category: "image" | "video" | "enhance" | string;
   summary: string;
   icon: string;
+  /** 封面图 URL（效果卡缩略图）；留空用图标兜底。 */
+  cover: string;
+  /** 角标文案（热门/新品/精选…）；留空不显示。 */
+  badge: string;
   engine: string;
   workflow: string;
   promptPreset?: string;
@@ -68,6 +72,10 @@ export interface ToolInput {
   input: string;
   summary: string;
   icon: string;
+  /** 封面图 URL（效果卡缩略图）；留空用图标兜底。 */
+  cover: string;
+  /** 角标文案（热门/新品/精选…）；留空不显示。 */
+  badge: string;
   engine: string;
   workflow: string;
   promptPreset: string;

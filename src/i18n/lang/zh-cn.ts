@@ -443,6 +443,8 @@ export default {
     platformProviders: "供应商健康",
     platformRates: "报价套餐",
     platform: {
+      colToolCover: "封面图",
+      colToolBadge: "角标",
       hougongToolTitle: "创作工具",
       hougongToolSubtitle:
       "后宫自己的创作工具与模板（与「模型开关」无关）：工具是能力单元，模板是它下面的具体玩法。停用工具时其模板一并失效，前台入口立刻消失。",

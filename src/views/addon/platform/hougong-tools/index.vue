@@ -214,6 +214,12 @@
         <el-form-item label="icon">
           <el-input v-model="toolForm.icon" placeholder="i-lucide-sparkles" />
         </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolCover')">
+          <el-input v-model="toolForm.cover" placeholder="https://…/cover.webp" />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
+          <el-input v-model="toolForm.badge" maxlength="8" show-word-limit placeholder="热门 / 新品 / 精选（留空不显示）" />
+        </el-form-item>
         <el-form-item label="engine / workflow">
           <el-input v-model="toolForm.engine" placeholder="comfy" style="width: 40%" />
           <el-input
@@ -423,6 +429,10 @@ const emptyTool = () => ({
   input: "image",
   summary: "",
   icon: "",
+  // 效果列表要的两样：封面图（缩略图）与角标（热门/新品/精选）。留空也能用：
+  // 前台会用图标 + 渐变兜底，不会出现空框。
+  cover: "",
+  badge: "",
   engine: "comfy",
   workflow: "",
   promptPreset: "",
@@ -544,6 +554,8 @@ async function saveTool() {
     input: toolForm.input,
     summary: toolForm.summary,
     icon: toolForm.icon,
+    cover: toolForm.cover.trim(),
+    badge: toolForm.badge.trim(),
     engine: toolForm.engine,
     workflow: toolForm.workflow,
     promptPreset: toolForm.promptPreset,

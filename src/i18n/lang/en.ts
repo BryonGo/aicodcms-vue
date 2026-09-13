@@ -412,6 +412,8 @@ export default {
     platformProviders: "Provider Health",
     platformRates: "Billing Rates",
     platform: {
+      colToolCover: "Cover image",
+      colToolBadge: "Badge",
       colToolInput: "Input form",
       colActions: "Actions",
       colCategory: "Category",
