@@ -1,0 +1,682 @@
+<template>
+  <div class="pf-page">
+    <el-breadcrumb separator="→">
+      <el-breadcrumb-item :to="{ path: '/' }"
+        ><el-icon><HomeFilled /></el-icon>
+        {{ $t("message.sdk.platform.breadcrumbHome") }}</el-breadcrumb-item
+      >
+      <el-breadcrumb-item>{{
+        $t("message.sdk.platform.breadcrumbSdk")
+      }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{
+        $t("message.sdk.platform.hougongToolTitle")
+      }}</el-breadcrumb-item>
+    </el-breadcrumb>
+
+    <div class="pf-header">
+      <div>
+        <h1 class="pf-title">
+          {{ $t("message.sdk.platform.hougongToolTitle") }}
+        </h1>
+        <p class="pf-subtitle">
+          {{ $t("message.sdk.platform.hougongToolSubtitle") }}
+        </p>
+      </div>
+      <div class="pf-header-actions">
+        <el-button
+          :disabled="!selection.length"
+          @click="onBatch(false)"
+          >{{ $t("message.sdk.platform.btnBatchDisable") }}</el-button
+        >
+        <el-button
+          :disabled="!selection.length"
+          @click="onBatch(true)"
+          >{{ $t("message.sdk.platform.btnBatchEnable") }}</el-button
+        >
+        <el-button type="primary" @click="openTool()">{{
+          $t("message.sdk.platform.btnCreateTool")
+        }}</el-button>
+      </div>
+    </div>
+
+    <div class="pf-filter-card">
+      <el-form :inline="true" @submit.prevent>
+        <el-form-item :label="$t('message.sdk.platform.filterCategory')">
+          <el-select
+            v-model="q.category"
+            clearable
+            style="width: 140px"
+            @change="load"
+          >
+            <el-option
+              :label="$t('message.sdk.platform.categoryAll')"
+              value=""
+            />
+            <el-option label="image" value="image" />
+            <el-option label="video" value="video" />
+            <el-option label="enhance" value="enhance" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.filterStatus')">
+          <el-select
+            v-model="q.status"
+            clearable
+            style="width: 140px"
+            @change="load"
+          >
+            <el-option :label="$t('message.sdk.platform.statusAll')" value="" />
+            <el-option
+              :label="$t('message.sdk.platform.enabled')"
+              :value="1"
+            />
+            <el-option
+              :label="$t('message.sdk.platform.disabled')"
+              :value="0"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.filterKeyword')">
+          <el-input
+            v-model="q.query"
+            placeholder="name / code"
+            clearable
+            style="width: 200px"
+            @keyup.enter="load"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="load">{{
+            $t("message.sdk.platform.btnQuery")
+          }}</el-button>
+          <el-button @click="onReset">{{
+            $t("message.sdk.platform.btnReset")
+          }}</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <div class="pf-table-card">
+      <el-table
+        :data="rows"
+        border
+        v-loading="loading"
+        class="pf-table"
+        :empty-text="$t('message.sdk.platform.noData')"
+        @selection-change="onSelectionChange"
+      >
+        <el-table-column type="selection" width="46" />
+        <el-table-column
+          prop="code"
+          :label="$t('message.sdk.platform.colToolCode')"
+          width="150"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="name"
+          :label="$t('message.sdk.platform.colToolName')"
+          min-width="140"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="category"
+          :label="$t('message.sdk.platform.filterCategory')"
+          width="110"
+        />
+        <el-table-column
+          prop="engine"
+          label="engine"
+          width="100"
+        />
+        <el-table-column
+          prop="workflow"
+          label="workflow"
+          width="150"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          :label="$t('message.sdk.platform.colTemplateCount')"
+          width="90"
+          align="center"
+        >
+          <template #default="{ row }">
+            <span class="pf-mono">{{ row.templateCount || 0 }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('message.sdk.platform.colSwitch')"
+          width="100"
+          align="center"
+        >
+          <template #default="{ row }">
+            <el-switch
+              :model-value="row.status === 1"
+              @change="(v: boolean) => onToggleOne(row, v)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('message.sdk.platform.colActions')"
+          width="220"
+          fixed="right"
+        >
+          <template #default="{ row }">
+            <el-button link type="primary" @click="openTool(row)">{{
+              $t("message.sdk.platform.btnEdit")
+            }}</el-button>
+            <el-button link type="primary" @click="openTemplates(row)">{{
+              $t("message.sdk.platform.btnTemplates")
+            }}</el-button>
+            <el-button link type="danger" @click="onDeleteTool(row)">{{
+              $t("message.sdk.platform.btnDelete")
+            }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <!-- 工具编辑 -->
+    <el-dialog
+      v-model="toolDialog"
+      :title="
+        toolForm.id
+          ? $t('message.sdk.platform.btnEditTool')
+          : $t('message.sdk.platform.btnCreateTool')
+      "
+      width="720px"
+    >
+      <el-form label-width="120px">
+        <el-form-item :label="$t('message.sdk.platform.colToolCode')">
+          <el-input v-model="toolForm.code" placeholder="upscale / face-swap" />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolName')">
+          <el-input v-model="toolForm.name" />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.filterCategory')">
+          <el-select v-model="toolForm.category" style="width: 100%">
+            <el-option label="image" value="image" />
+            <el-option label="video" value="video" />
+            <el-option label="enhance" value="enhance" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colSummary')">
+          <el-input v-model="toolForm.summary" maxlength="120" show-word-limit />
+        </el-form-item>
+        <el-form-item label="icon">
+          <el-input v-model="toolForm.icon" placeholder="i-lucide-sparkles" />
+        </el-form-item>
+        <el-form-item label="engine / workflow">
+          <el-input v-model="toolForm.engine" placeholder="comfy" style="width: 40%" />
+          <el-input
+            v-model="toolForm.workflow"
+            placeholder="upscale"
+            style="width: 55%; margin-left: 5%"
+          />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colPromptPreset')">
+          <el-input
+            v-model="toolForm.promptPreset"
+            type="textarea"
+            :rows="2"
+            :placeholder="$t('message.sdk.platform.promptPresetHint')"
+          />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colNegativePreset')">
+          <el-input v-model="toolForm.negativePreset" type="textarea" :rows="2" />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colLoraCodes')">
+          <el-input
+            v-model="loraText"
+            type="textarea"
+            :rows="2"
+            :placeholder="$t('message.sdk.platform.loraCodesHint')"
+          />
+        </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colParams')">
+          <el-input
+            v-model="paramsText"
+            type="textarea"
+            :rows="2"
+            placeholder='{"scale":2} / {"denoise":0.6}'
+          />
+        </el-form-item>
+        <el-form-item label="sort / status">
+          <el-input-number v-model="toolForm.sort" :min="0" />
+          <el-switch
+            v-model="toolForm.status"
+            :active-value="1"
+            :inactive-value="0"
+            style="margin-left: 16px"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="toolDialog = false">{{
+          $t("message.sdk.platform.btnCancel")
+        }}</el-button>
+        <el-button type="primary" :loading="saving" @click="saveTool">{{
+          $t("message.sdk.platform.btnSave")
+        }}</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 模板管理 -->
+    <el-drawer
+      v-model="tplDrawer"
+      :title="`${toolName} · ${$t('message.sdk.platform.btnTemplates')}`"
+      size="720px"
+    >
+      <div style="margin-bottom: 12px">
+        <el-button type="primary" size="small" @click="openTpl()">{{
+          $t("message.sdk.platform.btnCreateTemplate")
+        }}</el-button>
+      </div>
+      <el-table :data="templates" border size="small">
+        <el-table-column prop="code" label="code" width="130" />
+        <el-table-column prop="name" :label="$t('message.sdk.platform.colToolName')" min-width="120" />
+        <el-table-column
+          prop="prompt"
+          :label="$t('message.sdk.platform.colPromptPreset')"
+          min-width="180"
+          show-overflow-tooltip
+        />
+        <el-table-column :label="$t('message.sdk.platform.colSwitch')" width="80" align="center">
+          <template #default="{ row }">
+            <el-switch
+              :model-value="row.status === 1"
+              @change="(v: boolean) => onToggleTpl(row, v)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('message.sdk.platform.colActions')" width="130">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="openTpl(row)">{{
+              $t("message.sdk.platform.btnEdit")
+            }}</el-button>
+            <el-button link type="danger" @click="onDeleteTpl(row)">{{
+              $t("message.sdk.platform.btnDelete")
+            }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-dialog
+        v-model="tplDialog"
+        :title="
+          tplForm.id
+            ? $t('message.sdk.platform.btnEditTemplate')
+            : $t('message.sdk.platform.btnCreateTemplate')
+        "
+        width="560px"
+        append-to-body
+      >
+        <el-form label-width="110px">
+          <el-form-item label="code">
+            <el-input v-model="tplForm.code" />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colToolName')">
+            <el-input v-model="tplForm.name" />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colSummary')">
+            <el-input v-model="tplForm.summary" />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colPromptPreset')">
+            <el-input v-model="tplForm.prompt" type="textarea" :rows="3" />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colNegativePreset')">
+            <el-input v-model="tplForm.negativePrompt" type="textarea" :rows="2" />
+          </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colParams')">
+            <el-input
+              v-model="tplParamsText"
+              type="textarea"
+              :rows="2"
+              placeholder='{"denoise":0.55}'
+            />
+          </el-form-item>
+          <el-form-item label="sort / status">
+            <el-input-number v-model="tplForm.sort" :min="0" />
+            <el-switch
+              v-model="tplForm.status"
+              :active-value="1"
+              :inactive-value="0"
+              style="margin-left: 16px"
+            />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="tplDialog = false">{{
+            $t("message.sdk.platform.btnCancel")
+          }}</el-button>
+          <el-button type="primary" :loading="saving" @click="saveTpl">{{
+            $t("message.sdk.platform.btnSave")
+          }}</el-button>
+        </template>
+      </el-dialog>
+    </el-drawer>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { HomeFilled } from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { computed, onMounted, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import {
+  createHougongTemplate,
+  createHougongTool,
+  deleteHougongTemplate,
+  deleteHougongTool,
+  getHougongTemplates,
+  getHougongTools,
+  setHougongTemplateStatus,
+  setHougongToolStatus,
+  updateHougongTemplate,
+  updateHougongTool,
+  type HougongTool,
+  type HougongToolTemplate,
+  type TemplateInput,
+  type ToolInput,
+  type ToolParams,
+} from "/@/api/addon/hougongTool";
+
+const { t } = useI18n();
+
+const loading = ref(false);
+const saving = ref(false);
+const rows = ref<HougongTool[]>([]);
+const selection = ref<HougongTool[]>([]);
+const q = reactive<{ category: string; status: number | ""; query: string }>({
+  category: "",
+  status: "",
+  query: "",
+});
+
+/** 工具表单：纯前端结构，提交前把 lora/params 文本转成后端字段 */
+const emptyTool = () => ({
+  id: 0,
+  code: "",
+  name: "",
+  category: "image",
+  summary: "",
+  icon: "",
+  engine: "comfy",
+  workflow: "",
+  promptPreset: "",
+  negativePreset: "",
+  sort: 0,
+  status: 1,
+});
+const toolDialog = ref(false);
+const toolForm = reactive(emptyTool());
+const loraText = ref("");
+const paramsText = ref("");
+
+const tplDrawer = ref(false);
+const tplDialog = ref(false);
+const templates = ref<HougongToolTemplate[]>([]);
+const activeTool = ref<HougongTool | null>(null);
+const toolName = computed(() => activeTool.value?.name || "");
+const emptyTpl = () => ({
+  id: 0,
+  code: "",
+  name: "",
+  summary: "",
+  prompt: "",
+  negativePrompt: "",
+  sort: 0,
+  status: 1,
+});
+const tplForm = reactive(emptyTpl());
+const tplParamsText = ref("");
+
+async function load() {
+  loading.value = true;
+  try {
+    const res: any = await getHougongTools({
+      category: q.category || undefined,
+      status: q.status === "" ? undefined : Number(q.status),
+      query: q.query || undefined,
+    });
+    rows.value = res.data?.items || [];
+  } finally {
+    loading.value = false;
+  }
+}
+
+function onSelectionChange(v: HougongTool[]) {
+  selection.value = v;
+}
+
+function onReset() {
+  q.category = "";
+  q.status = "";
+  q.query = "";
+  load();
+}
+
+/** 解析 JSON 文本；空串按 {} 处理，非法则提示并返回 null（调用方据此中止保存）。 */
+function parseParams(text: string): ToolParams | null {
+  const s = (text || "").trim();
+  if (!s) return {};
+  try {
+    const v = JSON.parse(s);
+    if (v === null || typeof v !== "object" || Array.isArray(v)) {
+      throw new Error("not object");
+    }
+    return v as ToolParams;
+  } catch {
+    ElMessage.error(t("message.sdk.platform.jsonInvalid"));
+    return null;
+  }
+}
+
+function openTool(row?: HougongTool) {
+  Object.assign(toolForm, emptyTool());
+  loraText.value = "";
+  paramsText.value = "";
+  if (row) {
+    Object.assign(toolForm, {
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      category: row.category,
+      summary: row.summary,
+      icon: row.icon,
+      engine: row.engine,
+      workflow: row.workflow,
+      promptPreset: row.promptPreset || "",
+      negativePreset: row.negativePreset || "",
+      sort: row.sort,
+      status: row.status,
+    });
+    loraText.value = (row.loraCodes || []).join("\n");
+    paramsText.value = row.params ? JSON.stringify(row.params) : "";
+  }
+  toolDialog.value = true;
+}
+
+async function saveTool() {
+  const params = parseParams(paramsText.value);
+  if (params === null) return;
+  const loraCodes = loraText.value
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const payload: ToolInput = {
+    code: toolForm.code.trim(),
+    name: toolForm.name.trim(),
+    category: toolForm.category,
+    summary: toolForm.summary,
+    icon: toolForm.icon,
+    engine: toolForm.engine,
+    workflow: toolForm.workflow,
+    promptPreset: toolForm.promptPreset,
+    negativePreset: toolForm.negativePreset,
+    loraCodes,
+    params,
+    sort: toolForm.sort,
+    status: toolForm.status,
+  };
+  if (!payload.code || !payload.name) {
+    ElMessage.error(t("message.sdk.platform.codeNameRequired"));
+    return;
+  }
+  saving.value = true;
+  try {
+    if (toolForm.id) {
+      await updateHougongTool(toolForm.id, payload);
+    } else {
+      await createHougongTool(payload);
+    }
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+    toolDialog.value = false;
+    await load();
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function onToggleOne(row: HougongTool, enabled: boolean) {
+  try {
+    await setHougongToolStatus([row.id], enabled);
+    row.status = enabled ? 1 : 0;
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+    await load();
+  }
+}
+
+async function onBatch(enabled: boolean) {
+  const ids = selection.value.map((r) => r.id);
+  if (!ids.length) return;
+  try {
+    await setHougongToolStatus(ids, enabled);
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+    await load();
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+  }
+}
+
+async function onDeleteTool(row: HougongTool) {
+  try {
+    await ElMessageBox.confirm(
+      t("message.sdk.platform.deleteToolConfirm", { name: row.name }),
+      { type: "warning" }
+    );
+  } catch {
+    return;
+  }
+  try {
+    await deleteHougongTool(row.id);
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+    await load();
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+  }
+}
+
+async function openTemplates(row: HougongTool) {
+  activeTool.value = row;
+  tplDrawer.value = true;
+  await loadTemplates();
+}
+
+async function loadTemplates() {
+  if (!activeTool.value) return;
+  const res: any = await getHougongTemplates(activeTool.value.id);
+  templates.value = res.data?.items || [];
+}
+
+function openTpl(row?: HougongToolTemplate) {
+  Object.assign(tplForm, emptyTpl());
+  tplParamsText.value = "";
+  if (row) {
+    Object.assign(tplForm, {
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      summary: row.summary,
+      prompt: row.prompt || "",
+      negativePrompt: row.negativePrompt || "",
+      sort: row.sort,
+      status: row.status,
+    });
+    tplParamsText.value = row.params ? JSON.stringify(row.params) : "";
+  }
+  tplDialog.value = true;
+}
+
+async function saveTpl() {
+  if (!activeTool.value) return;
+  const params = parseParams(tplParamsText.value);
+  if (params === null) return;
+  const payload: TemplateInput = {
+    code: tplForm.code.trim(),
+    name: tplForm.name.trim(),
+    summary: tplForm.summary,
+    prompt: tplForm.prompt,
+    negativePrompt: tplForm.negativePrompt,
+    params,
+    sort: tplForm.sort,
+    status: tplForm.status,
+  };
+  if (!payload.code || !payload.name) {
+    ElMessage.error(t("message.sdk.platform.codeNameRequired"));
+    return;
+  }
+  saving.value = true;
+  try {
+    if (tplForm.id) {
+      await updateHougongTemplate(activeTool.value.id, tplForm.id, payload);
+    } else {
+      await createHougongTemplate(activeTool.value.id, payload);
+    }
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+    tplDialog.value = false;
+    await loadTemplates();
+    await load();
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function onToggleTpl(row: HougongToolTemplate, enabled: boolean) {
+  if (!activeTool.value) return;
+  try {
+    await setHougongTemplateStatus(activeTool.value.id, [row.id], enabled);
+    row.status = enabled ? 1 : 0;
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+    await loadTemplates();
+  }
+}
+
+async function onDeleteTpl(row: HougongToolTemplate) {
+  if (!activeTool.value) return;
+  try {
+    await ElMessageBox.confirm(
+      t("message.sdk.platform.deleteTemplateConfirm", { name: row.name }),
+      { type: "warning" }
+    );
+  } catch {
+    return;
+  }
+  try {
+    await deleteHougongTemplate(activeTool.value.id, row.id);
+    ElMessage.success(t("message.sdk.platform.saveOk"));
+    await loadTemplates();
+    await load();
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("message.sdk.platform.saveFailed"));
+  }
+}
+
+onMounted(load);
+</script>
