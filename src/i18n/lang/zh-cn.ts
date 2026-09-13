@@ -446,6 +446,10 @@ export default {
       colToolCover: "封面图",
       colToolBadge: "角标",
       colToolTags: "标签",
+      toolsEmptyOnSite:
+        "当前站点「{site}」下还没有创作工具。创作工具按站点隔离（后宫站的工具挂在 hougong 站），请在右上角把站点切到对应站点。",
+      toolsEmptyNoSite:
+        "还没有创作工具。注意创作工具按站点隔离，请先在右上角选择站点。",
       colIsCard: "单独成卡",
       isCardHint:
         "开：在「全部效果」里自己占一张卡（口交 / 深喉 / 大字型 这类确实是不同的效果）；关：只作为所属工具的选项出现（全脱 / 上半身 / 下半身 就是同一件事的三个选项，各自成卡会让列表看着全是重名）。",

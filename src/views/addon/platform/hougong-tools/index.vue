@@ -171,6 +171,23 @@
             }}</el-button>
           </template>
         </el-table-column>
+        <!--
+          空表格要说清"为什么空"：创作工具按站点隔离，后台当前站点是「默认站」时
+          这里一条都不会有（工具都在 hougong 站下），而默认的「暂无数据」看起来
+          像功能坏了。实测踩到：运营打开这个页面以为工具丢了。
+        -->
+        <template #empty>
+          <div class="hg-empty">
+            <p v-if="currentSiteName">
+              {{
+                $t("message.sdk.platform.toolsEmptyOnSite", {
+                  site: currentSiteName,
+                })
+              }}
+            </p>
+            <p v-else>{{ $t("message.sdk.platform.toolsEmptyNoSite") }}</p>
+          </div>
+        </template>
       </el-table>
     </div>
 
@@ -419,6 +436,7 @@ import { HomeFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useSiteInfo } from "/@/stores/siteInfo";
 import {
   createHougongTemplate,
   createHougongTool,
@@ -438,6 +456,8 @@ import {
 } from "/@/api/addon/hougongTool";
 
 const { t } = useI18n();
+// 当前站点名只用于"空表格时说清楚是哪个站为空"（工具按站点隔离，切错站就一条都没有）。
+const currentSiteName = computed(() => useSiteInfo().currentSite?.name || "");
 
 const loading = ref(false);
 const saving = ref(false);
@@ -826,3 +846,16 @@ async function onDeleteTpl(row: HougongToolTemplate) {
 
 onMounted(load);
 </script>
+
+<style scoped>
+/* 空表格里的说明文字：Element Plus 的 empty 插槽默认居中，这里只补行距与配色。 */
+.hg-empty {
+  padding: 18px 12px;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  line-height: 1.9;
+}
+.hg-empty p {
+  margin: 0;
+}
+</style>
