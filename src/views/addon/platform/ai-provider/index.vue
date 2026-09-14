@@ -189,7 +189,7 @@
           <template #default="{ row }">
             {{ row.name }}
             <el-tag v-if="row.versions > 1" size="small" effect="plain" class="ap-tag">
-              {{ orderVersionsText(row.versions) }}
+              {{ t("orderVersions", { n: row.versions }) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -366,7 +366,14 @@ export default defineComponent({
   setup() {
     const { t: rawT } = useI18n();
     // 所有文案走 message.sdk.platform.ai* 命名空间。
-    const t = (key: string) => rawT(`message.sdk.platform.${key}`);
+    /**
+     * i18n 包装：固定前缀 + **透传插值参数**。
+     *
+     * 必须透传：文案里的 `{n}` 是 vue-i18n 的具名插值，不传参数时它会被替换成空串
+     * （"N 个版本" 渲染成 " 个版本"）—— 而这类缺失只体现在文案上，type-check 是过得去的。
+     */
+    const t = (key: string, params?: Record<string, unknown>) =>
+      rawT(`message.sdk.platform.${key}`, params || {});
 
     const providers = ref<AiProviderItem[]>([]);
     const models = ref<AiModelItem[]>([]);
@@ -691,14 +698,6 @@ function openOrderDialog() {
   void loadOrder();
 }
 
-/**
- * 「N 个版本」的文案。页面里的 t 是单参包装（`message.sdk.platform.*`），
- * 这里用 replace 填占位符，而不是绕开 i18n 写死中文。
- */
-function orderVersionsText(n: number): string {
-  return t("orderVersions").replace("{n}", String(n));
-}
-
 async function loadOrder() {
   orderLoading.value = true;
   try {
@@ -764,7 +763,6 @@ onMounted(() => loadProviders());
       openOrderDialog,
       loadOrder,
       moveOrder,
-      orderVersionsText,
     };
   },
 });
