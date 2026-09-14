@@ -520,6 +520,7 @@ export default {
       syncDone: "Sync done: {inserted} added, {existing} existing, {missing} missing upstream",
       syncFailed: "Sync failed (protocol may not support discovery, or upstream error)",
       colToolCover: "Cover image",
+      colToolCoverBefore: "Before image",
       colToolBadge: "Badge",
       colToolTags: "Tags",
       toolsEmptyOnSite:
@@ -527,8 +528,10 @@ export default {
       toolsEmptyNoSite:
         "No creation tools yet. Tools are isolated per site, so pick a site in the top-right corner first.",
       colIsCard: "Own card",
-      phToolCover: "https://…/cover.webp",
-      phToolCoverTpl: "https://…/cover.webp (empty = use the parent tool's cover)",
+      phToolCover: "hougong/media/image/xxx.webp or https://…",
+      phToolCoverTpl: "empty = use the parent tool's cover",
+      phToolCoverBefore: "The pre-process original. Paired with the cover -> the front end shows a compare slider",
+      phToolCoverBeforeTpl: "empty = use the parent tool's before image",
       phToolBadge: "Hot / New / Featured (empty = hidden)",
       phToolTags: "undress,full,upper-body,lower-body (comma separated; the effects list filters by these)",
       phToolTagsTpl: "blowjob,deep-throat (comma separated; the effects list filters by these)",

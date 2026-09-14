@@ -28,6 +28,13 @@ export interface HougongTool {
   icon: string;
   /** 封面图 URL（效果卡缩略图）；留空用图标兜底。 */
   cover: string;
+  /**
+   * 对比原图（处理**前**）。与 cover 成对时前台出可拖动的对比滑块。
+   *
+   * 存的是**对象 key**（如 hougong/media/image/xxx.webp），不是完整 URL ——
+   * 桶私有 + 防盗链，地址由服务端在读取时现算；前端拿到的是限时地址，别持久化。
+   */
+  coverBefore: string;
   /** 角标文案（热门/新品/精选…）；留空不显示。 */
   badge: string;
   /**
@@ -61,6 +68,13 @@ export interface HougongToolTemplate {
   params?: ToolParams;
   /** 封面图 URL（该玩法自己一张卡的缩略图）；留空=用所属工具的封面。 */
   cover: string;
+  /**
+   * 对比原图（处理**前**）。与 cover 成对时前台出可拖动的对比滑块。
+   *
+   * 存的是**对象 key**（如 hougong/media/image/xxx.webp），不是完整 URL ——
+   * 桶私有 + 防盗链，地址由服务端在读取时现算；前端拿到的是限时地址，别持久化。
+   */
+  coverBefore: string;
   /** 角标文案（热门/新品/精选…）；留空不显示（不继承工具角标）。 */
   badge: string;
   /** 标签（逗号分隔），见 HougongTool.tags。 */
@@ -93,6 +107,13 @@ export interface ToolInput {
   icon: string;
   /** 封面图 URL（效果卡缩略图）；留空用图标兜底。 */
   cover: string;
+  /**
+   * 对比原图（处理**前**）。与 cover 成对时前台出可拖动的对比滑块。
+   *
+   * 存的是**对象 key**（如 hougong/media/image/xxx.webp），不是完整 URL ——
+   * 桶私有 + 防盗链，地址由服务端在读取时现算；前端拿到的是限时地址，别持久化。
+   */
+  coverBefore: string;
   /** 角标文案（热门/新品/精选…）；留空不显示。 */
   badge: string;
   /** 标签（逗号分隔）。 */
@@ -116,6 +137,13 @@ export interface TemplateInput {
   params: ToolParams;
   /** 封面图 URL（留空=用所属工具的封面）。 */
   cover: string;
+  /**
+   * 对比原图（处理**前**）。与 cover 成对时前台出可拖动的对比滑块。
+   *
+   * 存的是**对象 key**（如 hougong/media/image/xxx.webp），不是完整 URL ——
+   * 桶私有 + 防盗链，地址由服务端在读取时现算；前端拿到的是限时地址，别持久化。
+   */
+  coverBefore: string;
   /** 角标文案（留空不显示）。 */
   badge: string;
   /** 标签（逗号分隔）。 */

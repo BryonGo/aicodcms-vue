@@ -234,6 +234,12 @@
         <el-form-item :label="$t('message.sdk.platform.colToolCover')">
           <el-input v-model="toolForm.cover" :placeholder="$t('message.sdk.platform.phToolCover')" />
         </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolCoverBefore')">
+          <el-input
+            v-model="toolForm.coverBefore"
+            :placeholder="$t('message.sdk.platform.phToolCoverBefore')"
+          />
+        </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
           <el-input v-model="toolForm.badge" maxlength="8" show-word-limit :placeholder="$t('message.sdk.platform.phToolBadge')" />
         </el-form-item>
@@ -387,6 +393,12 @@
               :placeholder="$t('message.sdk.platform.phToolCoverTpl')"
             />
           </el-form-item>
+          <el-form-item :label="$t('message.sdk.platform.colToolCoverBefore')">
+            <el-input
+              v-model="tplForm.coverBefore"
+              :placeholder="$t('message.sdk.platform.phToolCoverBeforeTpl')"
+            />
+          </el-form-item>
           <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
             <el-input
               v-model="tplForm.badge"
@@ -494,6 +506,7 @@ const emptyTool = () => ({
   // 效果列表要的两样：封面图（缩略图）与角标（热门/新品/精选）。留空也能用：
   // 前台会用图标 + 渐变兜底，不会出现空框。
   cover: "",
+  coverBefore: "",
   badge: "",
   // 标签：效果列表的标签行按它筛（"全部 / 热门 / 脱衣 / 全脱 / 护士装…"）。
   tags: "",
@@ -533,6 +546,7 @@ const emptyTpl = () => ({
   prompt: "",
   negativePrompt: "",
   cover: "",
+  coverBefore: "",
   badge: "",
   tags: "",
   // 默认单独成卡：新加的玩法先按"一个效果"出现，要合并成父工具的选项再关掉。
@@ -600,6 +614,7 @@ function openTool(row?: HougongTool) {
       summary: row.summary,
       icon: row.icon,
       cover: row.cover || "",
+      coverBefore: row.coverBefore || "",
       badge: row.badge || "",
       tags: row.tags || "",
       input: row.input || "image",
@@ -631,6 +646,7 @@ async function saveTool() {
     summary: toolForm.summary,
     icon: toolForm.icon,
     cover: toolForm.cover.trim(),
+    coverBefore: toolForm.coverBefore.trim(),
     badge: toolForm.badge.trim(),
     tags: toolForm.tags.trim(),
     engine: toolForm.engine,
@@ -728,6 +744,7 @@ function openTpl(row?: HougongToolTemplate) {
       prompt: row.prompt || "",
       negativePrompt: row.negativePrompt || "",
       cover: row.cover || "",
+      coverBefore: row.coverBefore || "",
       badge: row.badge || "",
       tags: row.tags || "",
       isCard: row.isCard === 0 ? 0 : 1,
@@ -751,6 +768,7 @@ async function saveTpl() {
     negativePrompt: tplForm.negativePrompt,
     params,
     cover: tplForm.cover.trim(),
+    coverBefore: tplForm.coverBefore.trim(),
     badge: tplForm.badge.trim(),
     tags: tplForm.tags.trim(),
     isCard: tplForm.isCard,
@@ -810,6 +828,7 @@ async function onToggleCard(row: HougongToolTemplate, isCard: boolean) {
       negativePrompt: row.negativePrompt || "",
       params: row.params || {},
       cover: row.cover || "",
+      coverBefore: row.coverBefore || "",
       badge: row.badge || "",
       tags: row.tags || "",
       isCard: next,

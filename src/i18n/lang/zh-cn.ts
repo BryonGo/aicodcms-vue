@@ -551,6 +551,7 @@ export default {
       syncDone: "同步完成：新增 {inserted}、已存在 {existing}、上游已消失 {missing}",
       syncFailed: "同步失败（该协议可能不支持拉取，或上游凭据/网络异常）",
       colToolCover: "封面图",
+      colToolCoverBefore: "对比原图",
       colToolBadge: "角标",
       colToolTags: "标签",
       toolsEmptyOnSite:
@@ -558,8 +559,10 @@ export default {
       toolsEmptyNoSite:
         "还没有创作工具。注意创作工具按站点隔离，请先在右上角选择站点。",
       colIsCard: "单独成卡",
-      phToolCover: "https://…/cover.webp",
-      phToolCoverTpl: "https://…/cover.webp（留空=用所属工具的封面）",
+      phToolCover: "hougong/media/image/xxx.webp 或 https://…",
+      phToolCoverTpl: "留空=用所属工具的封面",
+      phToolCoverBefore: "处理前的原图。与封面图成对时前台出对比滑块",
+      phToolCoverBeforeTpl: "留空=用所属工具的对比原图",
       phToolBadge: "热门 / 新品 / 精选（留空不显示）",
       phToolTags: "脱衣,全脱,上半身,下半身（逗号分隔；效果列表的标签行按它筛）",
       phToolTagsTpl: "口交,深喉（逗号分隔；效果列表的标签行按它筛）",
