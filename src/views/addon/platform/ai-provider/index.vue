@@ -120,6 +120,21 @@
               </el-tag>
             </template>
           </el-table-column>
+          <el-table-column :label="t('normColFamily')" min-width="150">
+            <template #default="{ row }">
+              <template v-if="row.family">
+                <el-tag size="small" effect="dark" type="warning">{{ row.family }}</el-tag>
+                <el-tag v-if="row.is_default" size="small" effect="plain" class="ap-tag">{{ t("normIsDefaultTag") }}</el-tag>
+              </template>
+              <span v-else class="ap-muted">{{ t("normFamilyNone") }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="version_label" :label="t('normColVersion')" width="110" align="center">
+            <template #default="{ row }">
+              <span v-if="row.version_label">{{ row.version_label }}</span>
+              <span v-else class="ap-muted">-</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="upstream_id" :label="t('colUpstream')" min-width="200" show-overflow-tooltip />
           <el-table-column :label="t('colKind')" width="80" align="center">
             <template #default="{ row }">
@@ -213,6 +228,18 @@
         <el-form-item :label="t('colModelId')">
           <el-input v-model="modelForm.model_id" :disabled="!!modelForm.id" :placeholder="t('phModelId')" />
           <div class="ap-hint">{{ t("hintModelId") }}</div>
+        </el-form-item>
+        <el-form-item :label="t('normColFamily')">
+          <el-input v-model="modelForm.family" :placeholder="t('normPhFamily')" />
+          <div class="ap-hint">{{ t("normHintFamily") }}</div>
+        </el-form-item>
+        <el-form-item :label="t('normColVersion')">
+          <el-input v-model="modelForm.version_label" :placeholder="t('normPhVersion')" />
+          <div class="ap-hint">{{ t("normHintVersion") }}</div>
+        </el-form-item>
+        <el-form-item :label="t('normColIsDefault')">
+          <el-switch v-model="modelForm.is_default" :disabled="!modelForm.family" />
+          <span class="ap-hint" style="margin-left: 8px">{{ t("normHintIsDefault") }}</span>
         </el-form-item>
         <el-form-item :label="t('colKind')">
           <el-select v-model="modelForm.kind" style="width: 100%">
@@ -326,6 +353,9 @@ export default defineComponent({
       provider_id: 0,
       model_id: "",
       display_name: "",
+      family: "",
+      version_label: "",
+      is_default: false,
       upstream_id: "",
       kind: "image",
       state: "available",
@@ -495,6 +525,9 @@ export default defineComponent({
           provider_id: row.provider_id,
           model_id: row.model_id,
           display_name: row.display_name,
+          family: row.family || "",
+          version_label: row.version_label || "",
+          is_default: !!row.is_default,
           upstream_id: row.upstream_id,
           kind: row.kind,
           state: row.state,
@@ -512,6 +545,9 @@ export default defineComponent({
           provider_id: selectedProvider.value?.id || 0,
           model_id: "",
           display_name: "",
+          family: "",
+          version_label: "",
+          is_default: false,
           upstream_id: "",
           kind: "image",
           state: "available",
@@ -552,6 +588,9 @@ export default defineComponent({
           provider_id: modelForm.provider_id,
           model_id: modelForm.model_id || undefined,
           display_name: modelForm.display_name,
+          family: modelForm.family,
+          version_label: modelForm.version_label,
+          is_default: modelForm.is_default,
           upstream_id: modelForm.upstream_id,
           kind: modelForm.kind,
           state: modelForm.state,

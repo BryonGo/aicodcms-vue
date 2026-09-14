@@ -33,6 +33,12 @@ export interface AiModelItem {
   model_id: string;
   /** 展示名，可以随便改。 */
   display_name: string;
+  /** 归一化家族名：用户看到的官方模型名（如 Seedream 5）；留空=自己占一个入口。 */
+  family: string;
+  /** 版本标签（如 5.0 Pro）：只给后台与排查用。 */
+  version_label: string;
+  /** 同家族内是否为当前下发版本。 */
+  is_default: boolean;
   /** 上游模型名 / 接入点 ID，前端不可见。 */
   upstream_id: string;
   kind: string;
@@ -71,6 +77,9 @@ export interface AiModelSaveInput {
   provider_id: number;
   model_id?: string;
   display_name: string;
+  family?: string;
+  version_label?: string;
+  is_default?: boolean;
   upstream_id: string;
   kind?: string;
   state?: string;
