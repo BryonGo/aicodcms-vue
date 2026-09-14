@@ -248,7 +248,7 @@
         <el-form-item :label="t('colEnabled')">
           <el-switch v-model="providerForm.enabled" />
         </el-form-item>
-        <el-form-item :label="t('colRemark')">
+        <el-form-item :label="t('colModelRemark')">
           <el-input v-model="providerForm.remark" />
         </el-form-item>
       </el-form>
@@ -416,6 +416,7 @@ export default defineComponent({
       author: "",
       excerpt: "",
       description: "",
+      remark: "",
       output_format: "",
       sort: 0,
     });
@@ -588,6 +589,7 @@ export default defineComponent({
           author: row.author,
           excerpt: row.excerpt,
           description: row.description,
+          remark: row.remark || "",
           output_format: row.output_format,
           sort: row.sort,
         });
@@ -608,6 +610,7 @@ export default defineComponent({
           author: "",
           excerpt: "",
           description: "",
+          remark: "",
           output_format: "",
           sort: 0,
         });
@@ -651,6 +654,7 @@ export default defineComponent({
           author: modelForm.author,
           excerpt: modelForm.excerpt,
           description: modelForm.description,
+          remark: modelForm.remark,
           output_format: modelForm.output_format,
           sort: modelForm.sort,
           capabilities,

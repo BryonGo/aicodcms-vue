@@ -49,6 +49,8 @@ export interface AiModelItem {
   excerpt: string;
   description: string;
   output_format: string;
+  /** 运营备注：只给后台看（上游内容限制、能否做成人向…），不下发前台。 */
+  remark: string;
   sort: number;
   capabilities: Record<string, any> | null;
   billing: Record<string, any> | null;
@@ -91,6 +93,8 @@ export interface AiModelSaveInput {
   excerpt?: string;
   description?: string;
   output_format?: string;
+  /** 运营备注（只给后台看，不下发前台）。 */
+  remark?: string;
   sort?: number;
   capabilities?: Record<string, any> | null;
   billing?: Record<string, any> | null;
