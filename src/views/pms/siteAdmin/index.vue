@@ -1,26 +1,26 @@
 <template>
   <div class="pms-card-container">
     <el-breadcrumb separator="→" class="mb15">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>权限</el-breadcrumb-item>
-      <el-breadcrumb-item>站点管理员</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">{{ $t('message.pms.siteAdmin.breadcrumbHome') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t('message.pms.siteAdmin.breadcrumbPms') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t('message.pms.siteAdmin.title') }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="pms-card-header">
       <div>
-        <h1 class="pms-card-title">站点管理员</h1>
-        <p class="pms-card-sub">将后台管理员绑定到站点，绑定后仅能管理该站点的内容</p>
+        <h1 class="pms-card-title">{{ $t('message.pms.siteAdmin.title') }}</h1>
+        <p class="pms-card-sub">{{ $t('message.pms.siteAdmin.subtitle') }}</p>
       </div>
       <div class="pms-card-actions">
         <el-button size="large" type="success" class="pms-card-add" @click="onOpenBind">
-          <el-icon><ele-FolderAdd /></el-icon> 绑定管理员
+          <el-icon><ele-FolderAdd /></el-icon> {{ $t('message.pms.siteAdmin.btnBind') }}
         </el-button>
       </div>
     </div>
 
     <div class="pms-card-search">
       <el-form :inline="true">
-        <el-form-item label="站点">
-          <el-select v-model="siteId" placeholder="选择站点" style="width: 260px" @change="loadAdmins">
+        <el-form-item :label="$t('message.pms.siteAdmin.formSite')">
+          <el-select v-model="siteId" :placeholder="$t('message.pms.siteAdmin.phSelectSite')" style="width: 260px" @change="loadAdmins">
             <el-option v-for="s in sites" :key="s.id" :label="`${s.name}（${s.code}）`" :value="s.id" />
           </el-select>
         </el-form-item>
@@ -30,19 +30,19 @@
     <div class="pms-card-table">
       <el-table :data="admins" stripe border size="small" style="width: 100%">
         <el-table-column type="index" label="#" width="55" align="center" />
-        <el-table-column prop="user_name" label="登录账号" min-width="140" show-overflow-tooltip />
-        <el-table-column prop="user_nickname" label="昵称" min-width="140" show-overflow-tooltip />
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column prop="user_name" :label="$t('message.pms.siteAdmin.colAccount')" min-width="140" show-overflow-tooltip />
+        <el-table-column prop="user_nickname" :label="$t('message.pms.siteAdmin.colNickname')" min-width="140" show-overflow-tooltip />
+        <el-table-column :label="$t('message.pms.siteAdmin.colStatus')" width="100" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.user_status === 1 ? 'success' : 'info'" size="small" effect="light" round>
-              {{ scope.row.user_status === 1 ? "正常" : "禁用" }}
+              {{ scope.row.user_status === 1 ? $t('message.common.normal') : $t('message.common.disabled') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" align="center" fixed="right">
+        <el-table-column :label="$t('message.pms.siteAdmin.colActions')" width="120" align="center" fixed="right">
           <template #default="scope">
             <el-button link size="small" type="danger" @click="onUnbind(scope.row)">
-              <el-icon><ele-Delete /></el-icon> 解绑
+              <el-icon><ele-Delete /></el-icon> {{ $t('message.pms.siteAdmin.btnUnbind') }}
             </el-button>
           </template>
         </el-table-column>
@@ -50,21 +50,21 @@
     </div>
 
     <!-- 绑定弹窗 -->
-    <el-dialog v-model="dialog.visible" title="绑定管理员" width="520px" :close-on-click-modal="false">
+    <el-dialog v-model="dialog.visible" :title="$t('message.pms.siteAdmin.dialogTitle')" width="520px" :close-on-click-modal="false">
       <el-form label-width="90px">
-        <el-form-item label="站点">
+        <el-form-item :label="$t('message.pms.siteAdmin.formSite')">
           <el-select v-model="siteId" style="width: 100%" @change="loadAdmins">
             <el-option v-for="s in sites" :key="s.id" :label="`${s.name}（${s.code}）`" :value="s.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="管理员">
+        <el-form-item :label="$t('message.pms.siteAdmin.formAdmin')">
           <el-select
             v-model="dialog.userId"
             filterable
             remote
             :remote-method="searchUsers"
             :loading="dialog.searching"
-            placeholder="输入账号/昵称搜索"
+            :placeholder="$t('message.pms.siteAdmin.phSearchAdmin')"
             style="width: 100%"
           >
             <el-option v-for="u in userOptions" :key="u.id" :label="`${u.user_name}（${u.user_nickname}）`" :value="u.id" />
@@ -72,8 +72,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialog.visible = false">取消</el-button>
-        <el-button type="primary" :loading="dialog.saving" @click="onBind">绑定</el-button>
+        <el-button @click="dialog.visible = false">{{ $t('message.common.btnCancel') }}</el-button>
+        <el-button type="primary" :loading="dialog.saving" @click="onBind">{{ $t('message.pms.siteAdmin.btnBind') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -82,6 +82,7 @@
 <script lang="ts">
 import { reactive, ref, defineComponent, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useI18n } from "vue-i18n";
 import { listSites } from "/@/api/cms/site";
 import { listSiteAdmins, bindSiteAdmin, unbindSiteAdmin } from "/@/api/pms/siteAdmin";
 import { getUserList } from "/@/api/pms/user";
@@ -89,6 +90,7 @@ import { getUserList } from "/@/api/pms/user";
 export default defineComponent({
   name: "apiV1PmsSiteAdminList",
   setup() {
+    const { t } = useI18n();
     const sites = ref<any[]>([]);
     const siteId = ref<number>(0);
     const admins = ref<any[]>([]);
@@ -129,13 +131,13 @@ export default defineComponent({
 
     const onBind = () => {
       if (!siteId.value || !dialog.userId) {
-        ElMessage.warning("请选择站点和管理员");
+        ElMessage.warning(t("message.pms.siteAdmin.warnSelect"));
         return;
       }
       dialog.saving = true;
       bindSiteAdmin(dialog.userId, siteId.value)
         .then(() => {
-          ElMessage.success("绑定成功");
+          ElMessage.success(t("message.pms.siteAdmin.bindOk"));
           dialog.visible = false;
           loadAdmins();
         })
@@ -145,10 +147,10 @@ export default defineComponent({
     };
 
     const onUnbind = (row: any) => {
-      ElMessageBox.confirm(`确认解绑管理员「${row.user_name}」？`, "提示", { type: "warning" })
+      ElMessageBox.confirm(t("message.pms.siteAdmin.unbindConfirm", { name: row.user_name }), t("message.common.confirmTitle"), { type: "warning" })
         .then(() => {
           unbindSiteAdmin(row.id, siteId.value).then(() => {
-            ElMessage.success("解绑成功");
+            ElMessage.success(t("message.pms.siteAdmin.unbindOk"));
             loadAdmins();
           });
         })

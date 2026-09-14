@@ -1,11 +1,11 @@
 <template>
   <ProPage
-    title="Pro Components Preview"
-    subtitle="ProPage + ProSearch + ProToolbar + ProTable + ProDescriptions + ProDrawer + ProUpload with real data"
-    badge="Demo"
+    :title="$t('message.fun.proDemo.title')"
+    :subtitle="$t('message.fun.proDemo.subtitle')"
+    :badge="$t('message.fun.proDemo.badge')"
   >
     <template #actions>
-      <el-button :icon="DocumentIcon" @click="openDocs">Docs</el-button>
+      <el-button :icon="DocumentIcon" @click="openDocs">{{ $t('message.fun.proDemo.btnDocs') }}</el-button>
     </template>
 
     <ProSearch
@@ -20,14 +20,14 @@
     <div>
       <ProToolbar :size="density" @refresh="query" @update:size="density = $event as any">
         <template #left>
-          <el-button type="primary" :icon="PlusIcon" @click="onAdd">Add User</el-button>
+          <el-button type="primary" :icon="PlusIcon" @click="onAdd">{{ $t('message.fun.proDemo.btnAdd') }}</el-button>
           <el-button
             type="danger"
             :icon="DeleteIcon"
             :disabled="!state.ids.length"
             @click="remove()"
           >
-            批量删除<template v-if="state.ids.length"> ({{ state.ids.length }})</template>
+            {{ $t('message.fun.proDemo.btnBatchDelete') }}<template v-if="state.ids.length"> ({{ state.ids.length }})</template>
           </el-button>
         </template>
       </ProToolbar>
@@ -43,8 +43,8 @@
         @selection-change="onSelectionChange"
         @pagination="onPageChange"
       >
-        <el-table-column prop="id" label="ID" width="72" align="center" />
-        <el-table-column prop="user_name" label="Account" min-width="120" show-overflow-tooltip>
+        <el-table-column prop="id" :label="$t('message.common.colId')" width="72" align="center" />
+        <el-table-column prop="user_name" :label="$t('message.fun.proDemo.colAccount')" min-width="120" show-overflow-tooltip>
           <template #default="{ row }">
             <div class="user-cell">
               <div class="user-cell__avatar" :style="{ background: avatarColor(row.user_name) }">
@@ -57,8 +57,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="dept.dept_name" label="Dept" min-width="120" show-overflow-tooltip />
-        <el-table-column label="Roles" min-width="160">
+        <el-table-column prop="dept.dept_name" :label="$t('message.fun.proDemo.colDept')" min-width="120" show-overflow-tooltip />
+        <el-table-column :label="$t('message.fun.proDemo.colRoles')" min-width="160">
           <template #default="{ row }">
             <el-tag
               v-for="(r, i) in row.roleInfo || []"
@@ -72,26 +72,26 @@
             <span v-if="!row.roleInfo?.length" class="text-muted">—</span>
           </template>
         </el-table-column>
-        <el-table-column prop="mobile" label="Mobile" min-width="120" show-overflow-tooltip />
-        <el-table-column label="Status" width="110" align="center">
+        <el-table-column prop="mobile" :label="$t('message.fun.proDemo.colMobile')" min-width="120" show-overflow-tooltip />
+        <el-table-column :label="$t('message.common.colStatus')" width="110" align="center">
           <template #default="{ row }">
             <el-switch
               v-model="row.user_status"
               inline-prompt
               :active-value="1"
               :inactive-value="0"
-              active-text="Enabled"
-              inactive-text="Disabled"
+              :active-text="$t('message.common.enabled')"
+              :inactive-text="$t('message.common.disabled')"
               :disabled="row.id === 1"
             />
           </template>
         </el-table-column>
-        <el-table-column label="Created At" min-width="140">
+        <el-table-column :label="$t('message.common.colCreateTime')" min-width="140">
           <template #default="{ row }">
             <span class="text-muted">{{ parseTime(row.created_at, "{y}-{m}-{d} {h}:{i}") }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Actions" width="260" fixed="right">
+        <el-table-column :label="$t('message.common.colOperation')" width="260" fixed="right">
           <template #default="{ row }">
             <el-button
               link
@@ -99,14 +99,14 @@
               type="primary"
               :disabled="row.id === 1"
               @click="onDetail(row)"
-              >Detail</el-button
+              >{{ $t('message.common.btnDetail') }}</el-button
             >
-            <el-button link size="small" type="primary" :disabled="row.id === 1">Edit</el-button>
+            <el-button link size="small" type="primary" :disabled="row.id === 1">{{ $t('message.common.btnEdit') }}</el-button>
             <el-button link size="small" type="primary" :disabled="row.id === 1"
-              >Reset Password</el-button
+              >{{ $t('message.fun.proDemo.btnResetPwd') }}</el-button
             >
             <el-button link size="small" type="danger" :disabled="row.id === 1" @click="remove(row)"
-              >Delete</el-button
+              >{{ $t('message.common.btnDelete') }}</el-button>
             >
           </template>
         </el-table-column>
@@ -119,28 +119,28 @@
       :source="detailRow"
       :items="descItems"
       :column="2"
-      title="Selected User Details (ProDescriptions demo)"
-      subtitle="Schema-driven display with type/render/span/options/nested paths"
+      :title="$t('message.fun.proDemo.descTitle')"
+      :subtitle="$t('message.fun.proDemo.descSubtitle')"
       bordered
       label-width="100px"
       size="default"
     >
       <template #extra>
-        <el-button size="small" @click="detailRow = null">Clear</el-button>
+        <el-button size="small" @click="detailRow = null">{{ $t('message.fun.proDemo.btnClear') }}</el-button>
       </template>
     </ProDescriptions>
 
     <!-- ProDrawer 演示按钮 -->
     <div>
       <el-button type="primary" @click="drawerOpen = true">
-        Open Drawer (ProDrawer demo)
+        {{ $t('message.fun.proDemo.btnOpenDrawer') }}
       </el-button>
     </div>
 
     <ProDrawer
       v-model="drawerOpen"
-      title="User Detail Drawer"
-      subtitle="ProDescriptions embedded in drawer"
+      :title="$t('message.fun.proDemo.drawerTitle')"
+      :subtitle="$t('message.fun.proDemo.drawerSubtitle')"
       size="md"
       show-footer
       @confirm="onDrawerConfirm"
@@ -152,48 +152,48 @@
         :column="1"
         label-width="100px"
       />
-      <el-empty v-else description="Click Detail in the table above to select a row" />
+      <el-empty v-else :description="$t('message.fun.proDemo.drawerEmpty')" />
     </ProDrawer>
 
     <!-- ProUpload Demo -->
     <div class="demo-card">
       <div class="demo-card__header">
-        <h3 class="demo-card__title">ProUpload Demo</h3>
-        <p class="demo-card__subtitle">Supports file / image / image-card / drag modes</p>
+        <h3 class="demo-card__title">{{ $t('message.fun.proDemo.uploadTitle') }}</h3>
+        <p class="demo-card__subtitle">{{ $t('message.fun.proDemo.uploadSubtitle') }}</p>
       </div>
       <div class="demo-card__body">
         <div class="upload-demo-grid">
           <div>
-            <div class="demo-label">File mode</div>
+            <div class="demo-label">{{ $t('message.fun.proDemo.uploadFileMode') }}</div>
             <ProUpload
               action="/api/v1/upload/file"
               mode="file"
-              button-text="Upload File"
-              tip="Supports doc/pdf/zip, max 20MB"
+              :button-text="$t('message.fun.proDemo.uploadBtnFile')"
+              :tip="$t('message.fun.proDemo.uploadTipFile')"
               :max-size="20"
             />
           </div>
           <div>
-            <div class="demo-label">Image mode</div>
+            <div class="demo-label">{{ $t('message.fun.proDemo.uploadImageMode') }}</div>
             <ProUpload
               action="/api/v1/upload/file"
               mode="image"
-              button-text="Upload Image"
+              :button-text="$t('message.fun.proDemo.uploadBtnImage')"
               accept="image/*"
-              tip="Supports JPG / PNG / GIF"
+              :tip="$t('message.fun.proDemo.uploadTipImage')"
             />
           </div>
           <div>
-            <div class="demo-label">Image-card mode</div>
+            <div class="demo-label">{{ $t('message.fun.proDemo.uploadCardMode') }}</div>
             <ProUpload action="/api/v1/upload/file" mode="image-card" multiple :limit="5" />
           </div>
           <div>
-            <div class="demo-label">Drag mode</div>
+            <div class="demo-label">{{ $t('message.fun.proDemo.uploadDragMode') }}</div>
             <ProUpload
               action="/api/v1/upload/file"
               mode="drag"
               multiple
-              tip="Multiple files supported"
+              :tip="$t('message.fun.proDemo.uploadTipDrag')"
             />
           </div>
         </div>
@@ -210,6 +210,7 @@ import {
   Document as DocumentIcon,
 } from "@element-plus/icons-vue";
 import { ElMessage, ElTag } from "element-plus";
+import { useI18n } from "vue-i18n";
 
 import ProPage from "/@/components/pro/ProPage.vue";
 import ProSearch, { type ProSearchField } from "/@/components/pro/ProSearch.vue";
@@ -223,21 +224,23 @@ import { useProTable } from "/@/composables/useProTable";
 import { getUserList, deleteUser } from "/@/api/pms/user/index";
 import { parseTime } from "/@/utils/aicodcod";
 
+const { t } = useI18n();
+
 const density = ref<"large" | "default" | "small">("default");
 
 const searchFields: ProSearchField[] = [
-  { prop: "keyWords", label: "Keyword", type: "input", placeholder: "Account / nickname" },
-  { prop: "mobile", label: "Mobile", type: "input" },
+  { prop: "keyWords", label: t("message.fun.proDemo.searchKeyword"), type: "input", placeholder: t("message.fun.proDemo.searchKeywordPh") },
+  { prop: "mobile", label: t("message.fun.proDemo.colMobile"), type: "input" },
   {
     prop: "status",
-    label: "Status",
+    label: t("message.common.colStatus"),
     type: "select",
     options: [
-      { label: "Enabled", value: 1 },
-      { label: "Disabled", value: 0 },
+      { label: t("message.common.enabled"), value: 1 },
+      { label: t("message.common.disabled"), value: 0 },
     ],
   },
-  { prop: "dateRange", label: "Created At", type: "daterange", width: "260px" },
+  { prop: "dateRange", label: t("message.common.colCreateTime"), type: "daterange", width: "260px" },
 ];
 
 const { state, query, search, reset, onPageChange, onSelectionChange, remove } = useProTable({
@@ -256,7 +259,7 @@ const { state, query, search, reset, onPageChange, onSelectionChange, remove } =
 
 const { proxy } = <any>getCurrentInstance();
 const onAdd = () => proxy.$router.push("/pms/user/list/add");
-const openDocs = () => ElMessage.info("See src/components/pro/ component comments for docs");
+const openDocs = () => ElMessage.info(t("message.fun.proDemo.docsTip"));
 
 // ---- 头像 hash 配色 ----
 const avatarColors = [
@@ -286,27 +289,27 @@ const onDetail = (row: any) => {
 };
 
 const onDrawerConfirm = () => {
-  ElMessage.success("Confirm demo");
+  ElMessage.success(t("message.fun.proDemo.confirmDemo"));
   drawerOpen.value = false;
 };
 
 const descItems = computed<ProDescriptionsItem[]>(() => [
-  { prop: "id", label: "ID" },
-  { prop: "user_name", label: "Account" },
-  { prop: "user_nickname", label: "Nickname", placeholder: "Not set" },
-  { prop: "mobile", label: "Mobile" },
-  { prop: "dept.dept_name", label: "Dept" },
+  { prop: "id", label: t("message.common.colId") },
+  { prop: "user_name", label: t("message.fun.proDemo.colAccount") },
+  { prop: "user_nickname", label: t("message.fun.proDemo.colNickname"), placeholder: t("message.fun.proDemo.notSet") },
+  { prop: "mobile", label: t("message.fun.proDemo.colMobile") },
+  { prop: "dept.dept_name", label: t("message.fun.proDemo.colDept") },
   {
     prop: "user_status",
-    label: "Status",
+    label: t("message.common.colStatus"),
     render: (v) =>
       h(ElTag, { type: v === 1 ? "success" : "info", effect: "light", size: "small" }, () =>
-        v === 1 ? "Enabled" : "Disabled",
+        v === 1 ? t("message.common.enabled") : t("message.common.disabled"),
       ),
   },
   {
     prop: "roleInfo",
-    label: "Roles",
+    label: t("message.fun.proDemo.colRoles"),
     span: 2,
     render: (v) => {
       if (!v || !v.length) return h("span", { class: "text-muted" }, "—");
@@ -317,7 +320,7 @@ const descItems = computed<ProDescriptionsItem[]>(() => [
       );
     },
   },
-  { prop: "created_at", label: "Created At", type: "datetime", span: 2 },
+  { prop: "created_at", label: t("message.common.colCreateTime"), type: "datetime", span: 2 },
 ]);
 </script>
 

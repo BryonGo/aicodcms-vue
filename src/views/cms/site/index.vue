@@ -1,65 +1,65 @@
 <template>
   <div class="pms-card-container">
     <el-breadcrumb separator="→" class="mb15">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>内容</el-breadcrumb-item>
-      <el-breadcrumb-item>站点管理</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">{{ $t('message.cms.site.breadcrumbHome') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t('message.cms.site.breadcrumbContent') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t('message.cms.site.title') }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="pms-card-header">
       <div>
-        <h1 class="pms-card-title">站点管理</h1>
-        <p class="pms-card-sub">站点负责入口、语言与前台模式（纯 API）；其余业务配置请切换站点后前往「系统设置」</p>
+        <h1 class="pms-card-title">{{ $t('message.cms.site.title') }}</h1>
+        <p class="pms-card-sub">{{ $t('message.cms.site.subtitle') }}</p>
       </div>
       <div class="pms-card-actions">
         <el-button size="large" type="success" class="pms-card-add" @click="onOpenAdd">
-          <el-icon><ele-FolderAdd /></el-icon> 新增站点
+          <el-icon><ele-FolderAdd /></el-icon> {{ $t('message.cms.site.btnAdd') }}
         </el-button>
       </div>
     </div>
     <div class="pms-card-table">
       <el-table :data="tableData.data" stripe border size="small" style="width: 100%">
         <el-table-column type="index" label="#" width="55" align="center" />
-        <el-table-column prop="code" label="站点码" width="140" show-overflow-tooltip />
-        <el-table-column prop="name" label="站点名" min-width="140" show-overflow-tooltip />
-        <el-table-column label="绑定域名" min-width="200" show-overflow-tooltip>
+        <el-table-column prop="code" :label="$t('message.cms.site.colCode')" width="140" show-overflow-tooltip />
+        <el-table-column prop="name" :label="$t('message.cms.site.colName')" min-width="140" show-overflow-tooltip />
+        <el-table-column :label="$t('message.cms.site.colDomains')" min-width="200" show-overflow-tooltip>
           <template #default="scope">
             <el-tag v-for="d in scope.row.domains || []" :key="d" size="small" class="mr5" effect="plain">
               {{ d }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="default_lang" label="默认语言" width="90" align="center" />
-        <el-table-column label="语言子集" min-width="160" show-overflow-tooltip>
+        <el-table-column prop="default_lang" :label="$t('message.cms.site.colDefaultLang')" width="90" align="center" />
+        <el-table-column :label="$t('message.cms.site.colLangs')" min-width="160" show-overflow-tooltip>
           <template #default="scope">
             <el-tag v-for="l in scope.row.langs || []" :key="l" size="small" class="mr5" effect="plain">
               {{ l }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="theme" label="主题" width="90" show-overflow-tooltip />
-        <el-table-column label="状态" width="90" align="center">
+        <el-table-column prop="theme" :label="$t('message.cms.site.colTheme')" width="90" show-overflow-tooltip />
+        <el-table-column :label="$t('message.cms.site.colStatus')" width="90" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.status === 1 ? 'success' : 'info'" size="small" effect="light" round>
-              {{ scope.row.status === 1 ? "启用" : "停用" }}
+              {{ scope.row.status === 1 ? $t('message.cms.site.statusOn') : $t('message.cms.site.statusOff') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="sort" label="排序" width="70" align="center" />
-        <el-table-column label="前台模式" width="100" align="center">
+        <el-table-column prop="sort" :label="$t('message.cms.site.colSort')" width="70" align="center" />
+        <el-table-column :label="$t('message.cms.site.colFrontMode')" width="100" align="center">
           <template #default="scope">
             <el-tag
               :type="scope.row.frontend_mode === 'api_only' ? 'warning' : 'success'"
               size="small"
               effect="plain"
             >
-              {{ scope.row.frontend_mode === "api_only" ? "纯 API" : "完整前台" }}
+              {{ scope.row.frontend_mode === "api_only" ? $t('message.cms.site.frontApiOnly') : $t('message.cms.site.frontFull') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" align="center" fixed="right">
+        <el-table-column :label="$t('message.common.colOperation')" width="160" align="center" fixed="right">
           <template #default="scope">
             <el-button link size="small" type="primary" @click="onOpenEdit(scope.row)">
-              <el-icon><ele-Edit /></el-icon> 编辑
+              <el-icon><ele-Edit /></el-icon> {{ $t('message.common.btnEdit') }}
             </el-button>
             <el-button
               link
@@ -68,7 +68,7 @@
               :disabled="scope.row.code === 'default'"
               @click="onDel(scope.row)"
             >
-              <el-icon><ele-Delete /></el-icon> 删除
+              <el-icon><ele-Delete /></el-icon> {{ $t('message.common.btnDelete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -78,59 +78,59 @@
     <!-- 编辑弹窗 -->
     <el-dialog
       v-model="dialog.visible"
-      :title="dialog.isEdit ? '编辑站点' : '新增站点'"
+      :title="dialog.isEdit ? $t('message.cms.site.dialogEdit') : $t('message.cms.site.dialogAdd')"
       width="720px"
       destroy-on-close
       :close-on-click-modal="false"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px">
-            <el-form-item label="站点码" prop="code">
-              <el-input v-model="form.code" placeholder="小写字母数字连字符，如 site2" :disabled="dialog.isEdit" />
+            <el-form-item :label="$t('message.cms.site.colCode')" prop="code">
+              <el-input v-model="form.code" :placeholder="$t('message.cms.site.phCode')" :disabled="dialog.isEdit" />
             </el-form-item>
-            <el-form-item label="站点名" prop="name">
-              <el-input v-model="form.name" placeholder="站点名称" />
+            <el-form-item :label="$t('message.cms.site.colName')" prop="name">
+              <el-input v-model="form.name" :placeholder="$t('message.cms.site.phName')" />
             </el-form-item>
-            <el-form-item label="绑定域名" prop="domains">
-              <el-input v-model="form.domainsText" placeholder="多个域名用逗号分隔，首个为 canonical，如 a.com,www.a.com" />
+            <el-form-item :label="$t('message.cms.site.colDomains')" prop="domains">
+              <el-input v-model="form.domainsText" :placeholder="$t('message.cms.site.phDomains')" />
             </el-form-item>
-            <el-form-item label="默认语言" prop="default_lang">
-              <el-select v-model="form.default_lang" placeholder="选择默认语言" style="width: 100%">
+            <el-form-item :label="$t('message.cms.site.colDefaultLang')" prop="default_lang">
+              <el-select v-model="form.default_lang" :placeholder="$t('message.cms.site.phDefaultLang')" style="width: 100%">
                 <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
               </el-select>
             </el-form-item>
-            <el-form-item label="语言子集">
+            <el-form-item :label="$t('message.cms.site.colLangs')">
               <el-select
                 v-model="form.langs"
                 multiple
                 filterable
-                placeholder="站点支持的语言（不选=全部）"
+                :placeholder="$t('message.cms.site.phLangs')"
                 style="width: 100%"
               >
                 <el-option v-for="l in langOptions" :key="l" :label="l" :value="l" />
               </el-select>
             </el-form-item>
-            <el-form-item label="主题">
-              <el-input v-model="form.theme" placeholder="主题名，留空回退默认主题" />
+            <el-form-item :label="$t('message.cms.site.colTheme')">
+              <el-input v-model="form.theme" :placeholder="$t('message.cms.site.phTheme')" />
             </el-form-item>
-            <el-form-item label="前台模式">
+            <el-form-item :label="$t('message.cms.site.colFrontMode')">
               <el-select v-model="form.frontend_mode" style="width: 100%">
-                <el-option label="完整前台" value="full" />
-                <el-option label="纯 API" value="api_only" />
+                <el-option :label="$t('message.cms.site.frontFull')" value="full" />
+                <el-option :label="$t('message.cms.site.frontApiOnly')" value="api_only" />
               </el-select>
               <div class="pms-form-tip">
-                纯 API：本站前台页面（含 robots.txt / sitemap）一律 404，只保留 /api/ 接口与静态资源
+                {{ $t('message.cms.site.frontApiOnlyHint') }}
               </div>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item :label="$t('message.cms.site.colStatus')">
               <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
             </el-form-item>
-            <el-form-item label="排序">
+            <el-form-item :label="$t('message.cms.site.colSort')">
               <el-input-number v-model="form.sort" :min="0" />
             </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialog.visible = false">取消</el-button>
-        <el-button type="primary" :loading="dialog.saving" @click="onSubmit">保存</el-button>
+        <el-button @click="dialog.visible = false">{{ $t('message.common.btnCancel') }}</el-button>
+        <el-button type="primary" :loading="dialog.saving" @click="onSubmit">{{ $t('message.common.btnSave') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -139,6 +139,7 @@
 <script lang="ts">
 import { reactive, ref, defineComponent } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useI18n } from "vue-i18n";
 import { listSites, saveSite, delSite } from "/@/api/cms/site";
 
 const langOptions = [
@@ -162,6 +163,7 @@ const langOptions = [
 export default defineComponent({
   name: "apiV1CmsAdminSiteList",
   setup() {
+    const { t } = useI18n();
     const formRef = ref();
     const tableData = reactive<{ data: any[] }>({ data: [] });
     const dialog = reactive({
@@ -185,9 +187,9 @@ export default defineComponent({
     const form = reactive(emptyForm());
 
     const rules = {
-      code: [{ required: true, message: "请输入站点码", trigger: "blur" }],
-      name: [{ required: true, message: "请输入站点名", trigger: "blur" }],
-      default_lang: [{ required: true, message: "请选择默认语言", trigger: "change" }],
+      code: [{ required: true, message: t("message.cms.site.ruleCode"), trigger: "blur" }],
+      name: [{ required: true, message: t("message.cms.site.ruleName"), trigger: "blur" }],
+      default_lang: [{ required: true, message: t("message.cms.site.ruleDefaultLang"), trigger: "change" }],
     };
 
     const load = () => {
@@ -223,10 +225,10 @@ export default defineComponent({
     };
 
     const onDel = (row: any) => {
-      ElMessageBox.confirm(`确认删除站点「${row.name}」？`, "提示", { type: "warning" })
+      ElMessageBox.confirm(t("message.cms.site.delConfirm", { name: row.name }), t("message.common.confirmTitle"), { type: "warning" })
         .then(() => {
           delSite(row.id).then(() => {
-            ElMessage.success("删除成功");
+            ElMessage.success(t("message.common.msgDeleteOk"));
             load();
           });
         })
@@ -255,7 +257,7 @@ export default defineComponent({
         dialog.saving = true;
         saveSite(payload)
           .then(() => {
-            ElMessage.success("保存成功");
+            ElMessage.success(t("message.common.msgSaveOk"));
             dialog.visible = false;
             load();
           })

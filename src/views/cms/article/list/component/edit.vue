@@ -267,7 +267,7 @@
               <div style="margin-top: 8px">
                 <el-input
                   v-model="aiPrompt"
-                  placeholder="AI 生成配图提示词（如：a cute cat, digital art）"
+                  :placeholder="$t('message.cms.articleEdit.aiPromptPlaceholder')"
                   size="small"
                   style="width: 280px; display: inline-block"
                 />

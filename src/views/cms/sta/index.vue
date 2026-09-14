@@ -397,28 +397,28 @@
           <template #header>
             <div style="display: flex; justify-content: space-between; align-items: center">
               <span>Cloudflare</span>
-              <el-button size="small" @click="fetchCfStatus">刷新状态</el-button>
+              <el-button size="small" @click="fetchCfStatus">{{ $t('message.cms.sta.btnRefreshStatus') }}</el-button>
             </div>
           </template>
           <el-descriptions :column="3" border size="small">
-            <el-descriptions-item label="凭据">
+            <el-descriptions-item :label="$t('message.cms.sta.colCredential')">
               <el-tag :type="cfStatus.configured ? 'success' : 'info'" size="small">
-                {{ cfStatus.configured ? "已配置" : "未配置" }}
+                {{ cfStatus.configured ? $t('message.cms.sta.configured') : $t('message.cms.sta.notConfigured') }}
               </el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="Zone">{{ cfStatus.zone_name || "--" }}</el-descriptions-item>
-            <el-descriptions-item label="套餐">{{ cfStatus.plan || "--" }}</el-descriptions-item>
-            <el-descriptions-item label="Turnstile">
+            <el-descriptions-item :label="$t('message.cms.sta.colZone')">{{ cfStatus.zone_name || "--" }}</el-descriptions-item>
+            <el-descriptions-item :label="$t('message.cms.sta.colPlan')">{{ cfStatus.plan || "--" }}</el-descriptions-item>
+            <el-descriptions-item :label="$t('message.cms.sta.colTurnstile')">
               <el-tag :type="cfStatus.turnstile_on ? 'success' : 'info'" size="small">
-                {{ cfStatus.turnstile_on ? "已开启" : "关闭" }}
+                {{ cfStatus.turnstile_on ? $t('message.cms.sta.switchOn') : $t('message.cms.sta.switchOff') }}
               </el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="自动 Purge">
+            <el-descriptions-item :label="$t('message.cms.sta.colAutoPurge')">
               <el-tag :type="cfStatus.purge_on ? 'success' : 'info'" size="small">
-                {{ cfStatus.purge_on ? "已开启" : "关闭" }}
+                {{ cfStatus.purge_on ? $t('message.cms.sta.switchOn') : $t('message.cms.sta.switchOff') }}
               </el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="账号状态">
+            <el-descriptions-item :label="$t('message.cms.sta.colAccountStatus')">
               <el-tag :type="cfStatus.account_status === 'ok' ? 'success' : 'warning'" size="small">
                 {{ cfStatus.account_status || "--" }}
               </el-tag>
@@ -426,7 +426,7 @@
           </el-descriptions>
           <div style="margin-top: 12px; display: flex; gap: 10px; align-items: center">
             <el-button type="warning" @click="handlePurgeAll" :loading="purging">
-              整站清除 CDN 缓存
+              {{ $t('message.cms.sta.btnPurgeAll') }}
             </el-button>
                       </div>
           <div v-if="cfStatus.error" style="margin-top: 8px; color: #e6a23c; font-size: 12px">
@@ -766,7 +766,7 @@ const fetchCfStatus = async () => {
 const handlePurgeAll = async () => {
   try {
     await ElMessageBox.confirm(
-      "整站清除 CDN 缓存，访问量大的站点会短暂回源，确认继续？",
+      t("message.cms.sta.purgeConfirm"),
       "Cloudflare Purge",
       { type: "warning" },
     );
@@ -776,9 +776,9 @@ const handlePurgeAll = async () => {
   purging.value = true;
   try {
     const res = await cloudflarePurge({ purge_all: true });
-    ElMessage.success(res?.data?.detail || "已清除");
+    ElMessage.success(res?.data?.detail || t("message.cms.sta.purgeOk"));
   } catch (err: any) {
-    ElMessage.error(err?.msg || "Purge 失败");
+    ElMessage.error(err?.msg || t("message.cms.sta.purgeFail"));
   } finally {
     purging.value = false;
   }

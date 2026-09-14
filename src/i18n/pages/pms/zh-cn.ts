@@ -809,4 +809,28 @@ export default {
   },
 
   systemManagementPostAdd: "添加岗位",
+
+  // 站点管理员（/pms/site-admin）：正文文案。菜单标题用的是 message.sdk.siteAdminList。
+  siteAdmin: {
+    breadcrumbHome: "首页",
+    breadcrumbPms: "权限",
+    title: "站点管理员",
+    subtitle: "将后台管理员绑定到站点，绑定后仅能管理该站点的内容",
+    filterSite: "站点",
+    phSelectSite: "选择站点",
+    colAccount: "登录账号",
+    colNickname: "昵称",
+    colStatus: "状态",
+    colActions: "操作",
+    btnBind: "绑定管理员",
+    btnUnbind: "解绑",
+    dialogTitle: "绑定管理员",
+    formSite: "站点",
+    formAdmin: "管理员",
+    phSearchAdmin: "输入账号/昵称搜索",
+    warnSelect: "请选择站点和管理员",
+    bindOk: "绑定成功",
+    unbindOk: "解绑成功",
+    unbindConfirm: "确认解绑管理员「{name}」？",
+  },
 };

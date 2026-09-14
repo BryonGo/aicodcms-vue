@@ -1,15 +1,15 @@
 <template>
   <div class="pms-card-container">
     <el-breadcrumb separator="→" class="mb15">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>插件</el-breadcrumb-item>
-      <el-breadcrumb-item>站群互链</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">{{ $t('message.addon_sitelink.breadcrumbHome') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t('message.addon_sitelink.breadcrumbModule') }}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ $t('message.addon_sitelink.title') }}</el-breadcrumb-item>
     </el-breadcrumb>
     <div class="pms-card-header">
       <div>
-        <h1 class="pms-card-title">站群互链</h1>
+        <h1 class="pms-card-title">{{ $t('message.addon_sitelink.title') }}</h1>
         <p class="pms-card-sub">
-          跨站交叉引流：在站点间互相挂链接（默认 nofollow）
+          {{ $t('message.addon_sitelink.subtitle') }}
         </p>
       </div>
       <div class="pms-card-actions">
@@ -19,7 +19,7 @@
           class="pms-card-add"
           @click="onOpenAdd"
         >
-          <el-icon><ele-FolderAdd /></el-icon> 新增互链
+          <el-icon><ele-FolderAdd /></el-icon> {{ $t('message.addon_sitelink.btnAdd') }}
         </el-button>
       </div>
     </div>
@@ -33,31 +33,31 @@
         style="width: 100%"
       >
         <el-table-column type="index" label="#" width="55" align="center" />
-        <el-table-column label="源站点" width="150" show-overflow-tooltip>
+        <el-table-column :label="$t('message.addon_sitelink.colSourceSite')" width="150" show-overflow-tooltip>
           <template #default="scope">
             {{ siteName(scope.row.source_site_id) }}
           </template>
         </el-table-column>
-        <el-table-column label="目标站点" width="150" show-overflow-tooltip>
+        <el-table-column :label="$t('message.addon_sitelink.colTargetSite')" width="150" show-overflow-tooltip>
           <template #default="scope">
             {{ siteName(scope.row.target_site_id) }}
           </template>
         </el-table-column>
         <el-table-column
           prop="anchor"
-          label="锚文本"
+          :label="$t('message.addon_sitelink.colAnchor')"
           min-width="140"
           show-overflow-tooltip
         />
         <el-table-column
           prop="target_url"
-          label="目标 URL"
+          :label="$t('message.addon_sitelink.colTargetUrl')"
           min-width="180"
           show-overflow-tooltip
         />
         <el-table-column
           prop="position"
-          label="展示位"
+          :label="$t('message.addon_sitelink.colPosition')"
           width="100"
           align="center"
         />
@@ -73,7 +73,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="90" align="center">
+        <el-table-column :label="$t('message.addon_sitelink.colStatus')" width="90" align="center">
           <template #default="scope">
             <el-tag
               :type="scope.row.status === 1 ? 'success' : 'info'"
@@ -81,11 +81,11 @@
               effect="light"
               round
             >
-              {{ scope.row.status === 1 ? "启用" : "停用" }}
+              {{ scope.row.status === 1 ? $t('message.addon_sitelink.statusOn') : $t('message.addon_sitelink.statusOff') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" align="center" fixed="right">
+        <el-table-column :label="$t('message.common.colOperation')" width="160" align="center" fixed="right">
           <template #default="scope">
             <el-button
               link
@@ -93,7 +93,7 @@
               type="primary"
               @click="onOpenEdit(scope.row)"
             >
-              <el-icon><ele-Edit /></el-icon> 编辑
+              <el-icon><ele-Edit /></el-icon> {{ $t('message.common.btnEdit') }}
             </el-button>
             <el-button
               link
@@ -101,7 +101,7 @@
               type="danger"
               @click="onDel(scope.row)"
             >
-              <el-icon><ele-Delete /></el-icon> 删除
+              <el-icon><ele-Delete /></el-icon> {{ $t('message.common.btnDelete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -118,15 +118,15 @@
     <!-- 编辑弹窗 -->
     <ProDrawer
       v-model="dialog.visible"
-      :title="dialog.isEdit ? '编辑互链' : '新增互链'"
+      :title="dialog.isEdit ? $t('message.addon_sitelink.dialogEdit') : $t('message.addon_sitelink.dialogAdd')"
       :size="560"
       destroy-on-close
       :close-on-click-modal="false"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="源站点" prop="source_site_id">
+        <el-form-item :label="$t('message.addon_sitelink.colSourceSite')" prop="source_site_id">
           <el-select v-model="form.source_site_id" style="width: 100%">
-            <el-option :label="'全部站点'" :value="0" />
+            <el-option :label="$t('message.addon_sitelink.allSites')" :value="0" />
             <el-option
               v-for="s in sites"
               :key="s.id"
@@ -135,7 +135,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="目标站点" prop="target_site_id">
+        <el-form-item :label="$t('message.addon_sitelink.colTargetSite')" prop="target_site_id">
           <el-select v-model="form.target_site_id" style="width: 100%">
             <el-option
               v-for="s in sites"
@@ -145,16 +145,16 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="锚文本" prop="anchor">
-          <el-input v-model="form.anchor" placeholder="链接文字，如 推荐站点" />
+        <el-form-item :label="$t('message.addon_sitelink.colAnchor')" prop="anchor">
+          <el-input v-model="form.anchor" :placeholder="$t('message.addon_sitelink.phAnchor')" />
         </el-form-item>
-        <el-form-item label="目标 URL" prop="target_url">
+        <el-form-item :label="$t('message.addon_sitelink.colTargetUrl')" prop="target_url">
           <el-input
             v-model="form.target_url"
-            placeholder="/栏目路径 或 绝对 URL"
+            :placeholder="$t('message.addon_sitelink.phTargetUrl')"
           />
         </el-form-item>
-        <el-form-item label="展示位" prop="position">
+        <el-form-item :label="$t('message.addon_sitelink.colPosition')" prop="position">
           <el-select v-model="form.position" style="width: 100%">
             <el-option label="footer" value="footer" />
             <el-option label="sidebar" value="sidebar" />
@@ -169,21 +169,21 @@
             active-text="nofollow"
           />
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item :label="$t('message.addon_sitelink.colStatus')">
           <el-switch
             v-model="form.status"
             :active-value="1"
             :inactive-value="0"
           />
         </el-form-item>
-        <el-form-item label="排序">
+        <el-form-item :label="$t('message.common.colSort')">
           <el-input-number v-model="form.weigh" :min="0" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialog.visible = false">取消</el-button>
+        <el-button @click="dialog.visible = false">{{ $t('message.common.btnCancel') }}</el-button>
         <el-button type="primary" :loading="dialog.saving" @click="onSubmit"
-          >保存</el-button
+          >{{ $t('message.common.btnSave') }}</el-button
         >
       </template>
     </ProDrawer>
@@ -193,6 +193,7 @@
 <script lang="ts">
 import { reactive, ref, defineComponent } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useI18n } from "vue-i18n";
 import {
   listSitelinks,
   saveSitelink,
@@ -205,6 +206,7 @@ export default defineComponent({
   name: "apiV1AddonSitelinkList",
   components: { ProDrawer },
   setup() {
+    const { t } = useI18n();
     const formRef = ref();
     const sites = ref<any[]>([]);
     const tableData = reactive<{ data: any[]; total: number; param: any }>({
@@ -229,19 +231,19 @@ export default defineComponent({
 
     const rules = {
       target_site_id: [
-        { required: true, message: "请选择目标站点", trigger: "change" },
+        { required: true, message: t("message.addon_sitelink.ruleTargetSite"), trigger: "change" },
       ],
-      anchor: [{ required: true, message: "请输入锚文本", trigger: "blur" }],
+      anchor: [{ required: true, message: t("message.addon_sitelink.ruleAnchor"), trigger: "blur" }],
       target_url: [
-        { required: true, message: "请输入目标 URL", trigger: "blur" },
+        { required: true, message: t("message.addon_sitelink.ruleTargetUrl"), trigger: "blur" },
       ],
       position: [
-        { required: true, message: "请选择展示位", trigger: "change" },
+        { required: true, message: t("message.addon_sitelink.rulePosition"), trigger: "change" },
       ],
     };
 
     const siteName = (id: number) => {
-      if (id === 0) return "全部站点";
+      if (id === 0) return t("message.addon_sitelink.allSites");
       const s = sites.value.find((x) => x.id === id);
       return s ? `${s.name}（${s.code}）` : `#${id}`;
     };
@@ -280,12 +282,12 @@ export default defineComponent({
     };
 
     const onDel = (row: any) => {
-      ElMessageBox.confirm(`确认删除互链「${row.anchor}」？`, "提示", {
+      ElMessageBox.confirm(t("message.addon_sitelink.delConfirm", { anchor: row.anchor }), t("message.common.confirmTitle"), {
         type: "warning",
       })
         .then(() => {
           delSitelink(row.id).then(() => {
-            ElMessage.success("删除成功");
+            ElMessage.success(t("message.common.msgDeleteOk"));
             load();
           });
         })
@@ -298,7 +300,7 @@ export default defineComponent({
         dialog.saving = true;
         saveSitelink(form)
           .then(() => {
-            ElMessage.success("保存成功");
+            ElMessage.success(t("message.common.msgSaveOk"));
             dialog.visible = false;
             load();
           })

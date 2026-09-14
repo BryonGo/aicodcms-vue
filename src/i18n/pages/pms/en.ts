@@ -794,4 +794,28 @@ export default {
   },
 
   systemManagementPostAdd: "Add Post",
+
+  siteAdmin: {
+    breadcrumbHome: "Home",
+    breadcrumbPms: "Access",
+    title: "Site Admins",
+    subtitle:
+      "Bind admin users to a site; once bound they can only manage that site's content",
+    filterSite: "Site",
+    phSelectSite: "Select a site",
+    colAccount: "Login Account",
+    colNickname: "Nickname",
+    colStatus: "Status",
+    colActions: "Actions",
+    btnBind: "Bind Admin",
+    btnUnbind: "Unbind",
+    dialogTitle: "Bind Admin",
+    formSite: "Site",
+    formAdmin: "Admin",
+    phSearchAdmin: "Search by account or nickname",
+    warnSelect: "Select both a site and an admin",
+    bindOk: "Bound",
+    unbindOk: "Unbound",
+    unbindConfirm: "Unbind admin {name}?",
+  },
 };

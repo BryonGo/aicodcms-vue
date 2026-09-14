@@ -232,16 +232,16 @@
           <el-input v-model="toolForm.icon" placeholder="i-lucide-sparkles" />
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colToolCover')">
-          <el-input v-model="toolForm.cover" placeholder="https://…/cover.webp" />
+          <el-input v-model="toolForm.cover" :placeholder="$t('message.sdk.platform.phToolCover')" />
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
-          <el-input v-model="toolForm.badge" maxlength="8" show-word-limit placeholder="热门 / 新品 / 精选（留空不显示）" />
+          <el-input v-model="toolForm.badge" maxlength="8" show-word-limit :placeholder="$t('message.sdk.platform.phToolBadge')" />
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colToolTags')">
           <el-input
             v-model="toolForm.tags"
             maxlength="255"
-            placeholder="脱衣,全脱,上半身,下半身（逗号分隔；效果列表的标签行按它筛）"
+            :placeholder="$t('message.sdk.platform.phToolTags')"
           />
         </el-form-item>
         <el-form-item label="engine / workflow">
@@ -384,7 +384,7 @@
           <el-form-item :label="$t('message.sdk.platform.colToolCover')">
             <el-input
               v-model="tplForm.cover"
-              placeholder="https://…/cover.webp（留空=用所属工具的封面）"
+              :placeholder="$t('message.sdk.platform.phToolCoverTpl')"
             />
           </el-form-item>
           <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
@@ -392,14 +392,14 @@
               v-model="tplForm.badge"
               maxlength="8"
               show-word-limit
-              placeholder="热门 / 新品 / 精选（留空不显示）"
+              :placeholder="$t('message.sdk.platform.phToolBadge')"
             />
           </el-form-item>
           <el-form-item :label="$t('message.sdk.platform.colToolTags')">
             <el-input
               v-model="tplForm.tags"
               maxlength="255"
-              placeholder="口交,深喉（逗号分隔；效果列表的标签行按它筛）"
+              :placeholder="$t('message.sdk.platform.phToolTagsTpl')"
             />
           </el-form-item>
           <el-form-item :label="$t('message.sdk.platform.colIsCard')">
