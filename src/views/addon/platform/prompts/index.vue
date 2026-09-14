@@ -236,7 +236,7 @@
           <pre class="pf-pre">{{ detail.negativePrompt }}</pre>
         </div>
         <div class="pf-detail__block">
-          <div class="pf-detail__label">{{ $t("message.sdk.platform.colParams") }}</div>
+          <div class="pf-detail__label">{{ $t("message.sdk.platform.colPromptParams") }}</div>
           <pre class="pf-pre">{{ JSON.stringify(detail.params || {}, null, 2) }}</pre>
         </div>
       </div>
