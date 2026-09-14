@@ -5,6 +5,8 @@
     <Setings ref="setingsRef" v-show="themeConfig.lockScreenTime > 1" />
     <CloseFull v-if="!themeConfig.isLockScreen" />
     <StaGlobalProgress />
+    <!-- 新版本提示条：线上发了新版本时提示，空闲时自动刷新（见 composables/useVersionWatcher） -->
+    <UpdateBar />
   </el-config-provider>
 </template>
 
@@ -33,10 +35,11 @@ import LockScreen from "/@/layout/lockScreen/index.vue";
 import Setings from "/@/layout/navBars/breadcrumb/setings.vue";
 import CloseFull from "/@/layout/navBars/breadcrumb/closeFull.vue";
 import StaGlobalProgress from "/@/components/staProgress/StaGlobalProgress.vue";
+import UpdateBar from "/@/components/updateBar/index.vue";
 
 export default defineComponent({
   name: "app",
-  components: { LockScreen, Setings, CloseFull, StaGlobalProgress },
+  components: { LockScreen, Setings, CloseFull, StaGlobalProgress, UpdateBar },
   setup() {
     const { proxy } = <any>getCurrentInstance();
     const setingsRef = ref();

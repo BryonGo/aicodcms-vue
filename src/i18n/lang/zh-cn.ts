@@ -171,6 +171,16 @@ export default {
     loadFailed: "加载失败",
   },
 
+  // ==================== 版本更新提示条 ====================
+  updateBar: {
+    title: "控制台有新版本",
+    autoIn: "将在 {n} 秒后自动刷新",
+    paused: "当前正在编辑，完成后再自动刷新",
+    refreshNow: "立即刷新",
+    later: "稍后",
+    laterTip: "本次会话不再自动刷新，可随时点「立即刷新」",
+  },
+
   common: {
     save: "保存",
     cancel: "取消",

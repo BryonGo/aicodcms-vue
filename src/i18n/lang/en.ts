@@ -173,6 +173,16 @@ export default {
     weightUpdated: "Weight updated",
   },
 
+  // ==================== Version update bar ====================
+  updateBar: {
+    title: "A new console version is available",
+    autoIn: "Auto refresh in {n}s",
+    paused: "Editing in progress, will refresh after you finish",
+    refreshNow: "Refresh now",
+    later: "Later",
+    laterTip: "Do not auto refresh this session; you can refresh anytime",
+  },
+
   common: {
     save: "Save",
     cancel: "Cancel",

@@ -13,6 +13,12 @@ RUN npm run build
 
 FROM nginx:1.27-alpine
 
+# 运行时的版本号（compose 传 CONSOLE_BUILD_VERSION=${AICODCMS_CONSOLE_TAG}）；
+# entrypoint 脚本在容器启动时把它写进 /admin/version.json，供前端检测新版本。
+ENV CONSOLE_BUILD_VERSION=dev
+COPY docker/40-console-version.sh /docker-entrypoint.d/40-console-version.sh
+RUN chmod +x /docker-entrypoint.d/40-console-version.sh
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /src/dist/ /usr/share/nginx/html/admin/
 
