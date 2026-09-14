@@ -100,6 +100,9 @@
             <strong v-if="selectedProvider">{{ selectedProvider.name }}</strong>
             <span v-else class="ap-muted">{{ t("selectProviderHint") }}</span>
           </span>
+          <el-button size="small" :disabled="!selectedProvider" @click="openOrderDialog()">
+            <el-icon><Sort /></el-icon> {{ t("btnOrder") }}
+          </el-button>
           <el-button type="primary" size="small" :disabled="!selectedProvider" @click="openModelDialog()">
             <el-icon><Plus /></el-icon> {{ t("btnNewModel") }}
           </el-button>
@@ -118,6 +121,10 @@
               <el-tag v-if="row.missing_since" type="warning" size="small" effect="plain" class="ap-tag">
                 {{ t("missingTag") }}
               </el-tag>
+              <!-- 系统自动下线：与运营手工 hidden 区分开，鼠标悬停给出理由 -->
+              <el-tooltip v-if="row.auto_hidden" :content="row.hidden_reason || t('autoHiddenTag')" placement="top">
+                <el-tag type="danger" size="small" effect="plain" class="ap-tag">{{ t("autoHiddenTag") }}</el-tag>
+              </el-tooltip>
             </template>
           </el-table-column>
           <el-table-column :label="t('normColFamily')" min-width="150">
@@ -168,6 +175,43 @@
         </el-table>
       </div>
     </div>
+
+    <!-- 调整顺序：按前台条目（家族）上移/下移，服务端重排排序值 -->
+    <el-dialog v-model="orderDialog" :title="t('orderTitle')" width="620px">
+      <el-radio-group v-model="orderKind" class="ap-order-kind" @change="loadOrder">
+        <el-radio-button value="image">{{ t("orderKindImage") }}</el-radio-button>
+        <el-radio-button value="video">{{ t("orderKindVideo") }}</el-radio-button>
+      </el-radio-group>
+      <div class="ap-hint">{{ t("orderHint") }}</div>
+      <el-table :data="orderList" v-loading="orderLoading" size="small" border max-height="420">
+        <el-table-column type="index" width="46" align="center" />
+        <el-table-column prop="name" :label="t('orderColEntry')" min-width="180">
+          <template #default="{ row }">
+            {{ row.name }}
+            <el-tag v-if="row.versions > 1" size="small" effect="plain" class="ap-tag">
+              {{ orderVersionsText(row.versions) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="key" :label="t('orderColKey')" min-width="140" show-overflow-tooltip />
+        <el-table-column :label="t('colActions')" width="130" align="center">
+          <template #default="{ $index }">
+            <el-button link type="primary" size="small" :disabled="$index === 0" @click="moveOrder($index, 'up')">
+              ↑
+            </el-button>
+            <el-button
+              link
+              type="primary"
+              size="small"
+              :disabled="$index === orderList.length - 1"
+              @click="moveOrder($index, 'down')"
+            >
+              ↓
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
 
     <!-- 供应商表单 -->
     <el-dialog v-model="providerDialog" :title="providerForm.id ? t('btnEdit') : t('btnNewProvider')" width="640px">
@@ -289,7 +333,7 @@
 import { defineComponent, ref, reactive, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { HomeFilled, Refresh, Plus } from "@element-plus/icons-vue";
+import { HomeFilled, Refresh, Plus, Sort } from "@element-plus/icons-vue";
 import {
   listAiProviders,
   saveAiProvider,
@@ -299,8 +343,11 @@ import {
   listAiModels,
   saveAiModel,
   deleteAiModel,
+  listAiModelOrder,
+  moveAiModelOrder,
   AiProviderItem,
   AiModelItem,
+  AiModelEntry,
 } from "/@/api/addon/aiProvider";
 
 // 后台「AI 供应商与模型」页面。
@@ -629,7 +676,59 @@ export default defineComponent({
       }
     };
 
-    onMounted(() => loadProviders());
+    /* ---------------- 调整顺序（按前台条目） ---------------- */
+
+const orderDialog = ref(false);
+const orderLoading = ref(false);
+const orderKind = ref<"image" | "video">("image");
+const orderList = ref<AiModelEntry[]>([]);
+
+/** 打开时按当前供应商的 kind 预选，让运营少点一次。 */
+function openOrderDialog() {
+  const kinds = [...new Set(models.value.map((m) => m.kind).filter(Boolean))];
+  if (kinds.length === 1) orderKind.value = kinds[0] as "image" | "video";
+  orderDialog.value = true;
+  void loadOrder();
+}
+
+/**
+ * 「N 个版本」的文案。页面里的 t 是单参包装（`message.sdk.platform.*`），
+ * 这里用 replace 填占位符，而不是绕开 i18n 写死中文。
+ */
+function orderVersionsText(n: number): string {
+  return t("orderVersions").replace("{n}", String(n));
+}
+
+async function loadOrder() {
+  orderLoading.value = true;
+  try {
+    const res: any = await listAiModelOrder(orderKind.value);
+    orderList.value = res.data?.list || [];
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("orderLoadFailed"));
+  } finally {
+    orderLoading.value = false;
+  }
+}
+
+/**
+ * 上移/下移一位。
+ *
+ * 排序值由**服务端**重排：前端列表可能被供应商过滤过，在前端算"跟谁交换"会算错；
+ * 而且历史数据里排序值全是 0，交换两个 0 等于没动 —— 所以这里只发"哪个条目、哪个方向"。
+ */
+async function moveOrder(index: number, dir: "up" | "down") {
+  const entry = orderList.value[index];
+  if (!entry) return;
+  try {
+    const res: any = await moveAiModelOrder(orderKind.value, entry.key, dir);
+    orderList.value = res.data?.list || orderList.value;
+  } catch (e: any) {
+    ElMessage.error(e?.message || t("orderMoveFailed"));
+  }
+}
+
+onMounted(() => loadProviders());
 
     return {
       t,
@@ -657,6 +756,15 @@ export default defineComponent({
       openModelDialog,
       onSaveModel,
       onDeleteModel,
+      // 调整顺序（按前台条目）
+      orderDialog,
+      orderLoading,
+      orderKind,
+      orderList,
+      openOrderDialog,
+      loadOrder,
+      moveOrder,
+      orderVersionsText,
     };
   },
 });

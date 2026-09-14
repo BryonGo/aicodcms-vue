@@ -53,8 +53,12 @@ export interface AiModelItem {
   capabilities: Record<string, any> | null;
   billing: Record<string, any> | null;
   last_synced_at: number;
-  /** 非 0 表示上游已不再返回该模型（不等于停用，由运营决定）。 */
+  /** 非 0 表示上游已不再返回该模型；超过宽限期系统会自动下线。 */
   missing_since: number;
+  /** 是否由系统**自动下线**（上游不再提供）。与运营手工下线区分：上游恢复会自动放回来。 */
+  auto_hidden: boolean;
+  /** 自动下线的原因（运营手工下线时为空）。 */
+  hidden_reason: string;
   created_at: number;
   updated_at: number;
 }
@@ -97,6 +101,10 @@ export interface AiSyncResult {
   existing: number;
   missing: number;
   revived: number;
+  /** 因"上游已不再提供"被系统自动下线的条数。 */
+  auto_hidden: number;
+  /** 上游恢复后自动放回来的条数。 */
+  auto_restored: number;
 }
 
 /** 供应商列表（含已实现的协议清单，供下拉，避免前端硬编码一份会过期的）。 */
@@ -162,5 +170,41 @@ export function deleteAiModel(id: number) {
     url: "/api/v1/admin/ai/model/del",
     method: "post",
     data: { id },
+  });
+}
+
+/** 前台的一个"条目"：一个家族，或一个没有家族的独立模型。 */
+export interface AiModelEntry {
+  /** 条目标识：家族名，或独立模型的 model_id。调整顺序时原样传回。 */
+  key: string;
+  /** 前台显示名（家族条目就是家族名）。 */
+  name: string;
+  kind: string;
+  /** 该条目下有几个可用版本。 */
+  versions: number;
+  sort: number;
+  model_ids: string[];
+}
+
+/** 列出前台条目顺序（按"一家族一个入口"的口径，而不是按行）。 */
+export function listAiModelOrder(kind: string) {
+  return request({
+    url: "/api/v1/admin/ai/model/order",
+    method: "get",
+    params: { kind },
+  });
+}
+
+/**
+ * 上移/下移一个条目。
+ *
+ * 按**条目**而不是按行：前台是"一家族一个入口"，调家族里某个非当前版本的行不会有
+ * 任何可见变化 —— 运营会以为按钮坏了。服务端会重排排序值，前端不用自己算数字。
+ */
+export function moveAiModelOrder(kind: string, key: string, dir: "up" | "down") {
+  return request({
+    url: "/api/v1/admin/ai/model/order/move",
+    method: "post",
+    data: { kind, key, dir },
   });
 }
