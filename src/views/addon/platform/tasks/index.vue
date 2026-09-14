@@ -18,13 +18,16 @@
     <div class="pf-filter-card">
       <el-form :inline="true" @submit.prevent>
         <el-form-item :label="$t('message.sdk.platform.filterSite')">
+          <!-- 站点跟随右上角选择器：超管可跨站筛选，普通站点管理员锁定在当前站点。 -->
           <el-input
+            v-if="isSuperAdmin"
             v-model="q.siteId"
             placeholder="siteId"
             clearable
             style="width: 160px"
             @keyup.enter="onQuery"
           />
+          <span v-else class="pf-site-fixed">{{ currentSiteLabel }}</span>
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.filterStatus')">
           <el-select
@@ -113,6 +116,7 @@
 import { defineComponent, ref, reactive, onMounted, onActivated } from "vue";
 import { HomeFilled } from "@element-plus/icons-vue";
 import { getPlatformTasks, AdminTaskItem } from "/@/api/addon/platform";
+import { useSiteScope } from "/@/composables/useSiteScope";
 
 const statusOptions = [
   "queued",
@@ -135,8 +139,10 @@ export default defineComponent({
     const page = ref(1);
     const size = ref(20);
     const total = ref(0);
+    // 站点作用域：默认跟随右上角当前站点；非超管锁定，超管可清空/改写以跨站筛选。
+    const { currentSiteId, isSuperAdmin, currentSiteLabel } = useSiteScope();
     const q = reactive<{ siteId?: number; status?: string; product?: string }>({
-      siteId: undefined,
+      siteId: currentSiteId.value || undefined,
       status: undefined,
       product: undefined,
     });
@@ -188,7 +194,8 @@ export default defineComponent({
       loadData();
     };
     const onReset = () => {
-      q.siteId = undefined;
+      // 重置回到「当前站点」，而不是清空成跨站查询。
+      q.siteId = currentSiteId.value || undefined;
       q.status = undefined;
       q.product = undefined;
       page.value = 1;
@@ -205,6 +212,8 @@ export default defineComponent({
       size,
       total,
       q,
+      isSuperAdmin,
+      currentSiteLabel,
       statusOptions,
       statusTagType,
       fmtTime,
@@ -224,6 +233,12 @@ export default defineComponent({
 .pf-mono {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 600;
+  color: var(--cc-color-text-2);
+}
+/* 非超管的站点作用域：跟随右上角当前站点，不可改，因此只读展示。 */
+.pf-site-fixed {
+  display: inline-block;
+  min-width: 160px;
   color: var(--cc-color-text-2);
 }
 .pf-header {

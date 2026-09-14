@@ -33,13 +33,16 @@
     <div class="pf-filter-card">
       <el-form :inline="true" @submit.prevent>
         <el-form-item :label="$t('message.sdk.platform.filterSite')">
+          <!-- 站点跟随右上角选择器：超管可跨站筛选，普通站点管理员锁定在当前站点。 -->
           <el-input
+            v-if="isSuperAdmin"
             v-model="q.siteId"
             placeholder="siteId"
             clearable
             style="width: 140px"
             @keyup.enter="onQuery"
           />
+          <span v-else class="pf-site-fixed">{{ currentSiteLabel }}</span>
         </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.filterProduct')">
           <el-input
@@ -186,9 +189,11 @@
     >
       <el-form :model="write.form" label-width="140px">
         <el-form-item :label="$t('message.sdk.platform.fieldSiteId')">
+          <!-- 非超管锁定在当前站点：改价绝不允许写到别的站点。 -->
           <el-input-number
             v-model="write.form.siteId"
             :min="1"
+            :disabled="!isSuperAdmin"
             controls-position="right"
             style="width: 160px"
           />
@@ -246,6 +251,7 @@
           <el-input-number
             v-model="batch.form.siteId"
             :min="1"
+            :disabled="!isSuperAdmin"
             controls-position="right"
             style="width: 160px"
           />
@@ -318,6 +324,7 @@ import {
   upsertPlatformBillingRate,
   AdminBillingRateItem,
 } from "/@/api/addon/platform";
+import { useSiteScope } from "/@/composables/useSiteScope";
 
 // 视频画幅（与后端 internal/platform/model/video/catalog.go 的 Resolutions 一致；
 // 用于「批量生成按时长报价」的画幅下拉）。
@@ -333,8 +340,10 @@ export default defineComponent({
     const page = ref(1);
     const size = ref(20);
     const total = ref(0);
+    // 站点作用域：默认跟随右上角当前站点；非超管锁定，超管可清空/改写以跨站筛选。
+    const { currentSiteId, isSuperAdmin, currentSiteLabel } = useSiteScope();
     const q = reactive<{ siteId?: number; product?: string }>({
-      siteId: undefined,
+      siteId: currentSiteId.value || undefined,
       product: undefined,
     });
 
@@ -383,7 +392,8 @@ export default defineComponent({
       loadData();
     };
     const onReset = () => {
-      q.siteId = undefined;
+      // 重置回到「当前站点」，而不是清空成跨站查询。
+      q.siteId = currentSiteId.value || undefined;
       q.product = undefined;
       page.value = 1;
       loadData();
@@ -394,7 +404,7 @@ export default defineComponent({
       visible: false,
       saving: false,
       form: {
-        siteId: 1,
+        siteId: currentSiteId.value,
         product: "hougong",
         dimKey: "",
         credits: 0,
@@ -413,7 +423,7 @@ export default defineComponent({
         };
       } else {
         write.form = {
-          siteId: q.siteId ?? 1,
+          siteId: q.siteId ?? currentSiteId.value,
           product: q.product || "hougong",
           dimKey: "",
           credits: 0,
@@ -450,7 +460,7 @@ export default defineComponent({
       visible: false,
       saving: false,
       form: {
-        siteId: 1,
+        siteId: currentSiteId.value,
         product: "hougong",
         ratio: "16:9",
         from: 2,
@@ -460,7 +470,7 @@ export default defineComponent({
     });
 
     const openBatch = () => {
-      batch.form.siteId = q.siteId ?? 1;
+      batch.form.siteId = q.siteId ?? currentSiteId.value;
       batch.form.product = q.product || "hougong";
       batch.visible = true;
     };
@@ -499,6 +509,8 @@ export default defineComponent({
       size,
       total,
       q,
+      isSuperAdmin,
+      currentSiteLabel,
       fmtTime,
       dimGroup,
       loadData,
@@ -526,6 +538,12 @@ export default defineComponent({
     "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     monospace;
   font-weight: 600;
+  color: var(--cc-color-text-2);
+}
+/* 非超管的站点作用域：跟随右上角当前站点，不可改，因此只读展示。 */
+.pf-site-fixed {
+  display: inline-block;
+  min-width: 140px;
   color: var(--cc-color-text-2);
 }
 .pf-header {
