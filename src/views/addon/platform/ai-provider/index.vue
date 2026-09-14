@@ -125,6 +125,15 @@
               <el-tooltip v-if="row.auto_hidden" :content="row.hidden_reason || t('autoHiddenTag')" placement="top">
                 <el-tag type="danger" size="small" effect="plain" class="ap-tag">{{ t("autoHiddenTag") }}</el-tag>
               </el-tooltip>
+              <!-- 配置不全（缺能力参数/计费）：state 还是 available，但前台看不到它。
+                   只看 state 的运营会以为"我明明上架了"，所以把缺口摊在这里。 -->
+              <el-tooltip
+                v-if="row.config_gaps && row.config_gaps.length"
+                :content="configGapText(row)"
+                placement="top"
+              >
+                <el-tag type="danger" size="small" class="ap-tag">{{ t("configGapTag") }}</el-tag>
+              </el-tooltip>
             </template>
           </el-table-column>
           <el-table-column :label="t('normColFamily')" min-width="150">
@@ -374,6 +383,17 @@ export default defineComponent({
      */
     const t = (key: string, params?: Record<string, unknown>) =>
       rawT(`message.sdk.platform.${key}`, params || {});
+
+    /**
+     * 配置缺口的悬停文案：先说结论（前台看不到它），再逐条列缺什么。
+     *
+     * 为什么要专门解释：这类模型的 state 是 available，运营在列表里看不出异常，
+     * 只会在前台"找不到自己刚拉的模型"时来回问。
+     */
+    const configGapText = (row: AiModelItem) => {
+      const lines = (row.config_gaps || []).map((g) => `· ${g.detail}`);
+      return [t("configGapHint"), ...lines].join("\n");
+    };
 
     const providers = ref<AiProviderItem[]>([]);
     const models = ref<AiModelItem[]>([]);
@@ -735,6 +755,7 @@ onMounted(() => loadProviders());
 
     return {
       t,
+      configGapText,
       providers,
       models,
       protocols,

@@ -517,6 +517,9 @@ export default {
       colBilling: "计费 JSON",
       missingTag: "上游已消失",
       autoHiddenTag: "已自动下线",
+      configGapTag: "配置不全",
+      configGapHint:
+        "该模型的「能力/计费」还没配齐，前台不会显示它（用户能选中却建不了单，所以宁可不摆出来）。鼠标悬停看具体缺什么，补完自动出现。",
       btnOrder: "调整顺序",
       orderTitle: "调整前台展示顺序",
       orderKindImage: "图像模型",

@@ -486,6 +486,9 @@ export default {
       colBilling: "Billing JSON",
       missingTag: "Missing upstream",
       autoHiddenTag: "Auto disabled",
+      configGapTag: "Incomplete",
+      configGapHint:
+        "Capabilities/billing are incomplete, so this model is hidden from users (selectable but not orderable is worse than absent). Hover the tag for the exact gap; it appears automatically once filled.",
       btnOrder: "Reorder",
       orderTitle: "Reorder front-end entries",
       orderKindImage: "Image models",

@@ -61,6 +61,8 @@ export interface AiModelItem {
   auto_hidden: boolean;
   /** 自动下线的原因（运营手工下线时为空）。 */
   hidden_reason: string;
+  /** 配置缺口：能力/计费没配齐时前台不显示该模型，这里列出具体缺什么（图像模型才计算）。 */
+  config_gaps: { kind: string; detail: string }[];
   created_at: number;
   updated_at: number;
 }
