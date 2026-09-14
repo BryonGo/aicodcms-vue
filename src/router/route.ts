@@ -393,6 +393,17 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
       },
       // ---- 平台管理：任务排查 / 账本查询 ----
       {
+        path: "/addon/platform/prompts",
+        name: "addonPlatformPrompts",
+        component: () => import("/@/views/addon/platform/prompts/index.vue"),
+        meta: {
+          title: "message.sdk.platformPrompts",
+          is_hide: true,
+          is_keep_alive: true,
+          permissions: ["api/v1/addon/admin/prompt/logs"],
+        },
+      },
+      {
         path: "/addon/platform/tasks",
         name: "addonPlatformTaskList",
         component: () => import("/@/views/addon/platform/tasks/index.vue"),

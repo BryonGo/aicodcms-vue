@@ -452,3 +452,254 @@ export function updatePlatformTag(data: {
     data,
   });
 }
+
+// ==================== 提示词留存与精选（admin.prompt） ====================
+
+export interface AdminPromptOpt {
+  key: string;
+  label: string;
+  count: number;
+}
+
+export interface AdminPromptLogItem {
+  /** 雪花 ID 一律用字符串：19 位超出 JS 安全整数，用 number 会静默失真。 */
+  id: string;
+  accountId: string;
+  product: string;
+  sessionId: string;
+  taskId: string;
+  type: string;
+  engine: string;
+  tool: string;
+  template: string;
+  modelId: string;
+  prompt: string;
+  finalPrompt: string;
+  negativePrompt: string;
+  params: Record<string, unknown>;
+  source: string;
+  createdAt: number;
+  /** 已进精选池时的条目 id；空串 = 未收藏。 */
+  favoriteId: string;
+  rating: number;
+  reuseCount: number;
+}
+
+export interface AdminPromptStats {
+  total: number;
+  today: number;
+  users: number;
+  favorites: number;
+  promoted: number;
+  topTools: { key: string; label: string; count: number }[];
+}
+
+export interface AdminPromptLogsParams {
+  accountId?: number;
+  product?: string;
+  tool?: string;
+  template?: string;
+  type?: string;
+  query?: string;
+  from?: number;
+  to?: number;
+  favoritedOnly?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminPromptLogsRes {
+  list: AdminPromptLogItem[];
+  total: number;
+  stats: AdminPromptStats;
+}
+
+export interface AdminPromptExportParams {
+  accountId?: number;
+  product?: string;
+  tool?: string;
+  template?: string;
+  type?: string;
+  query?: string;
+  from?: number;
+  to?: number;
+  favoritedOnly?: boolean;
+  limit?: number;
+}
+
+export interface AdminPromptExportRes {
+  list: AdminPromptLogItem[];
+}
+
+export interface AdminPromptFacets {
+  products: AdminPromptOpt[];
+  tools: AdminPromptOpt[];
+  templates: AdminPromptOpt[];
+}
+
+export interface AdminPromptFav {
+  id: string;
+  logId: string;
+  accountId: string;
+  product: string;
+  title: string;
+  prompt: string;
+  negativePrompt: string;
+  tool: string;
+  template: string;
+  /** 逗号分隔的标签串（后端就是这么存的，不做数组转换）。 */
+  tags: string;
+  rating: number;
+  note: string;
+  promotedTo: string;
+  promotedRef: string;
+  promotedAt: number;
+  operatorId: string;
+  createdAt: number;
+  updatedAt: number;
+  sourcePrompt: string;
+}
+
+export interface AdminPromptFavsParams {
+  product?: string;
+  tool?: string;
+  query?: string;
+  promoted?: string;
+  from?: number;
+  to?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminPromptFavsRes {
+  list: AdminPromptFav[];
+  total: number;
+}
+
+export interface AdminPromptFavSaveParams {
+  logId: string;
+  title?: string;
+  prompt?: string;
+  negativePrompt?: string;
+  tool?: string;
+  template?: string;
+  tags?: string;
+  rating?: number;
+  note?: string;
+}
+
+export interface AdminPromptTargetFieldOpt {
+  key: string;
+  label: string;
+  /** 计数（分类/工具选项带；纯枚举时为 0）。 */
+  count?: number;
+}
+
+export interface AdminPromptTargetField {
+  key: string;
+  label: string;
+  required: boolean;
+  placeholder: string;
+  options: AdminPromptTargetFieldOpt[];
+}
+
+export interface AdminPromptTarget {
+  key: string;
+  label: string;
+  fields: AdminPromptTargetField[];
+}
+
+export interface AdminPromptTargetsRes {
+  list: AdminPromptTarget[];
+}
+
+export interface AdminPromptPromoteParams {
+  target: string;
+  options: Record<string, string>;
+}
+
+/** 提示词流水列表 */
+export function getPlatformPromptLogs(params: AdminPromptLogsParams) {
+  return request<AdminPromptLogsRes>({
+    url: "/api/v1/addon/admin/prompt/logs",
+    method: "get",
+    params,
+  });
+}
+
+/** 提示词流水详情 */
+export function getPlatformPromptLog(id: string) {
+  return request<AdminPromptLogItem>({
+    url: `/api/v1/addon/admin/prompt/logs/${id}`,
+    method: "get",
+  });
+}
+
+/** 提示词流水导出（返回 list，CSV 由前端生成） */
+export function exportPlatformPromptLogs(params: AdminPromptExportParams) {
+  return request<AdminPromptExportRes>({
+    url: "/api/v1/addon/admin/prompt/logs/export",
+    method: "get",
+    params,
+  });
+}
+
+/** 提示词筛选下拉 */
+export function getPlatformPromptFacets() {
+  return request<AdminPromptFacets>({
+    url: "/api/v1/addon/admin/prompt/facets",
+    method: "get",
+  });
+}
+
+/** 提示词概览统计 */
+export function getPlatformPromptStats() {
+  return request<AdminPromptStats>({
+    url: "/api/v1/addon/admin/prompt/stats",
+    method: "get",
+  });
+}
+
+/** 精选池列表 */
+export function getPlatformPromptFavorites(params: AdminPromptFavsParams) {
+  return request<AdminPromptFavsRes>({
+    url: "/api/v1/addon/admin/prompt/favorites",
+    method: "get",
+    params,
+  });
+}
+
+/** 收藏 / 更新（按 logId 幂等；同一条流水重复提交是编辑） */
+export function savePlatformPromptFavorite(data: AdminPromptFavSaveParams) {
+  return request<AdminPromptFav>({
+    url: "/api/v1/addon/admin/prompt/favorites",
+    method: "post",
+    data,
+  });
+}
+
+/** 移出精选池 */
+export function deletePlatformPromptFavorite(id: string) {
+  return request<Record<string, never>>({
+    url: `/api/v1/addon/admin/prompt/favorites/${id}`,
+    method: "delete",
+  });
+}
+
+/** 可用沉淀目标 */
+export function getPlatformPromptPromoteTargets() {
+  return request<AdminPromptTargetsRes>({
+    url: "/api/v1/addon/admin/prompt/promote/targets",
+    method: "get",
+  });
+}
+
+/** 沉淀 */
+export function promotePlatformPromptFavorite(id: string, data: AdminPromptPromoteParams) {
+  return request<AdminPromptFav>({
+    url: `/api/v1/addon/admin/prompt/favorites/${id}/promote`,
+    method: "post",
+    data,
+  });
+}
+
