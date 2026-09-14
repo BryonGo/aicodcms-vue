@@ -32,6 +32,16 @@
         <el-table-column type="index" label="#" width="55" align="center" />
         <el-table-column prop="user_name" :label="$t('message.pms.siteAdmin.colAccount')" min-width="140" show-overflow-tooltip />
         <el-table-column prop="user_nickname" :label="$t('message.pms.siteAdmin.colNickname')" min-width="140" show-overflow-tooltip />
+        <el-table-column :label="$t('message.pms.siteAdmin.colUserType')" width="130" align="center">
+          <template #default="scope">
+            <el-tag v-if="scope.row.is_super_admin === 1" type="warning" size="small" effect="light" round>
+              {{ $t('message.pms.siteAdmin.userTypeSuper') }}
+            </el-tag>
+            <el-tag v-else type="info" size="small" effect="plain" round>
+              {{ $t('message.pms.siteAdmin.userTypeNormal') }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('message.pms.siteAdmin.colStatus')" width="100" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.user_status === 1 ? 'success' : 'info'" size="small" effect="light" round>
@@ -71,6 +81,14 @@
           </el-select>
         </el-form-item>
       </el-form>
+      <!-- 超管提示：绑定不会收窄其可见站点范围，避免运营以为「绑定了就只管这个站」。 -->
+      <el-alert
+        v-if="selectedIsSuperAdmin"
+        type="warning"
+        :closable="false"
+        show-icon
+        :title="$t('message.pms.siteAdmin.superAdminBindTip')"
+      />
       <template #footer>
         <el-button @click="dialog.visible = false">{{ $t('message.common.btnCancel') }}</el-button>
         <el-button type="primary" :loading="dialog.saving" @click="onBind">{{ $t('message.pms.siteAdmin.btnBind') }}</el-button>
@@ -80,11 +98,10 @@
 </template>
 
 <script lang="ts">
-import { reactive, ref, defineComponent, onMounted } from "vue";
+import { computed, reactive, ref, defineComponent, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useI18n } from "vue-i18n";
-import { listSites } from "/@/api/cms/site";
-import { listSiteAdmins, bindSiteAdmin, unbindSiteAdmin } from "/@/api/pms/siteAdmin";
+import { getMySites, listSiteAdmins, bindSiteAdmin, unbindSiteAdmin } from "/@/api/pms/siteAdmin";
 import { getUserList } from "/@/api/pms/user";
 
 export default defineComponent({
@@ -97,9 +114,17 @@ export default defineComponent({
     const userOptions = ref<any[]>([]);
     const dialog = reactive({ visible: false, userId: 0, searching: false, saving: false });
 
+    // 选中的管理员是否为超级管理员：超管可见全部站点，绑定不会收窄其范围。
+    const selectedIsSuperAdmin = computed(() => {
+      const hit = userOptions.value.find((u: any) => u.id === dialog.userId);
+      return Number(hit?.is_super_admin || 0) === 1;
+    });
+
     const loadSites = () => {
-      listSites().then((res: any) => {
-        sites.value = res?.data?.list || [];
+      // 用「当前管理员可见的站点」而不是全站列表：非超管的站点管理员在这里
+      // 既不该看到别的站点，也不该能给别的站点绑定管理员。
+      getMySites().then((res: any) => {
+        sites.value = (res?.data?.sites || []).filter((s: any) => s.status === 1);
         if (!siteId.value && sites.value.length > 0) {
           siteId.value = sites.value[0].id;
           loadAdmins();
@@ -167,6 +192,7 @@ export default defineComponent({
       admins,
       userOptions,
       dialog,
+      selectedIsSuperAdmin,
       loadAdmins,
       searchUsers,
       onOpenBind,

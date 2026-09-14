@@ -815,11 +815,15 @@ export default {
     breadcrumbHome: "首页",
     breadcrumbPms: "权限",
     title: "站点管理员",
-    subtitle: "将后台管理员绑定到站点，绑定后仅能管理该站点的内容",
+    subtitle:
+      "将后台管理员绑定到站点，绑定后仅能管理该站点的内容（超级管理员不受此限制，仍可见全部站点）",
     filterSite: "站点",
     phSelectSite: "选择站点",
     colAccount: "登录账号",
     colNickname: "昵称",
+    colUserType: "类型",
+    userTypeSuper: "超级管理员",
+    userTypeNormal: "站点管理员",
     colStatus: "状态",
     colActions: "操作",
     btnBind: "绑定管理员",
@@ -832,5 +836,7 @@ export default {
     bindOk: "绑定成功",
     unbindOk: "解绑成功",
     unbindConfirm: "确认解绑管理员「{name}」？",
+    superAdminBindTip:
+      "该账号是超级管理员：绑定只记录归属，不会限制其可见站点，他仍可在右上角切换并使用全部站点。若要限制，请先到「用户管理」把用户类型改为「普通用户」。",
   },
 };

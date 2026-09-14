@@ -800,11 +800,14 @@ export default {
     breadcrumbPms: "Access",
     title: "Site Admins",
     subtitle:
-      "Bind admin users to a site; once bound they can only manage that site's content",
+      "Bind admin users to a site; once bound they can only manage that site's content (super admins are exempt and still see every site)",
     filterSite: "Site",
     phSelectSite: "Select a site",
     colAccount: "Login Account",
     colNickname: "Nickname",
+    colUserType: "Type",
+    userTypeSuper: "Super Admin",
+    userTypeNormal: "Site Admin",
     colStatus: "Status",
     colActions: "Actions",
     btnBind: "Bind Admin",
@@ -817,5 +820,7 @@ export default {
     bindOk: "Bound",
     unbindOk: "Unbound",
     unbindConfirm: "Unbind admin {name}?",
+    superAdminBindTip:
+      "This account is a super admin: binding only records ownership and does not limit which sites it can see - it can still switch to and use every site from the top-right selector. To restrict it, set its user type to Normal User under User Management first.",
   },
 };

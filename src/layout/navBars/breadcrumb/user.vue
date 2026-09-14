@@ -46,12 +46,13 @@
       :show-timeout="70"
       :hide-timeout="50"
       trigger="click"
+      :disabled="!canSwitchSite"
       @command="onSiteChange"
     >
       <span class="layout-navbars-breadcrumb-user-link site-selector">
         <i class="iconfont icon-quanqiu" :title="'站点'"></i>
         <span class="site-selector-name">{{ currentSiteName }}</span>
-        <el-icon class="el-icon--right"><ele-ArrowDown /></el-icon>
+        <el-icon v-if="canSwitchSite" class="el-icon--right"><ele-ArrowDown /></el-icon>
       </span>
       <template #dropdown>
         <el-dropdown-menu>
@@ -147,7 +148,7 @@ export default defineComponent({
     const storesSite = useSiteInfo();
     const storesThemeConfig = useThemeConfig();
     const { userInfos } = storeToRefs(stores);
-    const { sites: siteSites, currentSiteCode } = storeToRefs(storesSite);
+    const { sites: siteSites, currentSiteCode, canSwitchSite } = storeToRefs(storesSite);
     const { themeConfig } = storeToRefs(storesThemeConfig);
     const searchRef = ref();
     // 默认头像 fallback (内联 SVG 用户图标)
@@ -291,8 +292,13 @@ export default defineComponent({
     const onSiteChange = (code: string) => {
       if (code === currentSiteCode.value) return;
       storesSite.setCurrent(code);
-      ElMessage.success("已切换到站点，页面即将刷新");
-      setTimeout(() => window.location.reload(), 400);
+      ElMessage.success("已切换到站点，正在刷新当前页数据");
+      // 停在当前页，只让页面重新取数：复用 tagsView 的「刷新当前页」机制
+      // （parent.vue 会把当前路由移出 keep-alive、换掉 router-view 的 key，
+      // 组件重新挂载 → onMounted/onActivated 用新的 X-Site-Code 重新请求）。
+      // 不用 window.location.reload()：整页刷新会丢掉未提交的表单与页面滚动位置，
+      // 而且路由虽是 hash 模式能停在同一页，但代价明显更大。
+      proxy.mittBus.emit("onTagsViewRefreshRouterView", router.currentRoute.value.fullPath);
     };
     // 设置 element plus 组件的国际化
     const setI18nConfig = (locale: string) => {
@@ -340,6 +346,7 @@ export default defineComponent({
       siteSites,
       currentSiteCode,
       currentSiteName,
+      canSwitchSite,
       onSiteChange,
       onLayoutSetingClick,
       onHandleCommandClick,
