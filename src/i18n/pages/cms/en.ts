@@ -541,6 +541,7 @@ export default {
     btnCleanOrphans: "Clean {count} orphan files",
   },
   common: {
+    uploadFile: "Upload file",
     enabled: "Enabled",
     disabledText: "Disabled",
     copy: "Copy Link",

@@ -8,17 +8,30 @@
     <div class="pms-card-header">
       <div>
         <h1 class="pms-card-title">站群互链</h1>
-        <p class="pms-card-sub">跨站交叉引流：在站点间互相挂链接（默认 nofollow）</p>
+        <p class="pms-card-sub">
+          跨站交叉引流：在站点间互相挂链接（默认 nofollow）
+        </p>
       </div>
       <div class="pms-card-actions">
-        <el-button size="large" type="success" class="pms-card-add" @click="onOpenAdd">
+        <el-button
+          size="large"
+          type="success"
+          class="pms-card-add"
+          @click="onOpenAdd"
+        >
           <el-icon><ele-FolderAdd /></el-icon> 新增互链
         </el-button>
       </div>
     </div>
 
     <div class="pms-card-table">
-      <el-table :data="tableData.data" stripe border size="small" style="width: 100%">
+      <el-table
+        :data="tableData.data"
+        stripe
+        border
+        size="small"
+        style="width: 100%"
+      >
         <el-table-column type="index" label="#" width="55" align="center" />
         <el-table-column label="源站点" width="150" show-overflow-tooltip>
           <template #default="scope">
@@ -30,29 +43,64 @@
             {{ siteName(scope.row.target_site_id) }}
           </template>
         </el-table-column>
-        <el-table-column prop="anchor" label="锚文本" min-width="140" show-overflow-tooltip />
-        <el-table-column prop="target_url" label="目标 URL" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="position" label="展示位" width="100" align="center" />
+        <el-table-column
+          prop="anchor"
+          label="锚文本"
+          min-width="140"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="target_url"
+          label="目标 URL"
+          min-width="180"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="position"
+          label="展示位"
+          width="100"
+          align="center"
+        />
         <el-table-column label="nofollow" width="100" align="center">
           <template #default="scope">
-            <el-tag :type="scope.row.nofollow === 1 ? 'warning' : 'success'" size="small" effect="light" round>
+            <el-tag
+              :type="scope.row.nofollow === 1 ? 'warning' : 'success'"
+              size="small"
+              effect="light"
+              round
+            >
               {{ scope.row.nofollow === 1 ? "nofollow" : "dofollow" }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="状态" width="90" align="center">
           <template #default="scope">
-            <el-tag :type="scope.row.status === 1 ? 'success' : 'info'" size="small" effect="light" round>
+            <el-tag
+              :type="scope.row.status === 1 ? 'success' : 'info'"
+              size="small"
+              effect="light"
+              round
+            >
               {{ scope.row.status === 1 ? "启用" : "停用" }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="scope">
-            <el-button link size="small" type="primary" @click="onOpenEdit(scope.row)">
+            <el-button
+              link
+              size="small"
+              type="primary"
+              @click="onOpenEdit(scope.row)"
+            >
               <el-icon><ele-Edit /></el-icon> 编辑
             </el-button>
-            <el-button link size="small" type="danger" @click="onDel(scope.row)">
+            <el-button
+              link
+              size="small"
+              type="danger"
+              @click="onDel(scope.row)"
+            >
               <el-icon><ele-Delete /></el-icon> 删除
             </el-button>
           </template>
@@ -68,10 +116,10 @@
     </div>
 
     <!-- 编辑弹窗 -->
-    <el-dialog
+    <ProDrawer
       v-model="dialog.visible"
       :title="dialog.isEdit ? '编辑互链' : '新增互链'"
-      width="560px"
+      :size="560"
       destroy-on-close
       :close-on-click-modal="false"
     >
@@ -79,19 +127,32 @@
         <el-form-item label="源站点" prop="source_site_id">
           <el-select v-model="form.source_site_id" style="width: 100%">
             <el-option :label="'全部站点'" :value="0" />
-            <el-option v-for="s in sites" :key="s.id" :label="`${s.name}（${s.code}）`" :value="s.id" />
+            <el-option
+              v-for="s in sites"
+              :key="s.id"
+              :label="`${s.name}（${s.code}）`"
+              :value="s.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="目标站点" prop="target_site_id">
           <el-select v-model="form.target_site_id" style="width: 100%">
-            <el-option v-for="s in sites" :key="s.id" :label="`${s.name}（${s.code}）`" :value="s.id" />
+            <el-option
+              v-for="s in sites"
+              :key="s.id"
+              :label="`${s.name}（${s.code}）`"
+              :value="s.id"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="锚文本" prop="anchor">
           <el-input v-model="form.anchor" placeholder="链接文字，如 推荐站点" />
         </el-form-item>
         <el-form-item label="目标 URL" prop="target_url">
-          <el-input v-model="form.target_url" placeholder="/栏目路径 或 绝对 URL" />
+          <el-input
+            v-model="form.target_url"
+            placeholder="/栏目路径 或 绝对 URL"
+          />
         </el-form-item>
         <el-form-item label="展示位" prop="position">
           <el-select v-model="form.position" style="width: 100%">
@@ -101,10 +162,19 @@
           </el-select>
         </el-form-item>
         <el-form-item label="nofollow">
-          <el-switch v-model="form.nofollow" :active-value="1" :inactive-value="0" active-text="nofollow" />
+          <el-switch
+            v-model="form.nofollow"
+            :active-value="1"
+            :inactive-value="0"
+            active-text="nofollow"
+          />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
+          <el-switch
+            v-model="form.status"
+            :active-value="1"
+            :inactive-value="0"
+          />
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="form.weigh" :min="0" />
@@ -112,20 +182,28 @@
       </el-form>
       <template #footer>
         <el-button @click="dialog.visible = false">取消</el-button>
-        <el-button type="primary" :loading="dialog.saving" @click="onSubmit">保存</el-button>
+        <el-button type="primary" :loading="dialog.saving" @click="onSubmit"
+          >保存</el-button
+        >
       </template>
-    </el-dialog>
+    </ProDrawer>
   </div>
 </template>
 
 <script lang="ts">
 import { reactive, ref, defineComponent } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { listSitelinks, saveSitelink, delSitelink } from "/@/api/addon/sitelink";
+import {
+  listSitelinks,
+  saveSitelink,
+  delSitelink,
+} from "/@/api/addon/sitelink";
 import { listSites } from "/@/api/cms/site";
+import ProDrawer from "/@/components/pro/ProDrawer.vue";
 
 export default defineComponent({
   name: "apiV1AddonSitelinkList",
+  components: { ProDrawer },
   setup() {
     const formRef = ref();
     const sites = ref<any[]>([]);
@@ -150,10 +228,16 @@ export default defineComponent({
     const form = reactive(emptyForm());
 
     const rules = {
-      target_site_id: [{ required: true, message: "请选择目标站点", trigger: "change" }],
+      target_site_id: [
+        { required: true, message: "请选择目标站点", trigger: "change" },
+      ],
       anchor: [{ required: true, message: "请输入锚文本", trigger: "blur" }],
-      target_url: [{ required: true, message: "请输入目标 URL", trigger: "blur" }],
-      position: [{ required: true, message: "请选择展示位", trigger: "change" }],
+      target_url: [
+        { required: true, message: "请输入目标 URL", trigger: "blur" },
+      ],
+      position: [
+        { required: true, message: "请选择展示位", trigger: "change" },
+      ],
     };
 
     const siteName = (id: number) => {
@@ -196,7 +280,9 @@ export default defineComponent({
     };
 
     const onDel = (row: any) => {
-      ElMessageBox.confirm(`确认删除互链「${row.anchor}」？`, "提示", { type: "warning" })
+      ElMessageBox.confirm(`确认删除互链「${row.anchor}」？`, "提示", {
+        type: "warning",
+      })
         .then(() => {
           delSitelink(row.id).then(() => {
             ElMessage.success("删除成功");

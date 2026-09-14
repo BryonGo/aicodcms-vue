@@ -589,5 +589,9 @@ function toastStoreError(msg: string | undefined, fallback: string) {
   const now = Date.now();
   if (text === lastErrorToast.text && now - lastErrorToast.at < 3000) return;
   lastErrorToast = { text, at: now };
-  ElMessage.error(text);
+  // showClose: 提示条默认**没有关闭按钮**，点旁边也不会消失，只能等 3 秒超时。
+  // 像「对象存储 xxx 尚未初始化」这种要用户去改配置的错误会反复出现，
+  // 叠在页面顶上既挡视线又关不掉——所以显式给一个关闭按钮。
+  // grouping: 同一文案的多次失败合并成一条（带计数），不再堆成一列。
+  ElMessage.error({ message: text, showClose: true, grouping: true });
 }

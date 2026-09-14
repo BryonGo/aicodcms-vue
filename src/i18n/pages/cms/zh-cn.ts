@@ -553,6 +553,7 @@ export default {
   },
   // ========== 通用 ==========
   common: {
+    uploadFile: "上传文件",
     enabled: "启用",
     disabledText: "禁用",
     copy: "复制链接",

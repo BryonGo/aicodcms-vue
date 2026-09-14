@@ -1,7 +1,9 @@
 <template>
   <div class="system-edit-role-container">
     <el-drawer
-      :title="$t('message.pms.role.' + (formData.id === 0 ? 'addTitle' : 'editTitle'))"
+      :title="
+        $t('message.pms.role.' + (formData.id === 0 ? 'addTitle' : 'editTitle'))
+      "
       v-model="isShowDialog"
       size="50%"
       destroy-on-close
@@ -64,19 +66,30 @@
             <el-form-item :label="$t('message.pms.role.colMenuPerms')">
               <el-row :gutter="35">
                 <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-                  <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event)">{{
-                    $t("message.pms.role.expandAll")
-                  }}</el-checkbox>
-                  <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event)">{{
-                    $t("message.pms.role.checkAll")
-                  }}</el-checkbox>
+                  <el-checkbox
+                    v-model="menuExpand"
+                    @change="handleCheckedTreeExpand($event)"
+                    >{{ $t("message.pms.role.expandAll") }}</el-checkbox
+                  >
+                  <el-checkbox
+                    v-model="menuNodeAll"
+                    @change="handleCheckedTreeNodeAll($event)"
+                    >{{ $t("message.pms.role.checkAll") }}</el-checkbox
+                  >
                   <el-checkbox
                     v-model="menuCheckStrictly"
                     @change="handleCheckedTreeConnect($event)"
                     >{{ $t("message.pms.role.checkAll") }}</el-checkbox
                   >
                 </el-col>
-                <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
+                <el-col
+                  :xs="24"
+                  :sm="24"
+                  :md="24"
+                  :lg="24"
+                  :xl="24"
+                  class="mb20"
+                >
                   <el-tree
                     :data="menuData"
                     ref="menuRef"
@@ -95,7 +108,9 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="onCancel" size="default">{{ $t("message.common.cancel") }}</el-button>
+          <el-button @click="onCancel" size="default">{{
+            $t("message.common.cancel")
+          }}</el-button>
           <el-button
             type="primary"
             @click="onSubmit"
@@ -103,7 +118,9 @@
             :loading="loading"
             :disabled="isLoading"
             >{{
-              formData.id === 0 ? $t("message.common.add") : $t("message.common.edit")
+              formData.id === 0
+                ? $t("message.common.add")
+                : $t("message.common.edit")
             }}</el-button
           >
         </span>
@@ -113,7 +130,15 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, defineComponent, ref, getCurrentInstance, unref } from "vue";
+import {
+  reactive,
+  toRefs,
+  defineComponent,
+  ref,
+  getCurrentInstance,
+  unref,
+} from "vue";
+import { menuLabel } from "/@/utils/menuLabel";
 import { useI18n } from "vue-i18n";
 import { Loading } from "@element-plus/icons-vue";
 import { addRole, editRole, getRole, getRoleParams } from "/@/api/pms/role";
@@ -146,7 +171,8 @@ interface RoleState {
   menuCheckStrictly: boolean;
   menuProps: {
     children: string;
-    label: string;
+    /** el-tree 允许 label 传函数：菜单 title 是 i18n key 时用它渲染可读文案 */
+    label: string | ((data: any, node?: any) => string);
   };
   rules: object;
 }
@@ -172,7 +198,13 @@ export default defineComponent({
       },
       // 表单校验
       rules: {
-        name: [{ required: true, message: t("message.pms.role.msgNameRequired"), trigger: "blur" }],
+        name: [
+          {
+            required: true,
+            message: t("message.pms.role.msgNameRequired"),
+            trigger: "blur",
+          },
+        ],
       },
       menuData: [],
       menuExpand: false,
@@ -180,7 +212,8 @@ export default defineComponent({
       menuCheckStrictly: false,
       menuProps: {
         children: "children",
-        label: "title",
+        // 菜单 title 可能是 i18n key：授权树同样按可读文案渲染（纯文本原样返回）
+        label: (data: any) => menuLabel(t, data.title),
       },
     });
     // 打开弹窗

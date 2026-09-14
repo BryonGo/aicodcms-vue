@@ -25,16 +25,49 @@ import pagesSdkEn from "/@/i18n/pages/sdk/en";
 import pagesDashboardZhcn from "/@/i18n/pages/dashboard/zh-cn";
 import pagesDashboardEn from "/@/i18n/pages/dashboard/en";
 
+// ============================================================
+// 深合并（i18n 语言包拼装用）
+//
+// 为什么需要：语言包分两处维护 —— `lang/`（历史全量）与 `pages/<模块>/`（按模块新加）。
+// 两处都有同名子对象时，浅展开 `{ ...lang, ...pages }` 会让 pages 的**整块**覆盖 lang，
+// 于是 lang 里那些 pages 没有的 key 直接消失：`sdk.version` 就这样丢了 9 个 key
+// （editSectionInfo / editLabelVersionCode …），SDK 版本编辑表单显示的是裸 key。
+//
+// 深合并只覆盖到具体 key：pages 明确提供的 key 仍然赢（不改变任何现有文案），
+// 只是不再连坐整块。数组与标量整体替换（i18n 里数组通常是列表，按整块换更符合预期）。
+// ============================================================
+const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === "object" && !Array.isArray(v);
+
+const deepMerge = <
+  T extends Record<string, any>,
+  U extends Record<string, any>,
+>(
+  base: T,
+  override: U,
+): T & U => {
+  if (!isPlainObject(base) || !isPlainObject(override))
+    return override as T & U;
+  const out: Record<string, any> = { ...base };
+  for (const key of Object.keys(override)) {
+    out[key] =
+      key in base
+        ? deepMerge(base[key] as any, override[key] as any)
+        : (override as any)[key];
+  }
+  return out as T & U;
+};
+
 // 定义语言国际化内容（仅 vue-i18n，Element Plus locale 独立管理）
 const messages = {
   "zh-cn": {
     message: {
       ...nextZhcn,
       ...pagesLoginZhcn,
-      cmsArticle: { ...nextZhcn.cmsArticle, ...pagesCmsZhcn.cmsArticle },
+      cmsArticle: deepMerge(nextZhcn.cmsArticle, pagesCmsZhcn.cmsArticle),
       cms: pagesCmsZhcn,
       pms: pagesPmsZhcn,
-      sdk: { ...nextZhcn.sdk, ...pagesSdkZhcn },
+      sdk: deepMerge(nextZhcn.sdk, pagesSdkZhcn),
       dashboard: pagesDashboardZhcn,
     },
   },
@@ -42,10 +75,11 @@ const messages = {
     message: {
       ...nextEn,
       ...pagesLoginEn,
-      cmsArticle: { ...nextEn.cmsArticle, ...pagesCmsEn.cmsArticle },
+      cmsArticle: deepMerge(nextEn.cmsArticle, pagesCmsEn.cmsArticle),
       cms: pagesCmsEn,
       pms: pagesPmsEn,
-      sdk: pagesSdkEn,
+      // 注意：这里原先只写 pagesSdkEn（没有展开 nextEn.sdk），英文下整个 sdk 语言包都是空的
+      sdk: deepMerge(nextEn.sdk, pagesSdkEn),
       dashboard: pagesDashboardEn,
     },
   },
