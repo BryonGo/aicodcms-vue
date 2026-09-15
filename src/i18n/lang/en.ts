@@ -84,6 +84,15 @@ export default {
     cmsBlock: "Blocks",
     cmsBlockEdit: "Edit Block",
     loading: "Loading",
+    versionConsole: "Console",
+    versionApi: "API",
+    versionUnset: "not set",
+    versionUnknown: "unknown",
+    versionTipConsole:
+      "Console version comes from version.json written at container start (= image tag); unavailable here, usually a local dev environment",
+    versionTipApi: "API version comes from /api/version (the Go process currently running)",
+    versionTipApiFailed:
+      "API version unavailable: the /api/version request failed (this environment may not run an API with that endpoint yet)",
   },
   tagsView: {
     refresh: "refresh",

@@ -85,7 +85,12 @@
         :class="!isScreenfull ? 'icon-fullscreen' : 'icon-tuichuquanping'"
       ></i>
     </div>
-    <el-dropdown :show-timeout="70" :hide-timeout="50" @command="onHandleCommandClick">
+    <el-dropdown
+      :show-timeout="70"
+      :hide-timeout="50"
+      @command="onHandleCommandClick"
+      @visible-change="onUserDropdownVisible"
+    >
       <span class="layout-navbars-breadcrumb-user-link">
         <img
           :src="userInfos.avatar || defaultAvatar"
@@ -104,6 +109,17 @@
           <el-dropdown-item command="/401">{{ $t("message.user.dropdown4") }}</el-dropdown-item>
           <el-dropdown-item divided command="clearCache">清空缓存</el-dropdown-item>
           <el-dropdown-item command="logOut">{{ $t("message.user.dropdown5") }}</el-dropdown-item>
+          <!-- 版本信息：控制台（镜像 tag）与接口（Go 进程）并排，用于一眼看出只发布了一半 -->
+          <el-dropdown-item divided disabled class="user-version">
+            <span class="user-version__label">{{ $t("message.user.versionConsole") }}</span>
+            <span class="user-version__value" :title="consoleVersionTip">{{
+              consoleVersionText
+            }}</span>
+          </el-dropdown-item>
+          <el-dropdown-item disabled class="user-version">
+            <span class="user-version__label">{{ $t("message.user.versionApi") }}</span>
+            <span class="user-version__value" :title="apiVersionTip">{{ apiVersionText }}</span>
+          </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -136,6 +152,8 @@ import { logout } from "/@/api/login";
 import { removeCache } from "/@/api/pms/cache";
 import { setLanguage } from "/@/api/cms/setting";
 import { refreshBackEndControlRoutes } from "/@/router/backEnd";
+import { useApiVersion } from "/@/composables/useApiVersion";
+import { useVersionWatcher } from "/@/composables/useVersionWatcher";
 
 export default defineComponent({
   name: "layoutBreadcrumbUser",
@@ -175,6 +193,47 @@ export default defineComponent({
     const currentSiteName = computed(() => {
       return storesSite.currentSite?.name || "默认站点";
     });
+    // 版本信息：控制台版本来自 /admin/version.json（容器启动时写入的镜像 tag），
+    // 接口版本来自 API 的 /api/version。两者属于两条独立发布链，不一致 = 只发布了半边。
+    const apiVersion = useApiVersion();
+    const consoleWatcher = useVersionWatcher();
+    // 镜像 tag 形如 20260915153531-e693224：菜单里只显示短 sha，完整值放 title
+    const shortTag = (v: string) => (v.includes("-") ? v.split("-").pop() || v : v);
+    const consoleVersionText = computed(() =>
+      consoleWatcher.current.value
+        ? shortTag(consoleWatcher.current.value)
+        : t("message.user.versionUnset"),
+    );
+    const consoleVersionTip = computed(() =>
+      consoleWatcher.current.value
+        ? `version.json · ${consoleWatcher.current.value}`
+        : t("message.user.versionTipConsole"),
+    );
+    const apiVersionText = computed(() => {
+      const v = apiVersion.info.value?.version || "";
+      if (apiVersion.failed.value) return t("message.user.versionUnknown");
+      if (!v || v === "dev") return t("message.user.versionUnset");
+      return v;
+    });
+    const apiVersionTip = computed(() => {
+      if (apiVersion.failed.value) return t("message.user.versionTipApiFailed");
+      const v = apiVersion.info.value;
+      if (!v) return t("message.user.versionTipApi");
+      return [
+        v.service || "aicodcms-api",
+        `version=${v.version || "dev"}`,
+        v.commit ? `commit=${v.commit}` : "",
+        v.buildTime ? `buildTime=${v.buildTime}` : "",
+        v.startedAt ? `startedAt=${v.startedAt}` : "",
+        v.goVersion || "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+    });
+    // 展开用户菜单时强制刷一次接口版本：节流是为了省请求，但用户主动看的时候必须是最新的
+    const onUserDropdownVisible = (visible: boolean) => {
+      if (visible) void apiVersion.refresh();
+    };
     // 全屏点击时
     const onScreenfullClick = () => {
       if (!document.fullscreenEnabled) {
@@ -359,6 +418,11 @@ export default defineComponent({
       layoutUserFlexNum,
       defaultAvatar,
       onAvatarError,
+      consoleVersionText,
+      consoleVersionTip,
+      apiVersionText,
+      apiVersionTip,
+      onUserDropdownVisible,
       ...toRefs(state),
     };
   },
@@ -432,5 +496,33 @@ export default defineComponent({
 }
 :deep(.el-badge__content.is-fixed) {
   top: 12px;
+}
+</style>
+
+<!--
+  版本信息行的样式必须放在**非 scoped** 块里：
+  el-dropdown 的菜单默认 teleport 到 body，而 <li> 是 Element Plus 自己渲染的，
+  scoped 的 `[data-v-xxx] .el-dropdown-menu__item` 匹配不到（菜单不在组件子树内），
+  只靠 class 上的 data-v 属性又依赖组件内部实现。class 名带前缀且唯一，不会外泄。
+-->
+<style>
+.user-version {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  cursor: default;
+}
+.user-version__label {
+  color: var(--el-text-color-secondary);
+}
+.user-version__value {
+  margin-left: auto;
+  max-width: 170px;
+  overflow: hidden;
+  color: var(--el-text-color-regular);
+  font-family: var(--el-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

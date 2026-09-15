@@ -84,6 +84,15 @@ export default {
     cmsBlock: "区块管理",
     cmsBlockEdit: "编辑区块",
     loading: "加载中",
+    versionConsole: "控制台",
+    versionApi: "接口",
+    versionUnset: "未配置",
+    versionUnknown: "未知",
+    versionTipConsole:
+      "控制台版本取容器启动时写入的 version.json（= 镜像 tag）；当前没取到，通常是本地开发环境",
+    versionTipApi: "接口版本取 API 的 /api/version（Go 进程当前在跑的那一版）",
+    versionTipApiFailed:
+      "接口版本取不到：/api/version 请求失败（这个环境可能还没部署带该端点的 API）",
   },
   tagsView: {
     refresh: "刷新",
