@@ -87,6 +87,8 @@ export default {
     versionConsole: "控制台",
     versionApi: "接口",
     versionUnset: "未配置",
+    versionDriftHint: "⚠ 两侧版本不一致，可能只发布了半边",
+    versionFailedHint: "⚠ 取不到接口版本，无法判断是否只发布了半边",
     versionUnknown: "未知",
     versionTipConsole:
       "控制台版本取容器启动时写入的 version.json（= 镜像 tag）；当前没取到，通常是本地开发环境",

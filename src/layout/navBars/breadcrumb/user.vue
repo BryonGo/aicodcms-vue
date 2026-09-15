@@ -109,17 +109,24 @@
           <el-dropdown-item command="/401">{{ $t("message.user.dropdown4") }}</el-dropdown-item>
           <el-dropdown-item divided command="clearCache">清空缓存</el-dropdown-item>
           <el-dropdown-item command="logOut">{{ $t("message.user.dropdown5") }}</el-dropdown-item>
-          <!-- 版本信息：控制台（镜像 tag）与接口（Go 进程）并排，用于一眼看出只发布了一半 -->
-          <el-dropdown-item divided disabled class="user-version">
-            <span class="user-version__label">{{ $t("message.user.versionConsole") }}</span>
-            <span class="user-version__value" :title="consoleVersionTip">{{
-              consoleVersionText
-            }}</span>
-          </el-dropdown-item>
-          <el-dropdown-item disabled class="user-version">
-            <span class="user-version__label">{{ $t("message.user.versionApi") }}</span>
-            <span class="user-version__value" :title="apiVersionTip">{{ apiVersionText }}</span>
-          </el-dropdown-item>
+          <!-- 版本信息：控制台（镜像 tag）与接口（Go 进程）的发布链彼此独立，不一致 =
+               只发布了半边。**只在看得出问题时才出现** —— 线上正常时它是隐形的，
+               本地 dev（永远是 dev 占位）也不会天天占着菜单。判定见 versionAlert。 -->
+          <template v-if="versionAlertState">
+            <el-dropdown-item divided disabled class="user-version">
+              <span class="user-version__label">{{ $t("message.user.versionConsole") }}</span>
+              <span class="user-version__value" :title="consoleVersionTip">{{
+                consoleVersionText
+              }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item disabled class="user-version">
+              <span class="user-version__label">{{ $t("message.user.versionApi") }}</span>
+              <span class="user-version__value" :title="apiVersionTip">{{ apiVersionText }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item disabled class="user-version user-version--alert">
+              <span>{{ $t(versionAlertHintKey) }}</span>
+            </el-dropdown-item>
+          </template>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -152,7 +159,7 @@ import { logout } from "/@/api/login";
 import { removeCache } from "/@/api/pms/cache";
 import { setLanguage } from "/@/api/cms/setting";
 import { refreshBackEndControlRoutes } from "/@/router/backEnd";
-import { useApiVersion } from "/@/composables/useApiVersion";
+import { useApiVersion, versionAlert } from "/@/composables/useApiVersion";
 import { useVersionWatcher } from "/@/composables/useVersionWatcher";
 
 export default defineComponent({
@@ -230,6 +237,16 @@ export default defineComponent({
         .filter(Boolean)
         .join(" · ");
     });
+    // 判定逻辑在 useApiVersion.versionAlert 里（纯函数，有单测）—— 它的分支在本地 dev
+    // 一个都走不到（version="dev" + 取不到 version.json），留在组件里等于没验证过。
+    const versionAlertState = computed(() =>
+      versionAlert(consoleWatcher.current.value || "", apiVersion.info.value, apiVersion.failed.value),
+    );
+    const versionAlertHintKey = computed(() =>
+      versionAlertState.value === "drift"
+        ? "message.user.versionDriftHint"
+        : "message.user.versionFailedHint",
+    );
     // 展开用户菜单时强制刷一次接口版本：节流是为了省请求，但用户主动看的时候必须是最新的
     const onUserDropdownVisible = (visible: boolean) => {
       if (visible) void apiVersion.refresh();
@@ -422,6 +439,8 @@ export default defineComponent({
       consoleVersionTip,
       apiVersionText,
       apiVersionTip,
+      versionAlertState,
+      versionAlertHintKey,
       onUserDropdownVisible,
       ...toRefs(state),
     };
@@ -515,6 +534,12 @@ export default defineComponent({
 }
 .user-version__label {
   color: var(--el-text-color-secondary);
+}
+.user-version--alert {
+  color: var(--el-color-warning);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: normal;
 }
 .user-version__value {
   margin-left: auto;

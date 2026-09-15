@@ -87,6 +87,8 @@ export default {
     versionConsole: "Console",
     versionApi: "API",
     versionUnset: "not set",
+    versionDriftHint: "⚠ Version mismatch — the deploy may be half-done",
+    versionFailedHint: "⚠ API version unavailable — cannot tell if the deploy is half-done",
     versionUnknown: "unknown",
     versionTipConsole:
       "Console version comes from version.json written at container start (= image tag); unavailable here, usually a local dev environment",

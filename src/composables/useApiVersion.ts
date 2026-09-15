@@ -21,6 +21,37 @@ export type ApiVersionInfo = {
   goVersion?: string;
 };
 
+/**
+ * versionAlert 判定「发布自检」那两行该不该出现。
+ *
+ * 抽成纯函数是为了能单测 —— 它的分支在本地开发环境下**一个都走不到**
+ * （dev 里 /api/version 返回 version="dev"、/admin/version.json 又取不到），
+ * 只靠肉眼看界面等于没验证。
+ *
+ * 返回：
+ *   "failed"  接口探测失败 —— 无从判断，值得提醒
+ *   "drift"   两侧都拿到具体版本，但 commit 对不上 —— 只发布了半边
+ *   ""        正常，整块隐藏
+ *
+ * 刻意把 dev / 空值判成**正常**而不是异常：它们只说明"判定不了"。
+ * 报出来只会造成狼来了 —— 本地开发每次打开菜单都弹一个告警，很快就没人看了。
+ */
+export function versionAlert(
+  consoleTag: string,
+  info: ApiVersionInfo | null,
+  failed: boolean,
+): "" | "drift" | "failed" {
+  if (failed) return "failed";
+  const tag = (consoleTag || "").trim();
+  const version = (info?.version || "").trim();
+  const commit = (info?.commit || "").trim();
+  if (!tag || !version || version === "dev" || !commit) return "";
+  // 镜像 tag 形如 20260915153531-e693224，尾段是短 sha；与接口 commit 互相前缀匹配
+  const tagSha = tag.includes("-") ? (tag.split("-").pop() || tag) : tag;
+  const same = tagSha.startsWith(commit) || commit.startsWith(tagSha);
+  return same ? "" : "drift";
+}
+
 const info = ref<ApiVersionInfo | null>(null);
 const failed = ref(false);
 const loading = ref(false);
