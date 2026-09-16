@@ -15,16 +15,22 @@ const ok = (version: string, commit: string) => ({ version, commit });
 
 describe("versionAlert", () => {
   it("两侧一致 → 隐藏", () => {
-    expect(versionAlert("20260915153531-e693224", ok("20260915153531-e693224", "e693224"), false)).toBe("");
+    expect(
+      versionAlert("20260915153531-e693224", ok("20260915153531-e693224", "e693224"), false),
+    ).toBe("");
   });
 
   it("tag 尾段与 commit 互相前缀匹配也算一致", () => {
     // 镜像 tag 是短 sha，接口可能给完整 sha —— 不能因为长度不同就误报
-    expect(versionAlert("20260915153531-e693224", ok("0.9.0", "e693224abcdef1234"), false)).toBe("");
+    expect(versionAlert("20260915153531-e693224", ok("0.9.0", "e693224abcdef1234"), false)).toBe(
+      "",
+    );
   });
 
   it("commit 对不上 → drift", () => {
-    expect(versionAlert("20260915153531-e693224", ok("20260915153531-aaaaaaa", "aaaaaaa"), false)).toBe("drift");
+    expect(
+      versionAlert("20260915153531-e693224", ok("20260915153531-aaaaaaa", "aaaaaaa"), false),
+    ).toBe("drift");
   });
 
   it("接口探测失败 → failed（优先级最高）", () => {
@@ -35,6 +41,16 @@ describe("versionAlert", () => {
 
   it("接口 version=dev → 隐藏（本地开发，判定不了 ≠ 出问题）", () => {
     expect(versionAlert("20260915153531-e693224", ok("dev", "e693224"), false)).toBe("");
+  });
+
+  it("本地回退版本 dev-<sha>[-dirty] → 隐藏（两侧都算占位）", () => {
+    // API 侧：dev 版本现在带短 sha，只判等号会让 consoleTag="dev" 配它算出 drift
+    expect(
+      versionAlert("20260915153531-e693224", ok("dev-a6f28b3b-dirty", "a6f28b3b"), false),
+    ).toBe("");
+    expect(versionAlert("20260915153531-e693224", ok("dev-a6f28b3b", "a6f28b3b"), false)).toBe("");
+    // 控制台侧：本地 version.json 也可能是 dev 前缀
+    expect(versionAlert("dev-8ca7256-dirty", ok("1.0.0", "e693224"), false)).toBe("");
   });
 
   it("任一侧缺值 → 隐藏", () => {

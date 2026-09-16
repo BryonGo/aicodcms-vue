@@ -45,9 +45,14 @@ export function versionAlert(
   const tag = (consoleTag || "").trim();
   const version = (info?.version || "").trim();
   const commit = (info?.commit || "").trim();
-  if (!tag || !version || version === "dev" || !commit) return "";
+  // 占位版本一律当「判定不了」。除了字面量 "dev"，还要认本地回退出来的
+  // dev-<短 sha>[-dirty]（见 aicodcms docs/VERSION-CONTRACT.md 第 6 节）——
+  // 只判等号的话，本地 consoleTag="dev" 配 version="dev-a6f28b3b-dirty" 会算出
+  // drift，于是本地每开一次菜单都弹一个"只发布了半边"的假告警。
+  const placeholder = (s: string) => !s || s.startsWith("dev");
+  if (placeholder(tag) || placeholder(version) || !commit) return "";
   // 镜像 tag 形如 20260915153531-e693224，尾段是短 sha；与接口 commit 互相前缀匹配
-  const tagSha = tag.includes("-") ? (tag.split("-").pop() || tag) : tag;
+  const tagSha = tag.includes("-") ? tag.split("-").pop() || tag : tag;
   const same = tagSha.startsWith(commit) || commit.startsWith(tagSha);
   return same ? "" : "drift";
 }

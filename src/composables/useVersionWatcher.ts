@@ -97,7 +97,10 @@ async function check(force = false) {
     if (!res.ok) return;
     const data = (await res.json()) as { version?: string };
     const version = String(data?.version || "");
-    if (!version || version === "dev") return;
+    // `dev*` = 本地开发（dev-<短 sha>[-dirty]，见 vite.config 的 devVersionPlugin）。
+    // 必须按**前缀**判而不是等号：dev 版本带了 sha 之后，本地每重启一次 dev server
+    // 就会让 version 变一次，用等号判会变成"每重启一次弹一次更新条"。
+    if (!version || version.startsWith("dev")) return;
     if (!current.value) {
       current.value = version;
       return;
