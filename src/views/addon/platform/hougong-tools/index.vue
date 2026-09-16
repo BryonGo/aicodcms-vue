@@ -240,6 +240,15 @@
             :placeholder="$t('message.sdk.platform.phToolCoverBefore')"
           />
         </el-form-item>
+        <el-form-item :label="$t('message.sdk.platform.colToolCoverVideo')">
+          <el-input
+            v-model="toolForm.coverVideo"
+            :placeholder="$t('message.sdk.platform.phToolCoverVideo')"
+          />
+          <div style="color: var(--el-text-color-secondary); font-size: 12px; line-height: 1.5">
+            {{ $t('message.sdk.platform.hintToolCoverVideo') }}
+          </div>
+        </el-form-item>
         <el-form-item :label="$t('message.sdk.platform.colToolBadge')">
           <el-input v-model="toolForm.badge" maxlength="8" show-word-limit :placeholder="$t('message.sdk.platform.phToolBadge')" />
         </el-form-item>
@@ -507,6 +516,9 @@ const emptyTool = () => ({
   // 前台会用图标 + 渐变兜底，不会出现空框。
   cover: "",
   coverBefore: "",
+  // 卡片循环预览视频（mp4）：配了它，前台效果卡进视口就静音自动播，cover 作封面帧；
+  // 不配就是静态图，前端两条路都支持。
+  coverVideo: "",
   badge: "",
   // 标签：效果列表的标签行按它筛（"全部 / 热门 / 脱衣 / 全脱 / 护士装…"）。
   tags: "",
@@ -615,6 +627,7 @@ function openTool(row?: HougongTool) {
       icon: row.icon,
       cover: row.cover || "",
       coverBefore: row.coverBefore || "",
+      coverVideo: row.coverVideo || "",
       badge: row.badge || "",
       tags: row.tags || "",
       input: row.input || "image",
@@ -647,6 +660,7 @@ async function saveTool() {
     icon: toolForm.icon,
     cover: toolForm.cover.trim(),
     coverBefore: toolForm.coverBefore.trim(),
+    coverVideo: toolForm.coverVideo.trim(),
     badge: toolForm.badge.trim(),
     tags: toolForm.tags.trim(),
     engine: toolForm.engine,

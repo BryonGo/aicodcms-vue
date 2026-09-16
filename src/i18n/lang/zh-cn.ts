@@ -568,6 +568,7 @@ export default {
       syncFailed: "同步失败（该协议可能不支持拉取，或上游凭据/网络异常）",
       colToolCover: "封面图",
       colToolCoverBefore: "对比原图",
+      colToolCoverVideo: "卡片预览视频",
       colToolBadge: "角标",
       colToolTags: "标签",
       toolsEmptyOnSite:
@@ -579,6 +580,9 @@ export default {
       phToolCoverTpl: "留空=用所属工具的封面",
       phToolCoverBefore: "处理前的原图。与封面图成对时前台出对比滑块",
       phToolCoverBeforeTpl: "留空=用所属工具的对比原图",
+      phToolCoverVideo: "hougong/media/video/xxx.mp4 或 https://…",
+      hintToolCoverVideo:
+        "填了这段视频，前台效果卡会在进入视口时静音循环播放（封面图作为它的封面帧）；留空则一直是静态图。",
       phToolBadge: "热门 / 新品 / 精选（留空不显示）",
       phToolTags: "脱衣,全脱,上半身,下半身（逗号分隔；效果列表的标签行按它筛）",
       phToolTagsTpl: "口交,深喉（逗号分隔；效果列表的标签行按它筛）",

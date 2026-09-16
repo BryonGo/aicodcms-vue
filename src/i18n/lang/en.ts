@@ -537,6 +537,7 @@ export default {
       syncFailed: "Sync failed (protocol may not support discovery, or upstream error)",
       colToolCover: "Cover image",
       colToolCoverBefore: "Before image",
+      colToolCoverVideo: "Card preview video",
       colToolBadge: "Badge",
       colToolTags: "Tags",
       toolsEmptyOnSite:
@@ -548,6 +549,9 @@ export default {
       phToolCoverTpl: "empty = use the parent tool's cover",
       phToolCoverBefore: "The pre-process original. Paired with the cover -> the front end shows a compare slider",
       phToolCoverBeforeTpl: "empty = use the parent tool's before image",
+      phToolCoverVideo: "hougong/media/video/xxx.mp4 or https://…",
+      hintToolCoverVideo:
+        "With a video here, the front-end effect card plays it muted and looping once it enters the viewport (the cover image acts as its poster). Empty keeps the static image.",
       phToolBadge: "Hot / New / Featured (empty = hidden)",
       phToolTags: "undress,full,upper-body,lower-body (comma separated; the effects list filters by these)",
       phToolTagsTpl: "blowjob,deep-throat (comma separated; the effects list filters by these)",

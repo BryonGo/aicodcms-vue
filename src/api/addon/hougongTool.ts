@@ -35,6 +35,13 @@ export interface HougongTool {
    * 桶私有 + 防盗链，地址由服务端在读取时现算；前端拿到的是限时地址，别持久化。
    */
   coverBefore: string;
+  /**
+   * 卡片循环预览视频（mp4）。配了它，前台效果卡在进入视口时静音自动播放，
+   * cover 同时作为它的封面帧；留空就是静态图。
+   *
+   * 与 cover/coverBefore 同一套存法：对象 key 或完整 URL，读取时由服务端现算地址。
+   */
+  coverVideo: string;
   /** 角标文案（热门/新品/精选…）；留空不显示。 */
   badge: string;
   /**
@@ -114,6 +121,8 @@ export interface ToolInput {
    * 桶私有 + 防盗链，地址由服务端在读取时现算；前端拿到的是限时地址，别持久化。
    */
   coverBefore: string;
+  /** 卡片循环预览视频（mp4）；留空=卡片只出静态图。见 HougongTool.coverVideo。 */
+  coverVideo: string;
   /** 角标文案（热门/新品/精选…）；留空不显示。 */
   badge: string;
   /** 标签（逗号分隔）。 */
