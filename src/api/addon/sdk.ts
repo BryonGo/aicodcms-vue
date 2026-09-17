@@ -203,8 +203,13 @@ export interface AppstoreRefundListParams extends PageParams {
 export interface NotifyLogItem {
   id: number;
   order_id: number;
+  // 支付回调地址：**订单总表**上的 `order.pay_notify_url`（后端按 order_id 批量补上）。
+  // 日志表 `order_notify_log` 自己没有这一列 —— 它只有 notify_time/notify_state/notify_result。
+  // 此前后端 DTO 里也没有这个字段，所以这一列恒为空。
   notify_url: string;
-  notify_content: string;
+  // 响应内容：后端字段与 DB 列都叫 `notify_result`。
+  // 此前这里写 `notify_content`（后端没有这个字段）→ 该列永远空白。
+  notify_result: string;
   // 后端字段是 `notify_state`（`api/v1/sdk/order.go` 的 NotifyLogListItem）。
   // 此前这里写 `notify_status`，模板里按 `row.notify_status === 1` 判成功，
   // undefined === 1 恒假 → 该列永远显示"失败"。

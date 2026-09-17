@@ -45,7 +45,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="notify_content"
+        prop="notify_result"
         :label="$t('message.sdk.order.notifyResponse')"
         min-width="220"
         show-overflow-tooltip
