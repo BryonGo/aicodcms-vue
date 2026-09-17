@@ -262,7 +262,12 @@ export interface LoginLogItem {
   app_id: number;
   ip: string;
   device_id: string;
-  login_type: number;
+  /**
+   * 登录方式。后端字段是 `op_type`（`api/v1/log/log.go` 的 LoginLogListItem）。
+   * 此前这里写 `login_type` —— 后端没有这个字段，`undefined` 让该列永远显示 Unknown。
+   * 取值的语义由页面上的 loginTypeText/loginTypeTag 映射。
+   */
+  op_type: number;
   created_at: number;
 }
 
@@ -331,31 +336,62 @@ export function deleteDeveloper(data: { ids: number[] }) {
 }
 
 // ==================== 用户游戏关联 ====================
+/**
+ * 用户-游戏角色关联列表。
+ *
+ * ⚠️ 此前这两个函数都指向 `/account/game-users`（**账号维度**接口），有双重问题：
+ *   1. 那个接口 `uid` 是必填（`v:"required#用户ID不能为空"`），而页面打开时不传
+ *      → 实测 `code=51 用户ID不能为空`，页面直接空；且页面 loadData 只有 finally、
+ *      没有 catch，这个失败连提示都没有；
+ *   2. 它的行类型是 `UserGameItem`，只有 2/8 列与页面表格对得上 → 另外 6 列恒空。
+ *
+ * 后端**另有一个字段完全对得上的** `/addon/sdk/game-user/list`
+ * （行类型 `GameUserListItem` 恰好覆盖页面全部 8 列），此前零前端调用者。
+ * 这里改指向它。
+ */
 export function getGameUserList(params: GameUserListParams) {
-  return request({ url: "/api/v1/addon/sdk/account/game-users", method: "get", params });
+  return request({ url: "/api/v1/addon/sdk/game-user/list", method: "get", params });
 }
 export function getGameUserDetail(params: { id: number }) {
-  return request({ url: "/api/v1/addon/sdk/account/game-users", method: "get", params });
+  return request({ url: "/api/v1/addon/sdk/game-user/get-edit", method: "get", params });
 }
 
 // ==================== Google 退款 ====================
+/**
+ * Google Play 退款记录列表。
+ *
+ * 此前这里是 **stub**（`void params; return Promise.resolve({list:[],total:0})`）——
+ * 页面从不发请求，整页永远为空**而且不报错**（返回的是"成功的空结果"），
+ * 所以既没人发现、也没有任何提示。后端 `/refund/google/list` 一直在活路由上。
+ */
 export function getGoogleVoidedList(params: GoogleVoidedListParams) {
-  void params;
-  return Promise.resolve({ data: { list: [], total: 0 } });
+  return request({ url: "/api/v1/addon/sdk/refund/google/list", method: "get", params });
 }
 
 // ==================== AppStore 退款 ====================
+/**
+ * App Store 退款记录列表。
+ *
+ * 与上面的 Google 版同源：此前也是 stub，整页恒空且静默。
+ * 后端 `/refund/appstore/list` 一直在活路由上。
+ */
 export function getAppstoreRefundList(params: AppstoreRefundListParams) {
-  void params;
-  return Promise.resolve({ data: { list: [], total: 0 } });
+  return request({ url: "/api/v1/addon/sdk/refund/appstore/list", method: "get", params });
 }
 
 // ==================== 通知日志 ====================
+/**
+ * 发货通知日志列表。
+ *
+ * ⚠️ 这两个函数此前**都指向 `/login-log/list`**（登录日志）—— 列表和详情取的是另一张表，
+ * 而 `/notify-log/list`、`/notify-log/get-edit` 在后端一直是活路由、**零调用者**。
+ * 表现：通知日志页显示的是登录日志数据，列全空/错位。
+ */
 export function getNotifyLogList(params: NotifyLogListParams) {
-  return request({ url: "/api/v1/addon/sdk/login-log/list", method: "get", params });
+  return request({ url: "/api/v1/addon/sdk/notify-log/list", method: "get", params });
 }
 export function getNotifyLogDetail(params: { id: number }) {
-  return request({ url: "/api/v1/addon/sdk/login-log/list", method: "get", params });
+  return request({ url: "/api/v1/addon/sdk/notify-log/get-edit", method: "get", params });
 }
 
 // ==================== 封禁 ====================

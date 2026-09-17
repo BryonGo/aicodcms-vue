@@ -38,8 +38,8 @@
       />
       <el-table-column :label="$t('message.sdk.game.loginLogType')" width="110" align="center">
         <template #default="{ row }">
-          <el-tag :type="loginTypeTag(row.login_type)" size="small" effect="plain">{{
-            loginTypeText(row.login_type)
+          <el-tag :type="loginTypeTag(row.op_type)" size="small" effect="plain">{{
+            loginTypeText(row.op_type)
           }}</el-tag>
         </template>
       </el-table-column>
