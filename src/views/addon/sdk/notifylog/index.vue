@@ -32,12 +32,12 @@
       <el-table-column :label="$t('message.common.colStatus')" width="100" align="center">
         <template #default="{ row }">
           <el-tag
-            :type="row.notify_status === 1 ? 'success' : 'danger'"
+            :type="row.notify_state === 1 ? 'success' : 'danger'"
             size="small"
             effect="plain"
           >
             {{
-              row.notify_status === 1
+              row.notify_state === 1
                 ? $t("message.sdk.order.notifySuccess")
                 : $t("message.pms_upload.failed")
             }}

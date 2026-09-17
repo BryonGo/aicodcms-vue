@@ -44,7 +44,9 @@ export interface CompletedOrderItem {
   id: number;
   uid: number;
   app_id: number;
-  transaction_id: string;
+  // 平台订单号：后端（entity.OrderCompleted）的 json tag 就是 `platform_order_id`。
+  // 此前这里写 `transaction_id`，去重核对页那一列永远为空。
+  platform_order_id: string;
   product_id: string;
   created_at: number;
   deleted_at: number;

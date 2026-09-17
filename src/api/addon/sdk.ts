@@ -185,7 +185,10 @@ export interface AppstoreRefundItem {
   id: number;
   uid: number;
   app_id: number;
-  transaction_id: string;
+  // 平台订单号：与后端 `addon_sdk_appstore_refund_order.platform_order_id` 同名。
+  // 此前这里写 `transaction_id`、后端下发 `original_tx_id`，三个名字指同一个东西，
+  // 结果是该列永远渲染空单元格（Vue 取不到 key 不报错）。现统一跟 DB 列走。
+  platform_order_id: string;
   cancellation_date: string;
   created_at: number;
 }
@@ -202,7 +205,10 @@ export interface NotifyLogItem {
   order_id: number;
   notify_url: string;
   notify_content: string;
-  notify_status: number;
+  // 后端字段是 `notify_state`（`api/v1/sdk/order.go` 的 NotifyLogListItem）。
+  // 此前这里写 `notify_status`，模板里按 `row.notify_status === 1` 判成功，
+  // undefined === 1 恒假 → 该列永远显示"失败"。
+  notify_state: number;
   created_at: number;
 }
 

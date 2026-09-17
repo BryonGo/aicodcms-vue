@@ -66,7 +66,7 @@
             <el-table-column prop="app_id" label="AppID" width="90" align="center" />
             <el-table-column prop="uid" label="UID" width="130" align="center" />
             <el-table-column
-              prop="transaction_id"
+              prop="platform_order_id"
               :label="$t('message.sdk.order.transactionId')"
               min-width="240"
               show-overflow-tooltip

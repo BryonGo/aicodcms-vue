@@ -18,7 +18,7 @@
     >
       <el-table-column prop="uid" label="UID" width="130" align="center" />
       <el-table-column
-        prop="transaction_id"
+        prop="platform_order_id"
         :label="$t('message.sdk.order.transactionId')"
         min-width="220"
         show-overflow-tooltip
