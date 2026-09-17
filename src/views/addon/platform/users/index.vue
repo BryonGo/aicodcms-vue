@@ -268,11 +268,11 @@
           align="right"
         >
           <template #default="{ row }"
-            ><span class="pf-mono">{{ row.balanceAfter }}</span></template
+            ><span class="pf-mono">{{ row.balance_after }}</span></template
           >
         </el-table-column>
         <el-table-column
-          prop="reason"
+          prop="note"
           :label="$t('message.sdk.platform.colReason')"
           min-width="140"
           show-overflow-tooltip

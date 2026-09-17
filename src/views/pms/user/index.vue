@@ -123,7 +123,7 @@
             <el-table-column :label="$t('message.pms.user.colRole')" min-width="160">
               <template #default="{ row }">
                 <el-tag
-                  v-for="(r, i) in row.roleInfo || []"
+                  v-for="(r, i) in row.role_info || []"
                   :key="'r-' + i"
                   size="small"
                   type="info"
@@ -131,7 +131,7 @@
                   style="margin-right: 4px"
                   >{{ r.name }}</el-tag
                 >
-                <span v-if="!row.roleInfo?.length" class="text-muted">—</span>
+                <span v-if="!row.role_info?.length" class="text-muted">—</span>
               </template>
             </el-table-column>
             <el-table-column

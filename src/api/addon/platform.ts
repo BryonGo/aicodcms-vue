@@ -435,8 +435,10 @@ export interface AdminWalletLedgerItem {
   id: string;
   asset: string;
   amount: number;
-  balanceAfter: number;
-  reason: string;
+  /** 该笔之后的余额快照。后端字段是 `balance_after`（credit_ledger.balance_after）。 */
+  balance_after: number;
+  /** 记账备注（如 "daily:" / "invite:" 前缀）。后端字段是 `note`（credit_ledger.note）。 */
+  note: string;
   createdAt: string;
 }
 
