@@ -58,6 +58,24 @@
               active-value="1"
               inactive-value="0"
             />
+            <!-- 密钥：加密存储、读回不回值；留空表示不修改（否则运营点一次保存就把密钥删了） -->
+            <el-input
+              v-else-if="item.type === 'password'"
+              v-model="settingDraft[item.key]"
+              type="password"
+              show-password
+              class="ap-settings-input"
+              :placeholder="item.configured ? '已配置（留空不改）' : '未配置'"
+            />
+            <!-- JSON：换算率覆盖这类结构化配置，用多行框，服务端会校验能否解析 -->
+            <el-input
+              v-else-if="item.type === 'json'"
+              v-model="settingDraft[item.key]"
+              type="textarea"
+              :rows="2"
+              class="ap-settings-input"
+              :placeholder="item.default || '{}'"
+            />
             <el-input
               v-else
               v-model="settingDraft[item.key]"
@@ -1184,6 +1202,11 @@ async function moveOrder(index: number, dir: "up" | "down") {
       const changed: Record<string, string> = {};
       for (const item of aiSettings.value) {
         const v = settingDraft[item.key];
+        if (item.secret) {
+          // 密钥：空 = 不改（其"当前值"本来就不回传，没法比对）
+          if (v !== undefined && String(v).trim() !== "") changed[item.key] = String(v);
+          continue;
+        }
         if (v !== undefined && String(v) !== String(item.value)) changed[item.key] = String(v);
       }
       if (Object.keys(changed).length === 0) {
@@ -1194,6 +1217,11 @@ async function moveOrder(index: number, dir: "up" | "down") {
       try {
         await saveAiSettings(changed);
         ElMessage.success("设置已保存");
+        // 密钥项保存后清掉草稿：不回显是刻意的，留在输入框里等于把它变成明文展示。
+        for (const key of Object.keys(changed)) {
+          const item = aiSettings.value.find((x) => x.key === key);
+          if (item?.secret) settingDraft[key] = "";
+        }
         await loadSettings();
       } catch (e: any) {
         ElMessage.error(e?.message || "保存失败");

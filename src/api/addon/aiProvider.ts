@@ -281,8 +281,12 @@ export function moveAiModelOrder(kind: string, key: string, dir: "up" | "down") 
 export interface AiSettingItem {
   key: string;
   label: string;
-  /** number / switch / text */
+  /** number / switch / text / json / password */
   type: string;
+  /** 写入加密区（读取不回值，只回 configured） */
+  secret?: boolean;
+  /** 仅 secret 项：是否已配置 */
+  configured?: boolean;
   /** 页面上的分组标题（计费 / 会话归档） */
   group: string;
   /** 当前值（服务端已用默认值兜底） */
