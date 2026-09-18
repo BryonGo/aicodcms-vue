@@ -81,7 +81,7 @@
               <el-button link type="primary" size="small" :loading="busyId === row.id" @click.stop="onProbe(row)">
                 {{ t("btnProbe") }}
               </el-button>
-              <el-button link type="primary" size="small" :loading="busyId === row.id" @click.stop="onSync(row)">
+              <el-button link type="primary" size="small" :loading="busyId === row.id" @click.stop="onPull(row)">
                 {{ t("btnSync") }}
               </el-button>
               <el-button link type="danger" size="small" @click.stop="onDeleteProvider(row)">
@@ -190,6 +190,7 @@
       <el-radio-group v-model="orderKind" class="ap-order-kind" @change="loadOrder">
         <el-radio-button value="image">{{ t("orderKindImage") }}</el-radio-button>
         <el-radio-button value="video">{{ t("orderKindVideo") }}</el-radio-button>
+        <el-radio-button value="chat">{{ t("orderKindChat") }}</el-radio-button>
       </el-radio-group>
       <div class="ap-hint">{{ t("orderHint") }}</div>
       <el-table :data="orderList" v-loading="orderLoading" size="small" border max-height="420">
@@ -222,8 +223,77 @@
       </el-table>
     </el-dialog>
 
+    <!-- 拉取模型：拉回来的候选**不落库**，勾选之后才写入 -->
+    <el-dialog v-model="pullDialog" :title="t('pullTitle')" width="820px">
+      <el-alert type="info" :closable="false" show-icon class="ap-alert" :title="t('pullHint')" />
+      <div class="ap-pull-toolbar">
+        <el-input
+          v-model="pullSearch"
+          clearable
+          :placeholder="t('pullSearchPh')"
+          style="max-width: 320px"
+        />
+        <span class="ap-muted">{{ t("pullSelectedCount", { n: pullSelection.length }) }}</span>
+        <el-button size="small" @click="selectFiltered">{{ t("pullSelectFiltered") }}</el-button>
+        <el-button size="small" :disabled="pullSelection.length === 0" @click="clearPullSelection">
+          {{ t("pullClearSelection") }}
+        </el-button>
+      </div>
+      <el-table
+        ref="pullTableRef"
+        :data="filteredPullItems"
+        v-loading="pullLoading"
+        row-key="upstream_id"
+        border
+        size="small"
+        max-height="420"
+        :empty-text="t('pullEmpty')"
+        @selection-change="onPullSelectionChange"
+      >
+        <el-table-column type="selection" width="46" reserve-selection />
+        <el-table-column :label="t('pullColLabel')" min-width="180" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ row.label || row.upstream_id }}
+            <el-tag v-if="row.exists" size="small" effect="plain" class="ap-tag">
+              {{ t("pullExistsTag") }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="upstream_id" :label="t('pullColUpstream')" min-width="220" show-overflow-tooltip />
+        <el-table-column :label="t('pullColContext')" width="130" align="right">
+          <template #default="{ row }">
+            <span v-if="row.context_window">{{ row.context_window.toLocaleString() }}</span>
+            <span v-else class="ap-muted">-</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="t('pullColOutput')" width="120" align="right">
+          <template #default="{ row }">
+            <span v-if="row.max_output">{{ row.max_output.toLocaleString() }}</span>
+            <span v-else class="ap-muted">-</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <!-- 全量同步是次要动作：它会标记缺失、进而自动下线，不该和「写入选中」平级 -->
+        <el-tooltip :content="t('pullFullSyncHint')" placement="top">
+          <el-button link type="warning" :loading="syncing" @click="onFullSync">
+            {{ t("pullFullSync") }}
+          </el-button>
+        </el-tooltip>
+        <el-button @click="pullDialog = false">{{ t("btnCancel") }}</el-button>
+        <el-button
+          type="primary"
+          :loading="pullWriting"
+          :disabled="pullSelection.length === 0"
+          @click="writeSelected"
+        >
+          {{ t("pullWriteSelected") }}
+        </el-button>
+      </template>
+    </el-dialog>
+
     <!-- 供应商表单 -->
-    <el-dialog v-model="providerDialog" :title="providerForm.id ? t('btnEdit') : t('btnNewProvider')" width="640px">
+    <el-dialog v-model="providerDialog" :title="providerDialogTitle" width="640px">
       <el-form :model="providerForm" label-width="150px" label-position="right">
         <el-form-item :label="t('colName')" required>
           <el-input v-model="providerForm.name" :placeholder="t('phProviderName')" />
@@ -298,6 +368,7 @@
           <el-select v-model="modelForm.kind" style="width: 100%">
             <el-option label="image" value="image" />
             <el-option label="video" value="video" />
+            <el-option label="chat" value="chat" />
           </el-select>
         </el-form-item>
         <el-form-item :label="t('colState')">
@@ -322,7 +393,43 @@
         <el-form-item :label="t('colSort')">
           <el-input-number v-model="modelForm.sort" :min="0" />
         </el-form-item>
-        <el-form-item :label="t('colCapabilities')">
+        <template v-if="modelForm.kind === 'chat'">
+          <el-divider content-position="left">{{ t("colKind") }} · chat</el-divider>
+          <el-form-item :label="t('colContextWindow')">
+            <el-input-number v-model="capContextWindow" :min="0" :step="1024" controls-position="right" />
+            <div class="ap-hint">{{ t("hintContextWindow") }}</div>
+          </el-form-item>
+          <el-form-item :label="t('colMaxOutput')">
+            <el-input-number v-model="capMaxOutput" :min="0" :step="1024" controls-position="right" />
+            <div class="ap-hint">{{ t("hintMaxOutput") }}</div>
+          </el-form-item>
+          <el-form-item :label="t('colReasoningEfforts')">
+            <el-select
+              v-model="capReasoningEfforts"
+              multiple
+              filterable
+              allow-create
+              default-first-option
+              :reserve-keyword="false"
+              :placeholder="t('phReasoningEfforts')"
+              style="width: 100%"
+            />
+            <div class="ap-hint">{{ t("hintReasoning") }}</div>
+          </el-form-item>
+          <el-form-item :label="t('colReasoningDefault')">
+            <el-select
+              v-model="capReasoningDefault"
+              clearable
+              :disabled="capReasoningEfforts.length === 0"
+              :placeholder="t('reasoningDefaultNone')"
+              style="width: 100%"
+            >
+              <el-option v-for="e in capReasoningEfforts" :key="e" :label="e" :value="e" />
+            </el-select>
+            <div class="ap-hint">{{ t("hintChatCaps") }}</div>
+          </el-form-item>
+        </template>
+        <el-form-item :label="t('secAdvancedCaps')">
           <el-input v-model="capabilitiesText" type="textarea" :rows="4" placeholder='{"parameters":[...]}' />
           <div class="ap-hint">{{ t("hintJson") }}</div>
         </el-form-item>
@@ -348,6 +455,8 @@ import {
   saveAiProvider,
   deleteAiProvider,
   probeAiProvider,
+  pullAiProviderModels,
+  importAiProviderModels,
   syncAiProvider,
   listAiModels,
   saveAiModel,
@@ -357,6 +466,7 @@ import {
   AiProviderItem,
   AiModelItem,
   AiModelEntry,
+  AiPullItem,
 } from "/@/api/addon/aiProvider";
 
 // 后台「AI 供应商与模型」页面。
@@ -420,7 +530,14 @@ export default defineComponent({
       timeout_ms: 300000,
       remark: "",
       has_credential: false,
+      // 编辑时从列表接口带过来，保存时原样回传（后端据此判有没有人抢先改过）。
+      revision: 0,
     });
+
+    /** 弹窗标题带上 id：id 是不可编辑的（它是模型与定价引用的名字），摆在标题里让人看得见。 */
+    const providerDialogTitle = computed(() =>
+      providerForm.id ? `${t("btnEdit")} #${providerForm.id}` : t("btnNewProvider"),
+    );
 
     const modelForm = reactive({
       id: 0,
@@ -440,6 +557,17 @@ export default defineComponent({
       output_format: "",
       sort: 0,
     });
+
+    // 文本模型的能力参数：这几个键有固定含义，单独做表单；其余键留在 JSON 框里。
+    // 两边**不重叠**（打开时从 capabilities 里摘出来、保存时再合回去），
+    // 所以不会出现"改了 JSON 又被表单覆盖"这种说不清谁赢的情况（表单区在模板里）。
+    const capContextWindow = ref(0);
+    const capMaxOutput = ref(0);
+    const capReasoningEfforts = ref<string[]>([]);
+    const capReasoningDefault = ref("");
+
+    /** 有固定表单的 capabilities 键：摘出来之后 JSON 框里只剩「其它」。 */
+    const STRUCTURED_CAP_KEYS = ["contextWindow", "maxOutput", "reasoning"];
 
     const loadProviders = async () => {
       loading.value = true;
@@ -491,6 +619,8 @@ export default defineComponent({
           timeout_ms: row.timeout_ms || 300000,
           remark: row.remark,
           has_credential: row.has_credential,
+          // 编辑时的版本号：保存必须回传它，否则后端拒绝（见 aiProvider.ts 的注释）。
+          revision: row.revision || 0,
         });
       } else {
         Object.assign(providerForm, {
@@ -504,12 +634,48 @@ export default defineComponent({
           timeout_ms: 300000,
           remark: "",
           has_credential: false,
+          revision: 0,
         });
       }
       providerDialog.value = true;
     };
 
+    /**
+     * 密钥形态的前端预检（与后端 providerreg.validateCredential 同一套判据）。
+     *
+     * 为什么前端也要判一遍：密钥是**只写**字段，写进去就再也看不到明文，
+     * 粘错的代价是运行时 401 而不是一句提示。放在提交前能当场说清楚错在哪。
+     * 判据刻意收窄 —— 很多中继站的密钥本身就是 base64，结尾带 `=` 填充，
+     * 只按"有没有等号"判会把真密钥当粘错。
+     */
+    const credentialProblem = (raw: string): string | null => {
+      const s = (raw || "").trim(); // 后端写库前也 trim，两端保持一致
+      if (!s) return null;
+      for (let i = 0; i < s.length; i++) {
+        const c = s.charCodeAt(i);
+        if (c < 0x21 || c > 0x7e) return t("keyFormatBad");
+      }
+      if (s.startsWith("export ")) return t("keyFormatBad");
+      const m = s.match(/^([A-Z0-9_]+)=(.+)$/);
+      if (m && m[1].includes("_") && /^[A-Za-z0-9"'/]/.test(m[2])) return t("keyFormatBad");
+      return null;
+    };
+
+    /**
+     * 后端版本冲突的判定：认**错误码** 42101（providerreg.CodeProviderStale）。
+     *
+     * 刻意不去匹配错误文案（"已被他人修改"）：文案会改、会翻译，一旦匹配不上
+     * 表现就是「冲突时什么都不提示」—— 正好是这段保护要消灭的现象。
+     */
+    const PROVIDER_STALE_CODE = 42101;
+    const isRevisionConflict = (e: any) => e?.code === PROVIDER_STALE_CODE;
+
     const onSaveProvider = async () => {
+      const bad = credentialProblem(providerForm.credential);
+      if (bad) {
+        ElMessage.error(bad);
+        return;
+      }
       saving.value = true;
       try {
         await saveAiProvider({
@@ -523,12 +689,22 @@ export default defineComponent({
           enabled: providerForm.enabled,
           timeout_ms: providerForm.timeout_ms,
           remark: providerForm.remark,
+          // 新建不传；更新必须传（后端不带就直接拒绝）。
+          revision: providerForm.id ? providerForm.revision : undefined,
         });
         ElMessage.success(t("saved"));
         providerDialog.value = false;
         await loadProviders();
       } catch (e: any) {
-        ElMessage.error(e?.message || t("saveFailed"));
+        if (isRevisionConflict(e)) {
+          // 冲突时**不关弹窗**：运营刚填的东西还在，刷新到最新版本号后可以直接重试。
+          ElMessage.warning(t("revisionConflict"));
+          await loadProviders();
+          const fresh = providers.value.find((p) => p.id === providerForm.id);
+          if (fresh) providerForm.revision = fresh.revision || 0;
+        } else {
+          ElMessage.error(e?.message || t("saveFailed"));
+        }
       } finally {
         saving.value = false;
       }
@@ -571,10 +747,117 @@ export default defineComponent({
       }
     };
 
-    const onSync = async (row: AiProviderItem) => {
+    /* ---------------- 拉取 → 勾选 → 写入 ---------------- */
+
+    const pullDialog = ref(false);
+    const pullLoading = ref(false);
+    const pullWriting = ref(false);
+    const syncing = ref(false);
+    const pullSearch = ref("");
+    const pullItems = ref<AiPullItem[]>([]);
+    const pullSelection = ref<AiPullItem[]>([]);
+    const pullProvider = ref<AiProviderItem | null>(null);
+    // el-table 的实例：用它在"选中筛选结果 / 清空选择"时操作勾选状态。
+    const pullTableRef = ref<any>(null);
+
+    /**
+     * 搜索过滤。
+     *
+     * 上游的模型清单动辄上百条（中继站会把整站的模型都列出来），
+     * 没有搜索就只能靠眼睛翻。
+     */
+    const filteredPullItems = computed(() => {
+      const kw = pullSearch.value.trim().toLowerCase();
+      if (!kw) return pullItems.value;
+      return pullItems.value.filter(
+        (it) =>
+          it.upstream_id.toLowerCase().includes(kw) ||
+          (it.label || "").toLowerCase().includes(kw),
+      );
+    });
+
+    const onPullSelectionChange = (rows: AiPullItem[]) => {
+      pullSelection.value = rows;
+    };
+
+    /** 选中当前筛选结果（勾选状态按 row-key 保留，筛选切换不会丢掉已选的）。 */
+    const selectFiltered = () => {
+      const table = pullTableRef.value;
+      if (!table) return;
+      filteredPullItems.value.forEach((row) => table.toggleRowSelection(row, true));
+    };
+
+    const clearPullSelection = () => {
+      pullTableRef.value?.clearSelection();
+      pullSelection.value = [];
+    };
+
+    const onPull = async (row: AiProviderItem) => {
       busyId.value = row.id;
+      pullProvider.value = row;
+      pullItems.value = [];
+      pullSelection.value = [];
+      pullSearch.value = "";
+      pullDialog.value = true;
       try {
-        const res: any = await syncAiProvider(row.id);
+        await loadPull(row.id);
+      } finally {
+        busyId.value = null;
+      }
+    };
+
+    const loadPull = async (id: number) => {
+      pullLoading.value = true;
+      try {
+        const res: any = await pullAiProviderModels(id);
+        const d = res.data || res;
+        pullItems.value = d.items || [];
+      } catch (e: any) {
+        // 常见两种：协议不支持拉取（ARK）、上游凭据/网络问题。原话最有信息量。
+        ElMessage.error(e?.message || t("pullFailed"));
+      } finally {
+        pullLoading.value = false;
+      }
+    };
+
+    const writeSelected = async () => {
+      if (!pullProvider.value || pullSelection.value.length === 0) {
+        ElMessage.warning(t("pullNoneSelected"));
+        return;
+      }
+      pullWriting.value = true;
+      try {
+        const res: any = await importAiProviderModels(pullProvider.value.id, pullSelection.value);
+        const d: any = res.data || res;
+        ElMessage.success(
+          t("pullDone")
+            .replace("{inserted}", String(d.inserted ?? 0))
+            .replace("{existing}", String(d.existing ?? 0)),
+        );
+        selectedProvider.value = pullProvider.value;
+        await loadModels(pullProvider.value.id);
+        // 重新拉一次：刚写入的那些现在应当带上「已添加」标记。
+        await loadPull(pullProvider.value.id);
+        pullSelection.value = [];
+        pullTableRef.value?.clearSelection();
+      } catch (e: any) {
+        ElMessage.error(e?.message || t("pullFailed"));
+      } finally {
+        pullWriting.value = false;
+      }
+    };
+
+    /**
+     * 全量同步：拉多少写多少 + 标记缺失。
+     *
+     * 与"写入选中"的差别只有这一条，但后果很重 —— 未勾选 ≠ 上游不再提供，
+     * 标记缺失的模型超过宽限期会被**自动下线**。所以它放在次要位置并带提示。
+     */
+    const onFullSync = async () => {
+      if (!pullProvider.value) return;
+      syncing.value = true;
+      try {
+        const res: any = await syncAiProvider(pullProvider.value.id);
         const d: any = res.data || res;
         ElMessage.success(
           t("syncDone")
@@ -582,14 +865,51 @@ export default defineComponent({
             .replace("{existing}", String(d.existing ?? 0))
             .replace("{missing}", String(d.missing ?? 0)),
         );
-        selectedProvider.value = row;
-        await loadModels(row.id);
+        selectedProvider.value = pullProvider.value;
+        await loadModels(pullProvider.value.id);
+        await loadPull(pullProvider.value.id);
       } catch (e: any) {
-        // 常见两种：协议不支持拉取（ARK）、上游凭据/网络问题。原话最有信息量。
         ElMessage.error(e?.message || t("syncFailed"));
       } finally {
-        busyId.value = null;
+        syncing.value = false;
       }
+    };
+
+    /**
+     * 把 capabilities 拆成「有表单的键」与「其余键」。
+     *
+     * 拆开是为了不让两边打架：JSON 框里永远不含这几个键，保存时再合回去。
+     * 合的时候以表单为准（运营改的是表单）。
+     */
+    const splitCapabilities = (caps: Record<string, any> | null) => {
+      const rest: Record<string, any> = { ...(caps || {}) };
+      const ctx = rest.contextWindow;
+      const maxOut = rest.maxOutput;
+      const reasoning = rest.reasoning;
+      STRUCTURED_CAP_KEYS.forEach((k) => delete rest[k]);
+      capContextWindow.value = Number(ctx) > 0 ? Number(ctx) : 0;
+      capMaxOutput.value = Number(maxOut) > 0 ? Number(maxOut) : 0;
+      const efforts = Array.isArray(reasoning?.efforts) ? reasoning.efforts : [];
+      capReasoningEfforts.value = efforts.map((e: any) => String(e));
+      const def = typeof reasoning?.default === "string" ? reasoning.default : "";
+      capReasoningDefault.value = def && capReasoningEfforts.value.includes(def) ? def : "";
+      return rest;
+    };
+
+    /** 把表单里的能力字段合回 capabilities；全空则返回空对象（后端会写成 NULL）。 */
+    const mergeCapabilities = (rest: Record<string, any>): Record<string, any> | null => {
+      const out: Record<string, any> = { ...rest };
+      if (capContextWindow.value > 0) out.contextWindow = capContextWindow.value;
+      if (capMaxOutput.value > 0) out.maxOutput = capMaxOutput.value;
+      const efforts = capReasoningEfforts.value.filter((e) => String(e).trim() !== "");
+      if (efforts.length > 0) {
+        const reasoning: Record<string, any> = { efforts };
+        if (capReasoningDefault.value && efforts.includes(capReasoningDefault.value)) {
+          reasoning.default = capReasoningDefault.value;
+        }
+        out.reasoning = reasoning;
+      }
+      return Object.keys(out).length > 0 ? out : null;
     };
 
     const openModelDialog = (row?: AiModelItem) => {
@@ -613,7 +933,9 @@ export default defineComponent({
           output_format: row.output_format,
           sort: row.sort,
         });
-        capabilitiesText.value = row.capabilities ? JSON.stringify(row.capabilities, null, 2) : "";
+        capabilitiesText.value = row.capabilities
+          ? JSON.stringify(splitCapabilities(row.capabilities), null, 2)
+          : "";
         billingText.value = row.billing ? JSON.stringify(row.billing, null, 2) : "";
       } else {
         Object.assign(modelForm, {
@@ -636,6 +958,7 @@ export default defineComponent({
         });
         capabilitiesText.value = "";
         billingText.value = "";
+        splitCapabilities(null);
       }
       modelDialog.value = true;
     };
@@ -649,15 +972,16 @@ export default defineComponent({
     };
 
     const onSaveModel = async () => {
-      let capabilities: Record<string, any> | null = null;
+      let rest: Record<string, any> = {};
       let billing: Record<string, any> | null = null;
       try {
-        capabilities = parseJsonField(capabilitiesText.value);
+        rest = parseJsonField(capabilitiesText.value) || {};
         billing = parseJsonField(billingText.value);
       } catch {
         ElMessage.error(t("jsonInvalid"));
         return;
       }
+      const capabilities = mergeCapabilities(rest);
       saving.value = true;
       try {
         await saveAiModel({
@@ -766,17 +1090,38 @@ onMounted(() => loadProviders());
       busyId,
       providerDialog,
       modelDialog,
+      providerDialogTitle,
       providerForm,
       modelForm,
       capabilitiesText,
       billingText,
+      capContextWindow,
+      capMaxOutput,
+      capReasoningEfforts,
+      capReasoningDefault,
       loadProviders,
       onSelectProvider,
       openProviderDialog,
       onSaveProvider,
       onDeleteProvider,
       onProbe,
-      onSync,
+      // 拉取 → 勾选 → 写入
+      pullDialog,
+      pullLoading,
+      pullWriting,
+      syncing,
+      pullSearch,
+      pullItems,
+      pullSelection,
+      pullProvider,
+      pullTableRef,
+      filteredPullItems,
+      onPullSelectionChange,
+      selectFiltered,
+      clearPullSelection,
+      onPull,
+      writeSelected,
+      onFullSync,
       openModelDialog,
       onSaveModel,
       onDeleteModel,
@@ -877,6 +1222,15 @@ onMounted(() => loadProviders());
 }
 .ap-model-table {
   font-size: var(--cc-font-13);
+}
+.ap-pull-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--cc-space-3);
+  margin-bottom: var(--cc-space-3);
+}
+.ap-pull-toolbar .ap-muted {
+  margin-left: auto;
 }
 @media (max-width: 768px) {
   .ap-header {

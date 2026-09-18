@@ -19,6 +19,13 @@ export interface AiProviderItem {
   remark: string;
   /** 是否已配置密钥（**不是密钥本身**）。 */
   has_credential: boolean;
+  /**
+   * 乐观并发版本号：保存时必须**原样回传**。
+   *
+   * 后端要求更新供应商时带上它（不带直接拒绝）—— 两个标签页同编一行时，
+   * 后保存的会被判成版本过期而不是静默覆盖前一个人的改动。
+   */
+  revision: number;
   last_probe_at: number;
   last_probe_ok: boolean;
   last_probe_msg: string;
@@ -78,6 +85,12 @@ export interface AiProviderSaveInput {
   enabled?: boolean;
   timeout_ms?: number;
   remark?: string;
+  /**
+   * 更新（id>0）时**必填**：编辑时从列表接口拿到的 revision 原样回传。
+   * 新建时不用传。少了它后端会拒绝（"缺少 revision"）—— 这是刻意的，
+   * 否则"带期望值保存"就成了一句空话。
+   */
+  revision?: number;
 }
 
 export interface AiModelSaveInput {
@@ -146,7 +159,51 @@ export function probeAiProvider(id: number) {
   });
 }
 
-/** 从上游拉取模型并合并（保留已有展示名与计费，只新增与打时间戳）。 */
+/**
+ * 从上游拉取模型**候选**（不落库）。
+ *
+ * 与下面的 syncAiProvider 的区别是这条流程的全部意义：
+ * sync 拉多少写多少，运营没勾的也会被灌进库；pull 只返回候选，
+ * 由运营搜索、勾选，再调 importAiProviderModels 写入选中的那些。
+ */
+export function pullAiProviderModels(id: number) {
+  return request({
+    url: "/api/v1/admin/ai/provider/pull",
+    method: "post",
+    data: { id },
+  });
+}
+
+/** 一个候选模型（拉取结果里的一项，也是写入时的入参）。 */
+export interface AiPullItem {
+  /** 上游模型名：写入时的唯一标识。 */
+  upstream_id: string;
+  /** 上游给的展示名。 */
+  label: string;
+  /** 上下文窗口（token），0 = 上游未披露，由运营在模型表单里补。 */
+  context_window: number;
+  /** 单次最大输出（token），0 = 上游未披露。 */
+  max_output: number;
+  /** 本站点是否已有该模型：已有的写入时只打同步时间戳，不覆盖人工配置。 */
+  exists: boolean;
+}
+
+/** 把勾选的候选写入本站点（只补不覆盖，**不标记缺失**）。 */
+export function importAiProviderModels(id: number, items: AiPullItem[]) {
+  return request({
+    url: "/api/v1/admin/ai/provider/models",
+    method: "post",
+    data: { id, items },
+  });
+}
+
+/**
+ * 全量同步：拉取上游清单并合并，**会把上游不再返回的模型标记为"已消失"**。
+ *
+ * 与「拉取 → 勾选 → 写入」的差别只有这一条：未勾选 ≠ 上游不再提供，
+ * 所以只有这条全量路径才允许标记缺失（标记后超过宽限期会被自动下线）。
+ * 后台把它放在拉取对话框里的次要位置，避免误点。
+ */
 export function syncAiProvider(id: number) {
   return request({
     url: "/api/v1/admin/ai/provider/sync",
