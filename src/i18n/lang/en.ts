@@ -556,6 +556,9 @@ export default {
         "No selection: pulls and writes everything, and marks models the upstream no longer returns as missing — those get auto-disabled after the grace period. Only use it when you are sure the upstream list is complete; otherwise use Write Selected.",
       colContextWindow: "Context Window (tokens)",
       colMaxOutput: "Max Output (tokens)",
+      colVision: "Sees images (multimodal)",
+      hintVision:
+        "Chat models only. When enabled, images wired into the canvas are sent to this model. When disabled the platform silently degrades them to a text description (fail-closed) — no error, just worse output.",
       hintContextWindow:
         "How many tokens of context the model accepts. Filled automatically when pulled (left blank when the upstream does not disclose it).",
       hintMaxOutput: "Maximum tokens in one answer. Also only filled from the pull; blank when undisclosed.",

@@ -441,6 +441,10 @@
         </el-form-item>
         <template v-if="modelForm.kind === 'chat'">
           <el-divider content-position="left">{{ t("colKind") }} · chat</el-divider>
+          <el-form-item :label="t('colVision')">
+            <el-switch v-model="capVision" />
+            <div class="ap-hint">{{ t("hintVision") }}</div>
+          </el-form-item>
           <el-form-item :label="t('colContextWindow')">
             <el-input-number v-model="capContextWindow" :min="0" :step="1024" controls-position="right" />
             <div class="ap-hint">{{ t("hintContextWindow") }}</div>
@@ -612,11 +616,19 @@ export default defineComponent({
     // 所以不会出现"改了 JSON 又被表单覆盖"这种说不清谁赢的情况（表单区在模板里）。
     const capContextWindow = ref(0);
     const capMaxOutput = ref(0);
+    /**
+     * 该文本模型能不能"看见图"（capabilities.vision）。
+     *
+     * 为什么必须有这个勾：平台对它是 **fail-closed** —— 没声明就把图投影成文字，
+     * 模型看不到图。而这个"看不到"不报错、只是结果变差，运营在界面上完全看不出来。
+     * 以前只能手写 capabilities JSON，等于把最容易漏的一步留给人工。
+     */
+    const capVision = ref(false);
     const capReasoningEfforts = ref<string[]>([]);
     const capReasoningDefault = ref("");
 
     /** 有固定表单的 capabilities 键：摘出来之后 JSON 框里只剩「其它」。 */
-    const STRUCTURED_CAP_KEYS = ["contextWindow", "maxOutput", "reasoning"];
+    const STRUCTURED_CAP_KEYS = ["contextWindow", "maxOutput", "reasoning", "vision"];
 
     const loadProviders = async () => {
       loading.value = true;
@@ -938,6 +950,8 @@ export default defineComponent({
       STRUCTURED_CAP_KEYS.forEach((k) => delete rest[k]);
       capContextWindow.value = Number(ctx) > 0 ? Number(ctx) : 0;
       capMaxOutput.value = Number(maxOut) > 0 ? Number(maxOut) : 0;
+      // 只认严格 true：其它值（"true"/1）不是平台读的形态，当成没声明，避免"看着勾了其实没生效"。
+      capVision.value = rest.vision === true;
       const efforts = Array.isArray(reasoning?.efforts) ? reasoning.efforts : [];
       capReasoningEfforts.value = efforts.map((e: any) => String(e));
       const def = typeof reasoning?.default === "string" ? reasoning.default : "";
@@ -950,6 +964,10 @@ export default defineComponent({
       const out: Record<string, any> = { ...rest };
       if (capContextWindow.value > 0) out.contextWindow = capContextWindow.value;
       if (capMaxOutput.value > 0) out.maxOutput = capMaxOutput.value;
+      // 关掉时**删掉这个键**而不是写 false：平台只认 true，写 false 与不写等价，
+      // 但留着 false 会让下一个人以为"这里明确声明了不支持"，语义含糊。
+      if (capVision.value) out.vision = true;
+      else delete out.vision;
       const efforts = capReasoningEfforts.value.filter((e) => String(e).trim() !== "");
       if (efforts.length > 0) {
         const reasoning: Record<string, any> = { efforts };
@@ -1209,6 +1227,7 @@ async function moveOrder(index: number, dir: "up" | "down") {
       billingText,
       capContextWindow,
       capMaxOutput,
+      capVision,
       capReasoningEfforts,
       capReasoningDefault,
       loadProviders,

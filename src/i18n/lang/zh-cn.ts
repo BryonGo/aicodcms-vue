@@ -585,6 +585,9 @@ export default {
       pullFullSync: "全量同步（标记缺失）",
       pullFullSyncHint:
         "不带勾选、拉多少写多少，并且把上游这次没返回的模型标成「上游已消失」—— 超过宽限期会被自动下线。只有确定上游清单是完整的才用它；平时用「写入选中」。",
+      colVision: "能看图（多模态）",
+      hintVision:
+        "文本模型专用。勾上后平台才会把画布里接进来的图片发给它；**不勾就静默降级**（图被换成一段文字说明，模型看不到图），不会报错、只是结果变差。",
       colContextWindow: "上下文窗口 (token)",
       colMaxOutput: "最大输出 (token)",
       hintContextWindow:
