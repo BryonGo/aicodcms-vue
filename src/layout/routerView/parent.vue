@@ -50,19 +50,22 @@ export default defineComponent({
     const getKeepAliveNames = computed(() => {
       return themeConfig.value.isTagsview ? cachedViews.value : state.keepAliveNameList;
     });
-    // 页面加载前，处理缓存，页面刷新时路由缓存处理
+    // 页面加载前，处理缓存，页面刷新时路由缓存处理。
+    // 保存同一个处理函数引用，卸载时才能准确移除监听。
+    const refreshRouterView = (fullPath: string) => {
+      state.keepAliveNameList = keepAliveNames.value.filter(
+        (name: string) => route.name !== name,
+      );
+      state.refreshRouterViewKey = null;
+      nextTick(() => {
+        state.refreshRouterViewKey = fullPath;
+        state.keepAliveNameList = keepAliveNames.value;
+      });
+    };
+
     onBeforeMount(() => {
       state.keepAliveNameList = keepAliveNames.value;
-      proxy.mittBus.on("onTagsViewRefreshRouterView", (fullPath: string) => {
-        state.keepAliveNameList = keepAliveNames.value.filter(
-          (name: string) => route.name !== name,
-        );
-        state.refreshRouterViewKey = null;
-        nextTick(() => {
-          state.refreshRouterViewKey = fullPath;
-          state.keepAliveNameList = keepAliveNames.value;
-        });
-      });
+      proxy.mittBus.on("onTagsViewRefreshRouterView", refreshRouterView);
     });
     // 页面加载时
     onMounted(() => {
@@ -77,7 +80,7 @@ export default defineComponent({
     });
     // 页面卸载时
     onUnmounted(() => {
-      proxy.mittBus.off("onTagsViewRefreshRouterView", () => {});
+      proxy.mittBus.off("onTagsViewRefreshRouterView", refreshRouterView);
     });
     // 监听路由变化，防止 tagsView 多标签时，切换动画消失
     // 使用 deep 监听 route 对象而非 fullPath 字符串，修复面包屑导航白屏

@@ -1,4 +1,4 @@
-import { reactive, toRefs, onMounted } from "vue";
+import { reactive, toRefs, onMounted, onScopeDispose } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 /**
@@ -91,6 +91,9 @@ export function useProTable<Q extends Record<string, any> = any>(opts: UseProTab
     [sizeKey]: state.size,
   });
 
+  /**
+   * 加载当前分页数据；组件离开作用域后，丢弃迟到的响应，避免旧页面改写新状态。
+   */
   const query = async () => {
     state.loading = true;
     try {
@@ -167,10 +170,11 @@ export function useProTable<Q extends Record<string, any> = any>(opts: UseProTab
     onMounted(() => query());
   }
 
-  // 清理标记
+  // 清理标记；同时保留公开方法，兼容已有手动清理调用。
   const dispose = () => {
     isActive = false;
   };
+  onScopeDispose(dispose);
 
   return {
     state,

@@ -26,6 +26,11 @@ const dynamicViewsModules: Record<string, Function> = Object.assign(
   { ...viewsModules },
 );
 
+// These routes belong to the frontend shell and must survive every backend-menu refresh.
+const shellHomeRoute = dynamicRoutes[0].children?.find((route: any) => route.path === "/home");
+const shellUtilityRoutes =
+  dynamicRoutes[0].children?.filter((route: any) => route.meta?.is_hide !== false) || [];
+
 /**
  * 后端控制路由：初始化方法，防止刷新时路由丢失
  * @method NextLoading 界面 loading 动画开始执行
@@ -34,6 +39,33 @@ const dynamicViewsModules: Record<string, Function> = Object.assign(
  * @method setAddRoute 添加动态路由
  * @method setFilterMenuAndCacheTagsViewRoutes 设置路由到 vuex routesList 中（已处理成多级嵌套路由）及缓存多级嵌套数组处理后的一维数组
  */
+/** Restore the frontend-owned routes before adding the current backend menu. */
+function resetBackendManagedRoutes() {
+  dynamicRoutes[0].children = shellHomeRoute
+    ? [shellHomeRoute, ...shellUtilityRoutes]
+    : [...shellUtilityRoutes];
+}
+
+/** Replace backend-managed routes with a fresh, component-resolved menu. */
+async function applyBackendMenuRoutes(menuRoute: any[]) {
+  resetBackendManagedRoutes();
+  dynamicRoutes[0].children?.push(...(await backEndComponent(menuRoute)));
+}
+
+/** Register the current dynamic routes and refresh the derived menu/cache stores. */
+async function publishBackendRoutes() {
+  await setAddRoute();
+  await setFilterMenuAndCacheTagsViewRoutes();
+}
+
+/** Remove routes previously published by the backend-menu control plane. */
+function removePublishedBackendRoutes() {
+  setFilterRouteEnd().forEach((route: RouteRecordRaw) => {
+    const routeName = route.name;
+    if (routeName && router.hasRoute(routeName)) router.removeRoute(routeName);
+  });
+}
+
 export async function initBackEndControlRoutes() {
   // 界面 loading 动画开始执行
   if (window.nextLoading === undefined) NextLoading.start();
@@ -54,17 +86,9 @@ export async function initBackEndControlRoutes() {
     }
     // 存储接口原始路由（未处理component），根据需求选择使用
     useRequestOldRoutes().setRequestOldRoutes(JSON.parse(JSON.stringify(menuRoute)));
-    // 处理路由（component），替换 dynamicRoutes（/@/router/route）第一个顶级 children 的路由
-    // 先保留首页路由，防止重复调用时 push 导致菜单翻倍
-    const homeRoute = dynamicRoutes[0].children?.find((c: any) => c.path === "/home");
-    const utilityRoutes =
-      dynamicRoutes[0].children?.filter((c: any) => c.meta?.is_hide !== false) || [];
-    dynamicRoutes[0].children = homeRoute ? [homeRoute, ...utilityRoutes] : [...utilityRoutes];
-    dynamicRoutes[0].children?.push(...(await backEndComponent(menuRoute)));
-    // 添加动态路由
-    await setAddRoute();
-    // 设置路由到 vuex routesList 中（已处理成多级嵌套路由）及缓存多级嵌套数组处理后的一维数组
-    await setFilterMenuAndCacheTagsViewRoutes();
+    // 每次从完整菜单重新装配，避免重复初始化时菜单不断累加。
+    await applyBackendMenuRoutes(menuRoute);
+    await publishBackendRoutes();
   } catch (err) {
     // 后端 401 / 网络错误 / 任意子调用抛错都在这里兜住
     // 不再让 vue-router 的 beforeEach 把整个路由初始化拍死
@@ -156,30 +180,13 @@ export async function refreshBackEndControlRoutes() {
   let menuRoute = Session.get("userMenu");
   if (!menuRoute) return;
 
-  // 保留首页路由（后端菜单不含 /home），其他路由由后端菜单覆盖
-  const homeRoute = dynamicRoutes[0].children?.find((c: any) => c.path === "/home");
-  dynamicRoutes[0].children = homeRoute ? [homeRoute] : [];
-
   // 存储接口原始路由
   useRequestOldRoutes().setRequestOldRoutes(JSON.parse(JSON.stringify(menuRoute)));
 
-  // 重新处理路由 component
-  let newRoutes = await backEndComponent(menuRoute);
-  dynamicRoutes[0].children?.push(...newRoutes);
-
-  // 清除现有路由
-  setFilterRouteEnd().forEach((route: RouteRecordRaw) => {
-    const routeName: any = route.name;
-    if (router.hasRoute(routeName)) {
-      router.removeRoute(routeName);
-    }
-  });
-
-  // 重新添加动态路由
-  await setAddRoute();
-
-  // 更新 routesList store
-  await setFilterMenuAndCacheTagsViewRoutes();
+  // 先移除当前已注册的动态路由，再装配新菜单，避免旧权限继续残留。
+  removePublishedBackendRoutes();
+  await applyBackendMenuRoutes(menuRoute);
+  await publishBackendRoutes();
 }
 
 /**
@@ -197,28 +204,32 @@ export function setBackEndControlRefreshRoutes() {
  * @param routes 后端返回的路由表数组
  * @returns 返回处理成函数后的 component
  */
-export function backEndComponent(routes: any) {
-  if (!routes) return;
-  return routes.map((item: any) => {
-    if (item.children && item.children.length > 0) {
-      item.children.some((ci: any) => {
-        if (!ci.meta.is_hide) {
-          item.redirect = ci;
-          return true;
-        }
-        return false;
-      });
+export function backEndComponent(routes: any[]): any[] {
+  if (!routes) return [];
+
+  return routes.map((sourceItem: any): any => {
+    const item: any = {
+      ...sourceItem,
+      meta: sourceItem.meta ? { ...sourceItem.meta } : sourceItem.meta,
+      children: sourceItem.children ? backEndComponent(sourceItem.children) : sourceItem.children,
+    };
+
+    if (item.children?.length) {
+      const firstVisibleChild = item.children.find((child: any) => !child.meta?.is_hide);
+      if (firstVisibleChild) item.redirect = firstVisibleChild;
     }
-    if (item.component)
+    if (item.component) {
       item.component = dynamicImport(dynamicViewsModules, item.component as string);
-    // 将菜单 name（如 api/v1/pms/cms/article）作为权限标识注入路由 meta
-    if (item.meta && item.name) {
-      item.meta.permissions = item.meta.permissions || [];
-      if (!item.meta.permissions.includes(item.name)) {
-        item.meta.permissions.push(item.name);
-      }
     }
-    if (item.children) backEndComponent(item.children);
+
+    // 将菜单 name（如 api/v1/pms/cms/article）作为权限标识注入路由 meta。
+    if (item.meta && item.name) {
+      const permissions = Array.isArray(item.meta.permissions)
+        ? [...item.meta.permissions]
+        : [];
+      if (!permissions.includes(item.name)) permissions.push(item.name);
+      item.meta.permissions = permissions;
+    }
     return item;
   });
 }
