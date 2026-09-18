@@ -439,6 +439,7 @@ export default {
     platformPrompts: "Prompt Library",
     platform: {
       aiProviderTitle: "AI Providers & Models",
+      canvasInspectTitle: "Canvas Inspector",
       aiProviderSubtitle: "Manage upstream providers (protocol, base_url, credential) and models (display name decoupled from upstream name). Adding a provider only requires picking a protocol.",
       btnNewProvider: "New Provider",
       btnNewModel: "New Model",

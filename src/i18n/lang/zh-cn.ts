@@ -470,6 +470,7 @@ export default {
     platformPrompts: "提示词精选",
     platform: {
       aiProviderTitle: "AI 供应商与模型",
+      canvasInspectTitle: "画布排查",
       aiProviderSubtitle: "统一维护上游供应商（协议、base_url、密钥）与模型（展示名与上游名解耦）。新增供应商只需选一个协议，不必改代码。",
       btnNewProvider: "新建供应商",
       btnNewModel: "新建模型",
