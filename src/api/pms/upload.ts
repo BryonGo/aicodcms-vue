@@ -254,7 +254,7 @@ async function multipartMerge(
 export async function multipartAbort(uploadId: string): Promise<void> {
   await request({
     url: "/api/v1/addon/upload/multipart/abort",
-    method: "post",
+    method: "delete",
     data: { upload_id: uploadId },
   });
 }

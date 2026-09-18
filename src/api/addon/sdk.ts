@@ -388,10 +388,11 @@ export function getAppstoreRefundList(params: AppstoreRefundListParams) {
  * 表现：通知日志页显示的是登录日志数据，列全空/错位。
  */
 export function getNotifyLogList(params: NotifyLogListParams) {
-  return request({ url: "/api/v1/addon/sdk/notify-log/list", method: "get", params });
+  // Notification logs are shared order data; use the canonical non-SDK route.
+  return request({ url: "/api/v1/addon/order/notify-log/list", method: "get", params });
 }
 export function getNotifyLogDetail(params: { id: number }) {
-  return request({ url: "/api/v1/addon/sdk/notify-log/get-edit", method: "get", params });
+  return request({ url: "/api/v1/addon/order/notify-log/get-edit", method: "get", params });
 }
 
 // ==================== 封禁 ====================
