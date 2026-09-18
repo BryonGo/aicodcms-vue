@@ -23,6 +23,52 @@
       </div>
     </div>
 
+    <!-- 站点级 AI 设置：键名/分组/控件类型都由服务端下发，这里只按 type 渲染 -->
+    <div
+      v-if="aiSettings.length"
+      class="ap-settings"
+    >
+      <div class="ap-settings-head">
+        <span class="ap-settings-title">站点级 AI 设置</span>
+        <span class="ap-settings-sub">计费与会话归档作用在<strong>当前站点</strong>上；只提交改动过的项</span>
+        <el-button
+          type="primary"
+          :loading="settingsSaving"
+          @click="saveSettings"
+        >
+          保存设置
+        </el-button>
+      </div>
+      <div class="ap-settings-groups">
+        <div
+          v-for="g in settingGroups"
+          :key="g.name"
+          class="ap-settings-group"
+        >
+          <div class="ap-settings-group-name">{{ g.name }}</div>
+          <div
+            v-for="item in g.items"
+            :key="item.key"
+            class="ap-settings-row"
+          >
+            <label class="ap-settings-label">{{ item.label }}</label>
+            <el-switch
+              v-if="item.type === 'switch'"
+              v-model="settingDraft[item.key]"
+              active-value="1"
+              inactive-value="0"
+            />
+            <el-input
+              v-else
+              v-model="settingDraft[item.key]"
+              class="ap-settings-input"
+            />
+            <span class="ap-settings-hint">{{ item.hint }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <el-alert
       v-if="!loading && providers.length === 0"
       type="info"
@@ -463,6 +509,9 @@ import {
   deleteAiModel,
   listAiModelOrder,
   moveAiModelOrder,
+  listAiSettings,
+  saveAiSettings,
+  AiSettingItem,
   AiProviderItem,
   AiModelItem,
   AiModelEntry,
@@ -1075,7 +1124,70 @@ async function moveOrder(index: number, dir: "up" | "down") {
   }
 }
 
-onMounted(() => loadProviders());
+// ---- 站点级 AI 设置（计费 / 会话归档）----
+    //
+    // 按服务端下发的内容渲染：键名、标签、控件类型、分组、提示语全部来自
+    // `/admin/ai/setting/list`，前端不维护第二份清单（加一项配置只改后端那个数组）。
+    //
+    // 这些键以前只存在于后端代码里 —— 读得到、界面上没人能改。做这一节就是为了
+    // 让"想调价、想开归档"有地方点。
+    const aiSettings = ref<AiSettingItem[]>([]);
+    const settingDraft = reactive<Record<string, string>>({});
+    const settingsSaving = ref(false);
+
+    /** 按 group 分组渲染（保持服务端顺序：计费在前、归档在后）。 */
+    const settingGroups = computed(() => {
+      const out: { name: string; items: AiSettingItem[] }[] = [];
+      for (const item of aiSettings.value) {
+        let g = out.find((x) => x.name === item.group);
+        if (!g) {
+          g = { name: item.group, items: [] };
+          out.push(g);
+        }
+        g.items.push(item);
+      }
+      return out;
+    });
+
+    async function loadSettings() {
+      try {
+        const res: any = await listAiSettings();
+        const list: AiSettingItem[] = res?.list || res?.data?.list || [];
+        aiSettings.value = list;
+        for (const item of list) settingDraft[item.key] = item.value;
+      } catch (e: any) {
+        // 读不到不打断整页：供应商与模型仍然可用，只是不显示设置区。
+        ElMessage.warning(e?.message || "站点级 AI 设置读取失败");
+      }
+    }
+
+    async function saveSettings() {
+      // 只提交**改动过**的项：没动的键不写，避免把别处刚改过的值覆盖回去。
+      const changed: Record<string, string> = {};
+      for (const item of aiSettings.value) {
+        const v = settingDraft[item.key];
+        if (v !== undefined && String(v) !== String(item.value)) changed[item.key] = String(v);
+      }
+      if (Object.keys(changed).length === 0) {
+        ElMessage.info("没有改动");
+        return;
+      }
+      settingsSaving.value = true;
+      try {
+        await saveAiSettings(changed);
+        ElMessage.success("设置已保存");
+        await loadSettings();
+      } catch (e: any) {
+        ElMessage.error(e?.message || "保存失败");
+      } finally {
+        settingsSaving.value = false;
+      }
+    }
+
+    onMounted(() => {
+      loadProviders();
+      loadSettings();
+    });
 
     return {
       t,
@@ -1133,6 +1245,12 @@ onMounted(() => loadProviders());
       openOrderDialog,
       loadOrder,
       moveOrder,
+      // 站点级 AI 设置
+      aiSettings,
+      settingDraft,
+      settingGroups,
+      settingsSaving,
+      saveSettings,
     };
   },
 });
@@ -1142,6 +1260,59 @@ onMounted(() => loadProviders());
 .ap-page {
   max-width: 1600px;
   margin: 0 auto;
+}
+/* 站点级 AI 设置：一排一个键，右侧给提示语（"改了会怎样"比控件本身更重要） */
+.ap-settings {
+  margin: 16px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 10px;
+  background: var(--el-fill-color-blank);
+}
+.ap-settings-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ap-settings-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.ap-settings-sub {
+  flex: 1;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+.ap-settings-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.ap-settings-group {
+  min-width: 320px;
+}
+.ap-settings-group-name {
+  margin-bottom: 8px;
+  color: var(--el-text-color-regular);
+  font-size: 13px;
+  font-weight: 600;
+}
+.ap-settings-row {
+  display: grid;
+  grid-template-columns: 168px 180px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ap-settings-label {
+  color: var(--el-text-color-primary);
+  font-size: 13px;
+}
+.ap-settings-hint {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.5;
 }
 .ap-header {
   display: flex;

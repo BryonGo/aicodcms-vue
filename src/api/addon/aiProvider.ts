@@ -271,3 +271,37 @@ export function moveAiModelOrder(kind: string, key: string, dir: "up" | "down") 
     data: { kind, key, dir },
   });
 }
+
+/**
+ * 站点级 AI 设置（计费 / 会话归档）。
+ *
+ * 这些键以前只存在于后端代码里：读得到、界面上没人能改（"想调价、想开归档，找不到入口"）。
+ * 键名由服务端下发，前端**不硬编码** —— 加一项配置只需要改后端那一个数组。
+ */
+export interface AiSettingItem {
+  key: string;
+  label: string;
+  /** number / switch / text */
+  type: string;
+  /** 页面上的分组标题（计费 / 会话归档） */
+  group: string;
+  /** 当前值（服务端已用默认值兜底） */
+  value: string;
+  default: string;
+  hint: string;
+}
+
+export function listAiSettings() {
+  return request({
+    url: "/api/v1/admin/ai/setting/list",
+    method: "get",
+  });
+}
+
+export function saveAiSettings(values: Record<string, string>) {
+  return request({
+    url: "/api/v1/admin/ai/setting/save",
+    method: "post",
+    data: { values },
+  });
+}
