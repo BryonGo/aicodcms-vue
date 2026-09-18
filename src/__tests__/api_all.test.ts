@@ -205,6 +205,30 @@ describe("pms - 模块可导入", () => {
     const m = await import("/@/api/pms/upload");
     expect(m).toBeDefined();
   });
+  it("取消分片上传使用后端约定的 DELETE 方法", async () => {
+    const { multipartAbort } = await import("/@/api/pms/upload");
+    await multipartAbort("upload-1");
+    expect(mockRequest).toHaveBeenCalledWith({
+      url: "/api/v1/addon/upload/multipart/abort",
+      method: "delete",
+      data: { upload_id: "upload-1" },
+    });
+  });
+  it("通知日志使用通用订单路径并保留详情接口", async () => {
+    const { getNotifyLogList, getNotifyLogDetail } = await import("/@/api/addon/sdk");
+    await getNotifyLogList({ page: 1, row: 10 });
+    expect(mockRequest).toHaveBeenCalledWith({
+      url: "/api/v1/addon/order/notify-log/list",
+      method: "get",
+      params: { page: 1, row: 10 },
+    });
+    await getNotifyLogDetail({ id: 7 });
+    expect(mockRequest).toHaveBeenCalledWith({
+      url: "/api/v1/addon/order/notify-log/get-edit",
+      method: "get",
+      params: { id: 7 },
+    });
+  });
   it("tiptap", async () => {
     const m = await import("/@/api/pms/tiptap");
     expect(m).toBeDefined();
