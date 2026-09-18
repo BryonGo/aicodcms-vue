@@ -108,6 +108,31 @@ const visible = computed(() => {
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 
+// 看门狗：每轮轮询开始时重置；**15 秒内没有任何一次成功轮询**就把状态归零。
+//
+// 为什么需要：老代码只在"拿到响应"时更新状态，任何让它拿不到新状态的情况
+// （会话失效后直接 return、请求一直失败、定时器链断掉）都会把上一次的"运行中"
+// 永久留在屏幕上 —— 就是"浮窗一直存在"那个现象。看门狗不看失败原因，只看
+// "最近有没有成功过一次"，因此对这些情况一律兜住。
+let watchdog: ReturnType<typeof setTimeout> | null = null;
+const WATCHDOG_MS = 15000;
+
+/** resetIdle 把所有条目归零：浮窗随之隐藏（active 没了、也没有刚完成的 4 秒窗口）。 */
+const resetIdle = () => {
+  ;(Object.keys(items) as Array<"article" | "list" | "tag">).forEach((key) => {
+    const item = items[key];
+    item.status = "idle";
+    item.statusText = "";
+    item.percentage = 0;
+    item.currentLang = "";
+    item.currentId = 0;
+    item.color = "";
+    item.statusType = "";
+  });
+  hadActive = false;
+  doneAt.value = 0;
+};
+
 const statusTextOf = (item: Item): string => {
   switch (item.status) {
     case "running":
@@ -130,12 +155,16 @@ const statusTextOf = (item: Item): string => {
 const update = async () => {
   // 未登录（无 token）不轮询：避免登录页对 admin 接口 401 触发"登录已过期"弹窗循环
   if (!Session.get("token")) {
+    // 未登录（或刚被 401 登出）：把状态归零，别让上一次的"运行中"留在屏幕上。
+    resetIdle();
     timer = setTimeout(update, 5000);
     return;
   }
   // 站群：站点码未就绪（登录/刷新后站点初始化尚未完成）时跳过本轮，
   // 避免非超管用户在守卫放行前发出无 X-Site-Code 的请求被 403。
   if (!Local.get("currentSiteCode")) {
+    // 站群：站点码还没就绪时同样先归零，避免带着上一次的状态空转。
+    resetIdle();
     timer = setTimeout(update, 1000);
     return;
   }
@@ -170,8 +199,13 @@ const update = async () => {
                 : "";
       item.statusText = statusTextOf(item);
     });
+    // **只有成功拿到状态才续期**看门狗：失败/挂起/提前 return 都不续期，
+    // 于是"最后一次成功"过去 15 秒即归零 —— 这正是要修的那个"浮窗一直存在"。
+    // （放在 try 里，不能放外面：放外面失败时也会续期，等于没装。）
+    if (watchdog) clearTimeout(watchdog);
+    watchdog = setTimeout(() => resetIdle(), WATCHDOG_MS);
   } catch {
-    /* ignore poll errors */
+    /* 失败不在这里处理：由上面的看门狗兜底（连续失败 → 没有成功轮询 → 归零） */
   }
   if (!hasActive && hadActive) doneAt.value = Date.now();
   hadActive = hasActive;
@@ -181,6 +215,7 @@ const update = async () => {
 onMounted(update);
 onUnmounted(() => {
   if (timer) clearTimeout(timer);
+  if (watchdog) clearTimeout(watchdog);
 });
 </script>
 
