@@ -17,10 +17,10 @@ export default defineComponent({
   },
   setup(props) {
     const stores = useUserInfo();
-    const { userInfos } = storeToRefs(stores);
-    // 获取 vuex 中的用户权限
+    const { permissions } = storeToRefs(stores);
+    // 权限判断统一读取后端返回的 permissions，避免使用未填充的旧字段。
     const getUserAuthBtnList = computed(() => {
-      return userInfos.value.authBtnList.some((v: string) => v === props.value);
+      return permissions.value.includes("*/*/*") || permissions.value.includes(props.value);
     });
     return {
       getUserAuthBtnList,
