@@ -102,7 +102,21 @@ export default defineConfig(({ mode }) => {
       allowedHosts: ["console.taohuadao.app", "console.thdmid.com", "localhost"],
       port: Number(env.VITE_PORT) || 8888,
       open: env.VITE_OPEN === "true",
-      proxy: {},
+      // 开发代理：把 /api 收到**后台自己的源**下再转发给后端。
+      //
+      // 为什么必须有：后端 2026-09-17 加了 CSRF 中间件（同站校验，跨站写请求一律 403），
+      // 而后台原来的 .env.development 直连 https://api.thdmid.com —— 页面在 localhost:8888，
+      // 浏览器判定跨站，**登录 POST 直接被 403「跨站请求被拒绝」**。
+      // 走代理后浏览器只跟后台同源（Sec-Fetch-Site: same-origin），既不撞 CSRF，
+      // 也不受用 localhost 还是 127.0.0.1 打开的影响。
+      // 想指向本地起的那份 API：VITE_DEV_API_TARGET=http://localhost:8201 vp dev
+      proxy: {
+        "/api": {
+          target: env.VITE_DEV_API_TARGET || "https://api.thdmid.com",
+          changeOrigin: true,
+          secure: true,
+        },
+      },
       // 忽略编辑器原子写残留的临时目录（.en.ts.<pid>.<uuid>.tmpdir），
       // 否则文件被锁时 watcher 抛 EBUSY 导致 dev server 崩溃
       watch: {
